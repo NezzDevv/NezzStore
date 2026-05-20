@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Joki MLBB — Boosting Rank Mobile Legends</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#6366f1;
+  --primary-glow:#818cf8;
+  --primary-dark:#4f46e5;
+  --bg:#0a0a0f;
+  --card:#12121a;
+  --border:#ffffff08;
+  --text:#ffffff;
+  --muted:#9ca3af;
+  --success:#22c55e;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --gold:#fbbf24;
+  --orange:#f97316;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scroll-padding-top:80px}
+body{font-family:'Outfit',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* SCROLL PROGRESS */
+.scroll-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--primary-glow),var(--gold));z-index:1001;transition:width .1s}
+
+/* LOADER */
+.loader-overlay{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
+.loader-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-logo-wrap{position:relative;margin-bottom:30px;text-align:center;width:100%}
+.loader-logo{width:150px;height:auto;display:inline-block;animation:loaderPulse 1.5s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(251,191,36,.5))}
+@keyframes loaderPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.loader-bar{width:200px;height:4px;background:#1a1a24;border-radius:4px;overflow:hidden;margin:0 auto}
+.loader-progress{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--gold));border-radius:4px;animation:loadBar 2s ease-in-out forwards}
+@keyframes loadBar{0%{width:0}50%{width:70%}100%{width:100%}}
+.loader-text{font-size:12px;color:var(--muted);margin-top:16px;letter-spacing:2px;text-align:center}
+
+/* BG */
+.bg{position:fixed;inset:0;z-index:0;background:var(--bg)}
+.bg-gradient{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(99,102,241,.15) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,rgba(249,115,22,.1) 0%,transparent 50%),radial-gradient(ellipse at 50% 100%,rgba(251,191,36,.08) 0%,transparent 40%)}
+.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%)}
+.bg-glow{position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(99,102,241,.3) 0%,transparent 70%);filter:blur(80px);animation:glowPulse 4s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{opacity:.5;transform:translateX(-50%) scale(1)}50%{opacity:.8;transform:translateX(-50%) scale(1.1)}}
+
+/* PARTICLES */
+.particles{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.particle{position:absolute;width:4px;height:4px;background:var(--gold);border-radius:50%;opacity:.3;animation:particleFloat 15s infinite}
+@keyframes particleFloat{0%,100%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:.3}90%{opacity:.3}100%{transform:translateY(-100vh) rotate(720deg);opacity:0}}
+
+
+/* FLOATING DECOR IMAGES */
+.decor-img{position:fixed;opacity:.7;pointer-events:none;z-index:2;filter:drop-shadow(0 5px 20px rgba(0,0,0,.3))}
+.decor-img-1{width:120px;animation:orbitDeco1 20s linear infinite}
+.decor-img-2{width:100px;animation:orbitDeco2 25s linear infinite}
+.decor-img-3{width:130px;animation:orbitDeco3 30s linear infinite}
+.decor-img-4{width:100px;animation:orbitDeco4 22s linear infinite}
+.decor-img-5{width:90px;animation:orbitDeco5 28s linear infinite}
+.decor-img-6{width:110px;animation:orbitDeco6 35s linear infinite}
+@keyframes orbitDeco1{
+  0%{top:10%;left:-50px;transform:rotate(0deg)}
+  25%{top:10%;left:calc(100% + 50px);transform:rotate(90deg)}
+  50%{top:calc(100% - 100px);left:calc(100% + 50px);transform:rotate(180deg)}
+  75%{top:calc(100% - 100px);left:-50px;transform:rotate(270deg)}
+  100%{top:10%;left:-50px;transform:rotate(360deg)}
+}
+@keyframes orbitDeco2{
+  0%{top:-50px;left:20%;transform:rotate(0deg)}
+  25%{top:20%;left:calc(100% - 50px);transform:rotate(-90deg)}
+  50%{top:calc(100% + 50px);left:calc(100% - 50px);transform:rotate(-180deg)}
+  75%{top:20%;left:20%;transform:rotate(-270deg)}
+  100%{top:-50px;left:20%;transform:rotate(-360deg)}
+}
+@keyframes orbitDeco3{
+  0%{top:calc(100% + 50px);left:30%;transform:rotate(0deg)}
+  25%{top:calc(100% - 50px);left:-50px;transform:rotate(90deg)}
+  50%{top:-50px;left:30%;transform:rotate(180deg)}
+  75%{top:-50px;left:calc(100% + 50px);transform:rotate(270deg)}
+  100%{top:calc(100% + 50px);left:30%;transform:rotate(360deg)}
+}
+@keyframes orbitDeco4{
+  0%{top:50%;left:-80px;transform:rotate(0deg)}
+  33%{top:10%;left:50%;transform:rotate(120deg)}
+  66%{top:90%;left:50%;transform:rotate(240deg)}
+  100%{top:50%;left:-80px;transform:rotate(360deg)}
+}
+@keyframes orbitDeco5{
+  0%{bottom:20%;right:-60px;transform:rotate(0deg)}
+  50%{bottom:60%;right:60%;transform:rotate(180deg)}
+  100%{bottom:20%;right:-60px;transform:rotate(360deg)}
+}
+@keyframes orbitDeco6{
+  0%{top:30%;right:-70px;transform:rotate(0deg)}
+  25%{top:5%;left:40%;transform:rotate(90deg)}
+  50%{top:70%;left:60%;transform:rotate(180deg)}
+  75%{top:40%;right:5%;transform:rotate(270deg)}
+  100%{top:30%;right:-70px;transform:rotate(360deg)}
+}
+
+/* BACK TO TOP */
+.back-to-top{position:fixed;bottom:24px;right:24px;width:48px;height:48px;background:var(--card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:900;opacity:0;visibility:hidden;transition:all .3s;color:var(--muted);font-size:20px}
+.back-to-top.visible{opacity:1;visibility:visible}
+.back-to-top:hover{background:var(--primary);color:#fff;border-color:var(--primary);transform:translateY(-4px)}
+
+/* WHATSAPP FLOAT */
+.wa-float{position:fixed;bottom:24px;left:24px;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:900;box-shadow:0 4px 20px rgba(37,211,102,.4);transition:all .3s;text-decoration:none;font-size:28px}
+.wa-float:hover{transform:scale(1.1);box-shadow:0 8px 30px rgba(37,211,102,.5)}
+.wa-float img{width:32px;height:32px;object-fit:contain}
+
+/* FLOATING ORDER BUTTON */
+.float-order-btn{position:fixed;bottom:24px;right:24px;padding:14px 24px;background:linear-gradient(135deg,var(--primary),var(--orange));color:#fff;font-size:14px;font-weight:700;border-radius:50px;display:flex;align-items:center;gap:8px;z-index:900;box-shadow:0 4px 20px rgba(249,115,22,.4);text-decoration:none;transition:all .3s;animation:pulseGlow 2s ease-in-out infinite}
+.float-order-btn:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 8px 30px rgba(249,115,22,.5)}
+.float-order-btn span{font-size:18px}
+@keyframes pulseGlow{0%,100%{box-shadow:0 4px 20px rgba(249,115,22,.4)}50%{box-shadow:0 4px 30px rgba(249,115,22,.6),0 0 20px rgba(249,115,22,.3)}}
+@media(max-width:768px){.float-order-btn{display:none}}
+
+/* TRUST BADGES */
+.trust-badges{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:24px;padding-top:24px;border-top:1px solid var(--border)}
+.trust-item{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(16,185,129,.05));padding:12px 20px;border-radius:50px;border:1px solid rgba(34,197,94,.2)}
+.trust-icon{font-size:18px}
+.trust-text{font-size:13px;font-weight:600;color:var(--success)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(10,10,15,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo-wrap{position:relative;display:flex;align-items:center}
+.nav-logo-wrap img{height:36px;filter:drop-shadow(0 0 10px rgba(251,191,36,.5));transition:filter .3s}
+.nav-logo-wrap:hover img{filter:drop-shadow(0 0 20px rgba(251,191,36,.8)) drop-shadow(0 0 40px rgba(251,191,36,.4))}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-links a.cta-link{color:var(--gold)}
+.nav-links a.cta-link:hover{color:#fbbf24}
+.nav-toggle{display:none}
+.btn-nav{font-size:14px;font-weight:700;padding:10px 24px;background:linear-gradient(135deg,var(--primary),var(--orange));color:#fff;border:none;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 4px 20px rgba(249,115,22,.3)}
+.btn-nav:hover{transform:translateY(-2px);box-shadow:0 4px 30px rgba(249,115,22,.5)}
+.nav-links li{border:none}
+.nav-links a{display:inline;padding:0}
+
+/* HERO */
+.hero{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px}
+.hero-logo-wrap{position:relative;margin-bottom:4px;text-align:center;width:100%}
+.hero-logo{height:300px;width:auto;display:inline-block;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(251,191,36,.5))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hero-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:350px;height:350px;background:radial-gradient(circle,rgba(251,191,36,.5) 0%,transparent 70%);filter:blur(50px);animation:heroGlow 3s ease-in-out infinite;pointer-events:none}
+@keyframes heroGlow{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:50px;font-size:13px;font-weight:600;color:var(--gold);margin-bottom:24px;animation:fadeInDown .8s ease-out}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+.hero-badge::before{content:'';width:8px;height:8px;background:var(--success);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.hero-social{display:flex;gap:12px;justify-content:center;margin-bottom:32px;animation:fadeInUp .8s ease-out .1s backwards}
+.hero-social a{width:44px;height:44px;background:var(--card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);text-decoration:none;transition:all .3s;font-size:18px}
+.hero-social a:hover{transform:translateY(-4px) scale(1.1);box-shadow:0 8px 25px rgba(99,102,241,.3)}
+.hero-social a.wa:hover{background:#25D366;color:#fff;border-color:#25D366}
+.hero-social a.yt:hover{background:#ff0000;color:#fff;border-color:#ff0000}
+.hero-social a.ig:hover{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;border-color:#fff}
+.hero-title{font-size:clamp(28px,5vw,56px);font-weight:800;line-height:1.2;margin-bottom:20px;text-shadow:0 0 40px rgba(251,191,36,.3);animation:fadeInUp .8s ease-out .2s backwards}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hero-title span{color:var(--gold);text-shadow:0 0 30px rgba(251,191,36,.5)}
+.hero-desc{font-size:18px;color:var(--muted);max-width:500px;line-height:1.6;margin-bottom:40px;animation:fadeInUp .8s ease-out .4s backwards}
+.hero-btns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:60px;animation:fadeInUp .8s ease-out .6s backwards}
+.btn-primary{font-size:16px;font-weight:700;padding:16px 36px;background:linear-gradient(135deg,var(--primary),var(--orange));color:#fff;border:none;border-radius:12px;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 8px 30px rgba(249,115,22,.4)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(249,115,22,.5)}
+.btn-secondary{font-size:16px;font-weight:600;padding:16px 36px;background:transparent;color:#fff;border:2px solid rgba(251,191,36,.3);border-radius:12px;cursor:pointer;text-decoration:none;transition:all .3s}
+.btn-secondary:hover{border-color:var(--gold);background:rgba(251,191,36,.1);box-shadow:0 0 30px rgba(251,191,36,.2)}
+.stat{padding:20px 40px;background:var(--card);border:1px solid var(--border);text-align:center;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0}
+.stat:hover::before{opacity:1}
+.stat:first-child{border-radius:12px 0 0 12px}
+.stat:last-child{border-radius:0 12px 12px 0}
+.stat-v{font-size:20px;font-weight:800;color:var(--gold);margin-bottom:4px;text-shadow:0 0 20px rgba(251,191,36,.5)}
+.stat-l{font-size:12px;font-weight:600;color:var(--muted)}
+
+/* SECTIONS */
+.sec{position:relative;z-index:10;padding:80px 24px}
+.sec-in{max-width:1100px;margin:0 auto}
+.sec-tag{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:12px;text-shadow:0 0 20px rgba(251,191,36,.3)}
+.sec-h{font-size:clamp(24px,4vw,40px);font-weight:800;text-align:center;margin-bottom:16px}
+.sec-sub{font-size:16px;color:var(--muted);text-align:center;max-width:500px;margin:0 auto 48px;line-height:1.6}
+
+/* RANK LIST */
+.rank-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:900px;margin:0 auto}
+.rank-card{max-width:240px;margin:0 auto}
+.rank-card.mabar-card{border-color:var(--primary);cursor:pointer}
+.rank-card.mabar-card:hover{border-color:var(--primary-glow);box-shadow:0 12px 30px rgba(99,102,241,.3)}
+.mabar-card .rank-name{color:var(--primary-glow)}
+.mabar-card .rank-stars{color:var(--muted);font-size:14px}
+.mythic-immortal-promo{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.speech-bubble{background:var(--gold);color:#000;padding:12px 16px;border-radius:16px;border-bottom-left-radius:4px;font-size:13px;font-weight:700;position:relative;max-width:180px;text-align:center;animation:bounce 2s ease-in-out infinite}
+.speech-bubble::after{content:'';position:absolute;bottom:-8px;left:20px;width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid var(--gold)}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.rank-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .3s;text-align:center;position:relative;overflow:hidden}
+.rank-card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(251,191,36,.05),transparent);transition:left .5s;pointer-events:none}
+.rank-card:hover::before{left:100%}
+.rank-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(251,191,36,.15);border-color:rgba(251,191,36,.3)}
+.rank-card.featured{border-color:var(--gold);box-shadow:0 0 30px rgba(251,191,36,.2)}
+.rank-card.featured::after{content:'BEST SELLER';position:absolute;top:12px;right:-28px;background:linear-gradient(135deg,var(--gold),var(--orange));color:#000;font-size:9px;font-weight:800;padding:3px 35px;transform:rotate(45deg)}
+.rank-icon{font-size:36px;margin-bottom:10px}
+.rank-name{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.rank-stars{font-size:14px;color:var(--gold);margin-bottom:10px}
+.rank-price{font-size:22px;font-weight:800;color:var(--gold);margin-bottom:4px}
+.rank-price span{font-size:12px;font-weight:400;color:var(--muted)}
+.rank-note{font-size:11px;color:var(--muted);margin-bottom:14px}
+.btn-rank{display:inline-block;padding:10px 20px;background:linear-gradient(135deg,var(--primary),var(--orange));color:#fff;font-size:12px;font-weight:700;border-radius:8px;text-decoration:none;transition:all .2s}
+.btn-rank:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(249,115,22,.3)}
+
+/* GAME MODES */
+.modes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.mode-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;transition:all .3s}
+.mode-card:hover{border-color:rgba(251,191,36,.3);transform:translateY(-4px)}
+.mode-icon{font-size:32px;margin-bottom:12px}
+.mode-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.mode-desc{font-size:12px;color:var(--muted)}
+
+/* STEPS */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.step{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;transition:all .3s;position:relative}
+.step:hover{transform:translateY(-4px);border-color:rgba(251,191,36,.3)}
+.step-icon{font-size:40px;margin-bottom:16px}
+.step-num{font-size:36px;font-weight:800;color:var(--gold);margin-bottom:16px;text-shadow:0 0 30px rgba(251,191,36,.5)}
+.step-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.step-desc{font-size:14px;color:var(--muted);line-height:1.5}
+
+/* GUARANTEE */
+.guarantee{background:linear-gradient(135deg,rgba(34,197,94,.1) 0%,rgba(16,185,129,.1) 100%);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.guarantee-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.guarantee-item{text-align:center;padding:24px}
+.guarantee-icon{font-size:48px;margin-bottom:16px}
+.guarantee-title{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.guarantee-desc{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* TESTIMONIALS */
+.testimonials{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.testi-card{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:28px;transition:all .3s}
+.testi-card:hover{transform:translateY(-4px);border-color:rgba(251,191,36,.3)}
+.testi-avatar{width:48px;height:48px;background:linear-gradient(135deg,var(--primary),var(--gold));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px}
+.testi-stars{color:#fbbf24;margin-bottom:12px;font-size:16px}
+.testi-text{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:16px;font-style:italic}
+.testi-name{font-size:14px;font-weight:700;color:var(--text)}
+.testi-role{font-size:12px;color:var(--muted)}
+
+/* FAQ */
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;transition:all .3s}
+.faq-item:hover{border-color:rgba(251,191,36,.3)}
+.faq-question{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:16px;font-weight:600;color:var(--text)}
+.faq-question::after{content:'+';font-size:24px;color:var(--muted);transition:transform .3s}
+.faq-item.active .faq-question::after{transform:rotate(45deg);color:var(--gold)}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .3s ease-out}
+.faq-answer-inner{padding:0 24px 20px;font-size:14px;color:var(--muted);line-height:1.6}
+
+/* CTA */
+#cta{text-align:center;padding:100px 24px;background:linear-gradient(180deg,var(--card) 0%,var(--bg) 100%);position:relative}
+#cta::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(251,191,36,.2) 0%,transparent 70%);filter:blur(60px)}
+.cta-title{font-size:clamp(24px,4vw,40px);font-weight:800;margin-bottom:16px}
+.cta-title span{color:var(--gold);text-shadow:0 0 30px rgba(251,191,36,.5)}
+.cta-desc{font-size:18px;color:var(--muted);margin-bottom:32px}
+.cta-note{font-size:13px;color:var(--muted);margin-top:20px}
+.cta-features{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:32px}
+.cta-feature{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.cta-feature::before{content:'✓';color:var(--success);font-weight:700}
+
+/* FOOTER */
+footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-top:1px solid var(--border)}
+.footer-logo-wrap{position:relative;display:inline-block;margin-bottom:24px}
+.footer-logo-wrap img{height:44px;filter:drop-shadow(0 0 15px rgba(251,191,36,.4));transition:filter .3s}
+.footer-logo-wrap:hover img{filter:drop-shadow(0 0 25px rgba(251,191,36,.6)) drop-shadow(0 0 50px rgba(251,191,36,.3))}
+.footer-links{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.footer-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--gold)}
+.footer-social{display:flex;gap:16px;justify-content:center;margin-bottom:24px}
+.footer-social a{width:44px;height:44px;background:var(--card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);text-decoration:none;transition:all .3s;font-size:20px}
+.footer-social a:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(251,191,36,.2)}
+.footer-social a.wa:hover{background:#25D366;color:#fff;border-color:#25D366}
+.footer-social a.yt:hover{background:#ff0000;color:#fff;border-color:#ff0000}
+.footer-social a.ig:hover{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;border-color:#fff}
+.footer-dev{font-size:14px;color:var(--gold);margin-bottom:16px;text-decoration:none;transition:all .2s;display:inline-block}
+.footer-dev:hover{color:var(--orange);text-shadow:0 0 20px rgba(251,191,36,.5)}
+.footer-copy{font-size:14px;color:var(--muted)}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--gold);color:#fff;padding:14px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:2000;opacity:0;transition:all .4s;box-shadow:0 0 30px rgba(251,191,36,.3)}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ORDER MODAL */
+.order-modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.9);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .3s;padding:20px}
+.order-modal.active{opacity:1;visibility:visible}
+.order-modal-content{background:var(--card);border:1px solid rgba(251,191,36,.3);border-radius:20px;width:100%;max-width:420px;padding:32px;position:relative;transform:scale(.9);transition:transform .3s;min-height:400px}
+.order-modal.active .order-modal-content{transform:scale(1)}
+.order-modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;transition:color .2s}
+.order-modal-close:hover{color:var(--text)}
+.order-modal-header{text-align:center;margin-bottom:24px}
+.order-modal-header h3{font-size:20px;font-weight:700;margin-bottom:8px;color:var(--gold)}
+.order-modal-header p{font-size:14px;color:var(--muted)}
+.order-form-group{margin-bottom:16px}
+.order-form-group label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.order-form-group input,.order-form-group select{width:100%;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none;transition:border-color .2s}
+.order-form-group input:focus,.order-form-group select:focus{border-color:var(--gold)}
+.order-form-group select:disabled{opacity:0.5;cursor:not-allowed}
+.order-form-group select option{background:var(--card)}
+.order-price-display{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(249,115,22,.1));border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px}
+.order-price-display .label{font-size:12px;color:var(--muted);margin-bottom:4px}
+.order-price-display .price{font-size:28px;font-weight:800;color:var(--gold)}
+.order-price-display .detail{font-size:12px;color:var(--muted);margin-top:4px}
+.btn-order{width:100%;padding:16px;background:linear-gradient(135deg,var(--primary),var(--orange));color:#fff;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer;transition:all .2s;text-align:center;display:block;text-decoration:none}
+.btn-order:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(249,115,22,.4)}
+
+/* RESPONSIVE - Desktop style di Android */
+@media(max-width:480px){
+  /* Same as desktop, hanya allow scrolling horizontal */
+  body{min-width:320px;overflow-x:auto}
+  .hero{min-height:100vh}
+  nav .nav-toggle{display:none}
+  .order-modal{position:fixed;overflow-y:auto}
+  .order-modal-content{min-width:420px;max-width:420px;margin:0 auto;border-radius:20px;padding:32px}
+  .order-modal-close{position:absolute;top:16px;right:16px;font-size:24px;padding:8px}
+  .order-modal-header{margin-bottom:24px}
+  .order-modal-header h3{font-size:20px;margin-bottom:8px}
+  .order-modal-header p{font-size:14px}
+  .order-form-group{margin-bottom:16px}
+  .order-form-group label{font-size:13px;margin-bottom:8px}
+  .order-form-group input,.order-form-group select{padding:14px 16px;font-size:14px;border-radius:10px}
+  .order-price-display{padding:20px;margin-bottom:20px}
+  .order-price-display .price{font-size:28px}
+  .order-price-display .label,.order-price-display .detail{font-size:12px}
+  .btn-order{padding:16px;font-size:15px;border-radius:12px}
+  .back-to-top,.wa-float{position:fixed}
+}
+
+/* PROMO BANNER */
+.promo-banner{background:linear-gradient(135deg,var(--primary),var(--orange));padding:16px 24px;text-align:center;position:relative;z-index:10;overflow:hidden}
+.promo-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);animation:shimmer 3s infinite}
+@keyframes shimmer{100%{transform:translateX(100%)}}
+.promo-content{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.promo-icon{font-size:28px;animation:bounce 1s infinite}
+.promo-text{font-size:16px;font-weight:600;color:#fff}
+.promo-sub{font-size:13px;font-weight:400;opacity:.9}
+.promo-code{background:rgba(0,0,0,.3);padding:4px 12px;border-radius:20px;font-weight:800;letter-spacing:2px}
+</style>
+</head>
+<body>
+
+
+<!-- SCROLL PROGRESS -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- LOADER -->
+<div class="loader-overlay" id="loader">
+  <div class="loader-logo-wrap">
+    <img src="https://plain-apac-prod-public.komododecks.com/202605/20/ulWbfLykwXVJzpwXT4Qx/image.png" alt="Loading" class="loader-logo">
+  </div>
+  <div class="loader-bar"><div class="loader-progress"></div></div>
+  <div class="loader-text">LOADING...</div>
+</div>
+
+<div class="bg">
+  <div class="bg-glow"></div>
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+</div>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
+
+<!-- DECORATIVE FLOATING IMAGES -->
+<img src="https://media.tenor.com/rgEByWLq0IoAAAAm/leee.webp" alt="Decoration" class="decor-img decor-img-1" id="decorImg1">
+<img src="https://i.pinimg.com/originals/e0/46/47/e046472bee90c66f7e4977081e58a202.png" alt="Decoration" class="decor-img decor-img-2" id="decorImg2">
+<img src="https://d1x91p7vw3vuq8.cloudfront.net/itemku-upload/2021629/mtxqn6fhg1x3cgqiwnx3f.png" alt="Decoration" class="decor-img decor-img-3" id="decorImg3">
+<img src="https://png.pngtree.com/png-vector/20240910/ourmid/pngtree-mobile-legends-turu-deck-emote-bro-mlbb-vector-png-image_13786289.png" alt="Decoration" class="decor-img decor-img-4" id="decorImg4">
+<img src="https://img-06.stickers.cloud/packs/51c1c0cd-f2d9-4259-8c2a-7d138522b3f1/webp/1cf900a6-0bb3-4686-abf4-302f4bf42b8a.webp" alt="Decoration" class="decor-img decor-img-5" id="decorImg5">
+<img src="https://cdn2.cdnstep.com/icd3luCKn9ladLlQ2pF1/7.webp" alt="Decoration" class="decor-img decor-img-6" id="decorImg6">
+
+<!-- BACK TO TOP -->
+<button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+
+<!-- WHATSAPP FLOAT -->
+<a href="https://wa.me/6289684943741" target="_blank" class="wa-float">💬</a>
+
+<!-- NAV -->
+<nav>
+  <button class="nav-toggle" onclick="toggleNav()">☰</button>
+  <a href="#" class="nav-logo-wrap">
+    <img src="https://plain-apac-prod-public.komododecks.com/202605/20/ulWbfLykwXVJzpwXT4Qx/image.png" alt="JOKI ML" style="height:50px;">
+    <span style="font-size:18px;font-weight:800;margin-left:8px;color:var(--gold);"></span>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#">Beranda</a></li>
+    <li><a href="#harga">Harga</a></li>
+    <li><a href="#cara">Cara Order</a></li>
+    <li><a href="#testi">Testimonial</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#harga" class="btn-nav">Order Now</a>
+</nav>
+
+<!-- FLOATING ORDER BUTTON -->
+<a href="#harga" class="float-order-btn">
+  <span>⚡</span> Order Sekarang
+</a>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-logo-wrap">
+    <div class="hero-glow"></div>
+    <img src="https://plain-apac-prod-public.komododecks.com/202605/20/ulWbfLykwXVJzpwXT4Qx/image.png" alt="JOKI ML" class="hero-logo">
+  </div>
+  <div class="hero-social">
+    <a href="https://wa.me/6289684943741" target="_blank" class="wa" title="WhatsApp"><img src="https://static.vecteezy.com/system/resources/thumbnails/022/794/113/small/3d-render-whatsapp-logo-icon-isolated-on-transparent-background-free-png.png" style="width:24px;height:24px;object-fit:contain;"></a>
+    <a href="https://www.youtube.com/@akuoness" target="_blank" class="yt" title="YouTube"><img src="https://static.vecteezy.com/system/resources/thumbnails/065/386/840/small/youtube-icon-logo-yt-app-editable-transparent-background-premium-social-media-design-for-digital-download-free-png.png" style="width:24px;height:24px;object-fit:contain;"></a>
+    <a href="https://www.instagram.com/onesszz" target="_blank" class="ig" title="Instagram"><img src="https://static.vecteezy.com/system/resources/thumbnails/042/127/160/small/instagram-logo-on-circle-style-with-transparent-background-free-png.png" style="width:24px;height:24px;object-fit:contain;"></a>
+  </div>
+  <h1 class="hero-title">Joki<br><span>Termurah</span></h1>
+  <p class="hero-desc">Naikkan rank lo dengan cepat, aman, dan garansi 100%</p>
+  <div class="hero-btns">
+    <a href="#harga" class="btn-primary">Lihat Harga</a>
+    <a href="https://wa.me/6289684943741" target="_blank" class="btn-secondary">Chat WhatsApp</a>
+  </div>
+</section>
+
+<!-- PROMO BANNER -->
+<section class="promo-banner">
+  <div class="promo-content">
+    <span class="promo-icon">🎉</span>
+    <div class="promo-text">
+      <strong>DISKON 10%</strong> untuk pembelian pertama!
+      <span class="promo-sub"> Gunakan kode: <span class="promo-code">JOKIML</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- HARGA -->
+<section class="sec" id="harga">
+  <div class="sec-in">
+    <div class="sec-tag">List Harga</div>
+    <h2 class="sec-h">Paket Joki MLBB</h2>
+    <p class="sec-sub">Harga transparan, garansi 100%, proses cepat!</p>
+
+    <!-- RANK CARDS -->
+    <div class="rank-grid" id="rankCards">
+      <div class="rank-card">
+        <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg-TkuQDQ2-cWyyxhUW0vvccLFrJcG_kV03EYkDEDRkhCa3yc_HVPOZXayYO0Jqz2ZsD6TDKNmWv2wFH3-u68Axo_AvFWXd4VqMYGhcmVuelRa47U8_fxIE_wztx6ioRdVPOoGhNkQsn3u_vSunkenu17hGhAZmC41618KMapM_SxSqkKKrvwXQ5NFzjiMP/s513/logo-icon-rankgrandmaster-png-ml.png" alt="Grandmaster" style="width:48px;height:48px;object-fit:contain;"></div>
+        <div class="rank-name">Grandmaster</div>
+        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
+        <div class="rank-price">Rp3.000</div>
+        <div class="rank-note">1 Star = Rp3.000</div>
+        <button onclick="openOrderModal('Grandmaster')" class="btn-rank">Order Sekarang</button>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDmxNd6WpplFWYUlVs_JZwSCcoxnP_DOEh4kP-x29_NXFcqeKQGUl5xcZjaiGeQ-qAA9ZhlIynZiixAJxEfQbp9E4Is0R1VZpAF4O5YucMMmSmTwGKA-qCwRBCFLP_KWcEs0i7a2F2_nEbXRs1e20SH9peEZ4Y0ItkyEPVVdnYblpD5wDP7rG6d_RuMM2R/s477/logo-icon-rank-epic-png-ml.png" alt="Epic" style="width:48px;height:48px;object-fit:contain;"></div>
+        <div class="rank-name">Epic</div>
+        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
+        <div class="rank-price">Rp4.500</div>
+        <div class="rank-note">1 Star = Rp4.500</div>
+        <button onclick="openOrderModal('Epic')" class="btn-rank">Order Sekarang</button>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhCkRwReOtdyByANktWBOuR_suAL0BvHxd-6xfuShs3BYwdt1hmoMCrQd5XeDI4MvRv5Lm8ObM0EJnOW0eDt53WiQYQhT5uPKKcsevUenpFix-J4Yqtg-OvBAwXv3mhjxg8RZ5tAr2IJ26vEI2Y-oUyxjNiOprxKElwrgyBxUunitA1AkUIWtIIsQv3pNn1/s473/logo-icon-rank-legend-png-ml.png" alt="Legend" style="width:48px;height:48px;object-fit:contain;"></div>
+        <div class="rank-name">Legend</div>
+        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
+        <div class="rank-price">Rp6.000</div>
+        <div class="rank-note">1 Star = Rp6.000</div>
+        <button onclick="openOrderModal('Legend')" class="btn-rank">Order Sekarang</button>
+      </div>
+
+      <div class="rank-card featured">
+        <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhHL46fqUGye4n3fF9EoAY58SG6HR6KT_Xrq0J9PsrHZB1pKcI8N_H_2_bgc1ddbzh5v0hpxw7Yna1TByYA8D02qEOlpDvG7tpYbpKUPyTRALcnC4_a4NBAuvXJwXcvgIXIyZI9c2_WD0Rm4cdMnQZ9tynvg_FKej0TOkk90AASJ29qaY8W-GVpREBimRfk/s467/logo-icon-rank-mythic-png-ml.png" alt="Mythic" style="width:48px;height:48px;object-fit:contain;"></div>
+        <div class="rank-name">Mythic</div>
+        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
+        <div class="rank-price">Rp8.000</div>
+        <div class="rank-note">1 Star = Rp8.000</div>
+        <button onclick="openOrderModal('Mythic')" class="btn-rank">Order Sekarang</button>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh8FV7yiXzQY_5we3v0ctXq6hcf3V5ZSMVR2pS_RRiG-uflh1Iop4nfGpv5wibLyALUrpsOacaN_A_Q0LY4XFhXR6J5Qx8NjPj4X0UM0jYHQlYb_kg9n5Xvcz_43QB4_umU2-mgDVanGgAKAb3HJ7CJQW36GsciuukA3u7VjpHiSF35mHGKfKtFf_zH94Rm/s482/logo-icon-rank-mythical-honor-png-ml.png" alt="Mythic Honor" style="width:48px;height:48px;object-fit:contain;"></div>
+        <div class="rank-name">Mythic Honor</div>
+        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
+        <div class="rank-price">Rp11.000</div>
+        <div class="rank-note">1 Star = Rp11.000</div>
+        <button onclick="openOrderModal('MythicHonor')" class="btn-rank">Order Sekarang</button>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjsZZHOSqICOEii8GLsBkEeJU88zarMSjdN2ETN21HYvYrALNCtjR9BtPZ8m-DsbVc1toJOiFu7RqL6sty7sm1okJYqB_DeFbiUMivd2xejSDn1m40ngUbNU4w6CwQoBPjYj-d_-fcHnXTDVaZMgHFb7X8HW5OT_il7rqxI07HEy24FaycMLYTxTdOzZKCW/s484/logo-icon-rank-mythical-glory-png-ml.png" alt="Mythic Glory" style="width:48px;height:48px;object-fit:contain;"></div>
+        <div class="rank-name">Mythic Glory</div>
+        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
+        <div class="rank-price">Rp16.000</div>
+        <div class="rank-note">1 Star = Rp16.000</div>
+        <button onclick="openOrderModal('MythicGlory')" class="btn-rank">Order Sekarang</button>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-icon"><img src="https://static.wikia.nocookie.net/mobile-legends/images/3/3c/Mythical_Immortal.png/revision/latest/scale-to-width-down/468?cb=20240224062115" alt="Mythic Immortal" style="width:48px;height:48px;object-fit:contain;"></div>
+        <div class="rank-name">Mythic Immortal</div>
+        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
+        <div class="rank-price">Rp20.000</div>
+        <div class="rank-note">1 Star = Rp20.000</div>
+        <button onclick="openOrderModal('MythicImmortal')" class="btn-rank">Order Sekarang</button>
+      </div>
+
+      <!-- MABAR BARENG -->
+      <div class="rank-card mabar-card" onclick="openMabarModal()">
+        <div class="rank-icon">🎮</div>
+        <div class="rank-name">Mabar Bareng</div>
+        <div class="rank-stars">Joki Handal</div>
+        <div class="rank-price">Rp8.000<span style="font-size:12px;font-weight:400;">/game</span></div>
+        <div class="rank-note">GM-Legend Rp8rb | Mythic+ Rp15rb</div>
+        <button class="btn-rank">Order Sekarang</button>
+      </div>
+    </div>
+
+    <!-- TRUST BADGES -->
+    <div class="trust-badges">
+      <div class="trust-item">
+        <span class="trust-icon">⏱️</span>
+        <span class="trust-text">Proses 1-6 Jam</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon">🛡️</span>
+        <span class="trust-text">Garansi 100%</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon">🔒</span>
+        <span class="trust-text">Akun Aman</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon">💰</span>
+        <span class="trust-text">Refund 100%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- GUARANTEE -->
+<section class="sec guarantee">
+  <div class="sec-in">
+    <div class="sec-tag" style="color:var(--success);">Garansi</div>
+    <h2 class="sec-h">Kenapa Harus Pilih Kami?</h2>
+    <p class="sec-sub">Komitmen untuk kepuasan pelanggan</p>
+    <div class="guarantee-grid">
+      <div class="guarantee-item">
+        <div class="guarantee-icon">🔒</div>
+        <div class="guarantee-title">100% Aman</div>
+        <div class="guarantee-desc">Akun kamu aman, no banned. Data privasi terjaga</div>
+      </div>
+      <div class="guarantee-item">
+        <div class="guarantee-icon">⚡</div>
+        <div class="guarantee-title">Proses Cepat</div>
+        <div class="guarantee-desc">Rata-rata selesai dalam 1-6 jam tergantung jumlah star</div>
+      </div>
+      <div class="guarantee-item">
+        <div class="guarantee-icon">🛡️</div>
+        <div class="guarantee-title">Garansi 100%</div>
+        <div class="guarantee-desc">Star turun? Kami ulangi gratis sampai selesai target!</div>
+      </div>
+      <div class="guarantee-item">
+        <div class="guarantee-icon">💰</div>
+        <div class="guarantee-title">Money Back</div>
+        <div class="guarantee-desc">Kalau gagal, uang dikembalikan 100%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="sec testimonials" id="testi">
+  <div class="sec-in">
+    <div class="sec-tag">Testimonial</div>
+    <h2 class="sec-h">Kata Mereka</h2>
+    <p class="sec-sub">Apa kata customer yang sudah order</p>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-avatar">🎮</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Cepat banget! Cuma 4 jam udah mythic honor. Tank joki pro bgt, win streak 15! 🔥"</p>
+        <div class="testi-name">Reza_Gaming</div>
+        <div class="testi-role">Customer MVP</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-avatar">⭐</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">" Pertama pake joki service, awalnya ragu. Tapi sekarang udah Mythic Glory! Garansi 100% works beneran!"</p>
+        <div class="testi-name">Dimas_ML</div>
+        <div class="testi-role">Customer Loyal</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-avatar">🏆</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Joki dari Epic ke Legend cuma 1 hari! Star turun dikit langsung diulang, recommended banget!"</p>
+        <div class="testi-name">Fajar_ID</div>
+        <div class="testi-role">Regular Customer</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq">
+  <div class="sec-in">
+    <div class="sec-tag">FAQ</div>
+    <h2 class="sec-h">Pertanyaan Umum</h2>
+    <p class="sec-sub">Pertanyaan yang sering ditanyakan</p>
+    <div class="faq-list">
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">Berapa lama proses joki?</div>
+        <div class="faq-answer"><div class="faq-answer-inner">Rata-rata 1-6 jam tergantung jumlah star yang diorder. Kalau order banyak, bisa lebih lama tapi selalu dikomunikasikan via WhatsApp.</div></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">Bagaimana kalau star turun saat joki?</div>
+        <div class="faq-answer"><div class="faq-answer-inner">Garansi 100%! Kalau star turun karena human error (kita yang salah), kita ulangi gratis sampai target. Kalau turun karena enemy interfere, kita hitung ulang.</div></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">Bisa bayar pake apa aja?</div>
+        <div class="faq-answer"><div class="faq-answer-inner">DANA, OVO, GOPAY, ShopeePay, dan transfer bank (BCA, BRI, Mandiri). Konfirmasi pembayaran via WhatsApp.</div></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">Data login aman?</div>
+        <div class="faq-answer"><div class="faq-answer-inner">Kami sangat jaga privasi. Data login HANYA digunakan untuk joki dan langsung dihapus setelah selesai. 100% confidential.</div></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">Bisa joki dari rank rendah ke tinggi?</div>
+        <div class="faq-answer"><div class="faq-answer-inner">Bisa! Mulai dari Warrior sampai Mythic Immortal. Kalau rank jauh, price bisa negotiation. Chat admin untuk kalkulasi.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="sec-in">
+    <h2 class="cta-title">Siap naik rank <span>Mythic</span>?</h2>
+    <p class="cta-desc">Jangan buang waktu, mulai sekarang dan raih legendary rank!</p>
+    <div class="cta-features">
+      <div class="cta-feature">Garansi 100%</div>
+      <div class="cta-feature">Proses 1-6 Jam</div>
+      <div class="cta-feature">Aman & Privacy</div>
+    </div>
+    <a href="https://wa.me/6289684943741" target="_blank" class="btn-primary">Chat WhatsApp Sekarang</a>
+    <p class="cta-note">★ Free konsultasi · No ribet ★</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo-wrap">
+    <span style="font-size:36px;">🎮</span>
+    <span style="font-size:24px;font-weight:800;margin-left:8px;color:var(--gold);">JOKI ML</span>
+  </div>
+  <div class="footer-links">
+    <a href="#">Beranda</a>
+    <a href="#harga">Harga</a>
+    <a href="#cara">Cara Order</a>
+    <a href="#testi">Testimonial</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="footer-social">
+    <a href="https://wa.me/6289684943741" target="_blank" class="wa" title="WhatsApp"><img src="https://static.vecteezy.com/system/resources/thumbnails/022/794/113/small/3d-render-whatsapp-logo-icon-isolated-on-transparent-background-free-png.png" style="width:24px;height:24px;object-fit:contain;"></a>
+    <a href="https://www.youtube.com/@akuoness" target="_blank" class="yt" title="YouTube"><img src="https://static.vecteezy.com/system/resources/thumbnails/065/386/840/small/youtube-icon-logo-yt-app-editable-transparent-background-premium-social-media-design-for-digital-download-free-png.png" style="width:24px;height:24px;object-fit:contain;"></a>
+    <a href="https://www.instagram.com/onesszz" target="_blank" class="ig" title="Instagram"><img src="https://static.vecteezy.com/system/resources/thumbnails/042/127/160/small/instagram-logo-on-circle-style-with-transparent-background-free-png.png" style="width:24px;height:24px;object-fit:contain;"></a>
+  </div>
+  <a href="https://wa.me/6289684943741" target="_blank" class="footer-dev">Made with ❤️ by AkuOness ✦</a>
+  <p class="footer-copy">© 2026 Joki MLBB — Boosting Service</p>
+</footer>
+
+<div id="toast"></div>
+
+<!-- ORDER MODAL -->
+<div class="order-modal" id="orderModal">
+  <div class="order-modal-content">
+    <button class="order-modal-close" onclick="closeOrderModal()">×</button>
+    <div class="order-modal-header">
+      <h3>Order Joki</h3>
+      <p>GM/Epic/Legend = Bintang | Mythic = Poin Mythic</p>
+    </div>
+    <div class="order-form-group">
+      <label>Rank Saat Ini <span class="required">*</span></label>
+      <select id="currentRank" onchange="onCurrentRankChange(); calculatePrice();">
+        <option value="">-- Pilih Rank Saat Ini --</option>
+      </select>
+    </div>
+    <div class="order-form-group">
+      <label>Rank Target <span class="required">*</span></label>
+      <select id="targetRank" onchange="onTargetRankChange(); calculatePrice();" disabled>
+        <option value="">-- Pilih Rank Target (setelah rank saat ini) --</option>
+      </select>
+    </div>
+    <div class="order-form-group" id="starCountGroup">
+      <label>Jumlah Poin Mythic</label>
+      <input type="number" id="starCount" min="1" placeholder="Contoh: 25" onchange="calculatePrice()" oninput="calculatePrice()">
+    </div>
+    <div class="order-price-display">
+      <div class="label">Estimasi Harga</div>
+      <div class="price" id="totalPrice">Rp 0</div>
+      <div class="detail" id="priceDetail">Pilih rank saat ini terlebih dahulu</div>
+    </div>
+    <a href="#" id="orderWhatsApp" target="_blank" class="btn-order">💬 Chat WhatsApp untuk Order</a>
+  </div>
+</div>
+
+<!-- MABAR MODAL -->
+<div class="order-modal" id="mabarModal">
+  <div class="order-modal-content">
+    <button class="order-modal-close" onclick="closeMabarModal()">×</button>
+    <div class="order-modal-header">
+      <h3>Mabar Bareng</h3>
+      <p>Main bareng joki handal! Rank apapun gas aja!</p>
+    </div>
+    <div class="order-form-group">
+      <label>Rank Saat Ini</label>
+      <select id="mabarRank" onchange="calculateMabarPrice()">
+        <option value="">-- Pilih Rank Saat Ini --</option>
+        <option value="GM">Grandmaster</option>
+        <option value="Epic">Epic</option>
+        <option value="Legend">Legend</option>
+        <option value="Mythic">Mythic</option>
+        <option value="MythicHonor">Mythic Honor</option>
+        <option value="MythicGlory">Mythic Glory</option>
+        <option value="MythicImmortal">Mythic Immortal</option>
+      </select>
+    </div>
+    <div class="order-form-group">
+      <label>Jumlah Game</label>
+      <select id="mabarGameCount" onchange="calculateMabarPrice()">
+        <option value="1">1 Game</option>
+        <option value="2">2 Game</option>
+        <option value="3">3 Game</option>
+        <option value="4">4 Game</option>
+        <option value="5">5 Game</option>
+        <option value="6">6 Game</option>
+        <option value="7">7 Game</option>
+        <option value="8">8 Game</option>
+        <option value="9">9 Game</option>
+        <option value="10">10 Game</option>
+      </select>
+    </div>
+    <div class="order-price-display">
+      <div class="label">Total Harga</div>
+      <div class="price" id="mabarTotalPrice">Rp 45.000</div>
+      <div class="detail" id="mabarPriceDetail">3 game × Rp15.000</div>
+    </div>
+    <a href="#" id="orderMabarWhatsApp" target="_blank" class="btn-order">💬 Chat WhatsApp untuk Order</a>
+  </div>
+</div>
+
+<script>
+// Particles
+const particlesContainer=document.getElementById('particles');
+for(let i=0;i<30;i++){
+  const particle=document.createElement('div');
+  particle.className='particle';
+  particle.style.left=Math.random()*100+'%';
+  particle.style.animationDelay=Math.random()*15+'s';
+  particle.style.animationDuration=(15+Math.random()*10)+'s';
+  particle.style.width=(2+Math.random()*4)+'px';
+  particle.style.height=particle.style.width;
+  particlesContainer.appendChild(particle);
+}
+
+// Scroll Progress
+window.addEventListener('scroll',()=>{
+  const scrollTop=document.documentElement.scrollTop;
+  const scrollHeight=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  const progress=(scrollTop/scrollHeight)*100;
+  document.getElementById('scrollProgress').style.width=progress+'%';
+
+  const backToTop=document.getElementById('backToTop');
+  if(scrollTop>500){backToTop.classList.add('visible');}else{backToTop.classList.remove('visible');}
+
+  // Show floating decorative images from promo banner to bottom
+  });
+
+function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'})}
+
+// Loader
+window.addEventListener('load',function(){
+  setTimeout(function(){
+    document.getElementById('loader').classList.add('hidden');
+  },2200);
+});
+
+// Rank data
+const rankPrices={
+  'Grandmaster':3000,'Epic':4500,'Legend':6000,
+  'Mythic':8000,'MythicHonor':11000,'MythicGlory':16000,'MythicImmortal':20000
+};
+const mythicTiers=['Mythic','MythicHonor','MythicGlory','MythicImmortal'];
+const nonMythicRanks=['Grandmaster','Epic','Legend'];
+const rankOrder=['Grandmaster','Epic','Legend','Mythic','MythicHonor','MythicGlory','MythicImmortal'];
+
+// Initialize dropdown options
+function initRankOptions(){
+  const currentSelect=document.getElementById('currentRank');
+  const targetSelect=document.getElementById('targetRank');
+
+  currentSelect.innerHTML='<option value="">-- Pilih Rank Saat Ini --</option>';
+  targetSelect.innerHTML='<option value="">-- Pilih Rank Target --</option>';
+
+  nonMythicRanks.forEach(rankName=>{
+    let opts='';
+    ['V','IV','III','II','I'].forEach(div=>{
+      for(let s=0;s<=5;s++){
+        const v=`${rankName}_${div}_${s}`;
+        opts+=`<option value="${v}">${rankName} ${div} (${s}⭐)</option>`;
+      }
+    });
+    currentSelect.innerHTML+=`<optgroup label="${rankName}">${opts}</optgroup>`;
+    targetSelect.innerHTML+=`<optgroup label="${rankName}">${opts}</optgroup>`;
+  });
+
+  // Mythic with individual point options
+  let mythicGroupCurrent='';
+  let mythicGroupTarget='';
+
+  // Mythic: 1-24
+  for(let p=1;p<=24;p++){
+    mythicGroupCurrent+=`<option value="Mythic_${p}">Mythic (${p} Poin)</option>`;
+    mythicGroupTarget+=`<option value="Mythic_${p}">Mythic (${p} Poin)</option>`;
+  }
+  // Mythic Honor: 25-49
+  for(let p=25;p<=49;p++){
+    mythicGroupCurrent+=`<option value="MythicHonor_${p}">Mythic Honor (${p} Poin)</option>`;
+    mythicGroupTarget+=`<option value="MythicHonor_${p}">Mythic Honor (${p} Poin)</option>`;
+  }
+  // Mythic Glory: 50-99
+  for(let p=50;p<=99;p++){
+    mythicGroupCurrent+=`<option value="MythicGlory_${p}">Mythic Glory (${p} Poin)</option>`;
+    mythicGroupTarget+=`<option value="MythicGlory_${p}">Mythic Glory (${p} Poin)</option>`;
+  }
+  // Mythic Immortal: 100-200
+  for(let p=100;p<=200;p++){
+    mythicGroupCurrent+=`<option value="MythicImmortal_${p}">Mythic Immortal (${p} Poin)</option>`;
+    mythicGroupTarget+=`<option value="MythicImmortal_${p}">Mythic Immortal (${p} Poin)</option>`;
+  }
+
+  currentSelect.innerHTML+=`<optgroup label="Mythic (Poin)">${mythicGroupCurrent}</optgroup>`;
+  targetSelect.innerHTML+=`<optgroup label="Mythic (Poin)">${mythicGroupTarget}</optgroup>`;
+}
+initRankOptions();
+
+function getDivIdx(div){
+  return ['V','IV','III','II','I'].indexOf(div);
+}
+
+function parseRank(v){
+  if(!v) return null;
+
+  // Check for Mythic with points format (e.g., "Mythic_5", "MythicHonor_30")
+  const mythicParts=v.split('_');
+  if(mythicParts.length===2){
+    const tier=mythicParts[0];
+    const points=parseInt(mythicParts[1]);
+    if(mythicTiers.includes(tier) && !isNaN(points)){
+      return {baseRank:tier,div:null,stars:points,isMythic:true};
+    }
+  }
+
+  // Legacy format for simple mythic tiers
+  if(mythicTiers.includes(v)) return {baseRank:v,div:null,stars:0,isMythic:true};
+
+  // Non-mythic ranks (GM, Epic, Legend)
+  const p=v.split('_');
+  if(p.length===3){
+    const rn=p[0],div=p[1],s=parseInt(p[2]);
+    if(nonMythicRanks.includes(rn) && div && !isNaN(s)){
+      return {baseRank:rn,div,stars:s,isMythic:false};
+    }
+  }
+  return null;
+}
+
+function getRankIdx(rank){
+  return rankOrder.indexOf(rank);
+}
+
+function fmt(parsed){
+  if(!parsed) return '';
+  return parsed.isMythic ? parsed.baseRank : `${parsed.baseRank} ${parsed.div} (${parsed.stars}⭐)`;
+}
+
+function calcStars(cur, tar){
+  if(!cur || !tar || cur.isMythic || tar.isMythic) return null;
+  const cIdx=getRankIdx(cur.baseRank);
+  const tIdx=getRankIdx(tar.baseRank);
+  const cDiv=getDivIdx(cur.div);
+  const tDiv=getDivIdx(tar.div);
+  if(cIdx>tIdx) return null;
+  if(cIdx===tIdx && cDiv>tDiv) return null;
+  if(cIdx===tIdx && cDiv===tDiv && cur.stars>=tar.stars) return null;
+
+  let stars=0;
+
+  if(cIdx===tIdx){
+    // Same rank
+    if(cDiv===tDiv){
+      // Same division
+      stars+=(tar.stars-cur.stars);
+    } else {
+      // Different division - complete current then go up
+      stars+=(5-cur.stars); // Complete current div
+      stars+=(tDiv-cDiv-1)*5; // Middle divisions
+      stars+=tar.stars; // Target division
+    }
+  } else {
+    // Different ranks
+    // Complete current division first
+    stars+=(5-cur.stars);
+    // Complete remaining divisions in current rank
+    stars+=cDiv*5;
+    // Full intermediate ranks
+    for(let i=cIdx+1;i<tIdx;i++) stars+=25;
+    // Complete target rank
+    stars+=tDiv*5;
+    stars+=tar.stars;
+  }
+  return stars;
+}
+
+function filterTargetOptions(){
+  const cur=document.getElementById('currentRank').value;
+  const sel=document.getElementById('targetRank');
+  const parsed=parseRank(cur);
+  for(let i=0;i<sel.options.length;i++) sel.options[i].hidden=false;
+  if(!parsed) return;
+  if(parsed.isMythic){
+    const cIdx=mythicTiers.indexOf(parsed.baseRank);
+    const curPoints=parsed.stars;
+    for(let i=0;i<sel.options.length;i++){
+      const v=sel.options[i].value;
+      const p=parseRank(v);
+      if(!p) continue;
+      if(!p.isMythic){
+        sel.options[i].hidden=true;
+        continue;
+      }
+      const tIdx=mythicTiers.indexOf(p.baseRank);
+      if(tIdx<cIdx){
+        sel.options[i].hidden=true;
+      } else if(tIdx===cIdx){
+        // Same tier - only show higher points
+        sel.options[i].hidden=p.stars<=curPoints;
+      }
+      // Lower tier is hidden, same tier with higher points is shown
+    }
+    return;
+  }
+  const cIdx=getRankIdx(parsed.baseRank);
+  const cDiv=getDivIdx(parsed.div);
+  const cStars=parsed.stars;
+  for(let i=0;i<sel.options.length;i++){
+    const opt=sel.options[i];
+    const v=opt.value;
+    if(mythicTiers.includes(v)){
+      // Show Mythic if current rank is Legend or above
+      opt.hidden=cIdx<2; // Grandmaster=0, Epic=1, Legend=2
+      continue;
+    }
+    const p=parseRank(v);
+    if(!p) continue;
+    const oIdx=getRankIdx(p.baseRank);
+    const oDiv=getDivIdx(p.div);
+    if(oIdx<cIdx) opt.hidden=true;
+    else if(oIdx===cIdx && (oDiv<cDiv || (oDiv===cDiv && p.stars<=cStars))) opt.hidden=true;
+  }
+}
+
+// Order Modal
+function openOrderModal(rankName){
+  document.getElementById('orderModal').classList.add('active');
+  document.body.style.overflow='hidden';
+  const cur=document.getElementById('currentRank');
+  const tar=document.getElementById('targetRank');
+  const inp=document.getElementById('starCount');
+
+  // Store which rank category was opened
+  window.currentOpenedRank=rankName;
+
+  // Reset target rank - LOCKED until current rank is selected
+  tar.value='';
+  tar.disabled=true;
+
+  // Reset both dropdowns
+  for(let i=0;i<cur.options.length;i++) cur.options[i].hidden=false;
+  for(let i=0;i<tar.options.length;i++) tar.options[i].hidden=false;
+
+  // If non-mythic rank clicked
+  if(nonMythicRanks.includes(rankName)){
+    // Hide all, then show only this rank's options
+    for(let i=0;i<cur.options.length;i++){
+      const v=cur.options[i].value;
+      if(v.includes(rankName+'_')){
+        cur.options[i].hidden=false;
+      } else {
+        cur.options[i].hidden=true;
+      }
+    }
+    // DO NOT auto-select - let user choose current rank first
+  } else {
+    // Mythic tier clicked - show ONLY this tier's points
+    for(let i=0;i<cur.options.length;i++){
+      const v=cur.options[i].value;
+      if(v.startsWith(rankName+'_')){
+        cur.options[i].hidden=false;
+      } else {
+        cur.options[i].hidden=true;
+      }
+    }
+    // DO NOT auto-select - let user choose current rank first
+  }
+
+  inp.value='';
+  filterTargetOptions();
+  calculatePrice();
+}
+
+function closeOrderModal(){
+  const cur=document.getElementById('currentRank');
+  const tar=document.getElementById('targetRank');
+
+  // Reset form to initial state
+  cur.value='';
+  tar.value='';
+  tar.disabled=true;
+
+  // Show all options again for next modal open
+  for(let i=0;i<cur.options.length;i++) cur.options[i].hidden=false;
+  for(let i=0;i<tar.options.length;i++) tar.options[i].hidden=false;
+
+  document.getElementById('orderModal').classList.remove('active');
+  document.body.style.overflow='';
+  window.currentOpenedRank=null;
+}
+
+// Mabar Modal Functions
+function openMabarModal(){
+  document.getElementById('mabarModal').classList.add('active');
+  document.body.style.overflow='hidden';
+  calculateMabarPrice();
+}
+
+function closeMabarModal(){
+  document.getElementById('mabarModal').classList.remove('active');
+  document.body.style.overflow='';
+  // Reset form
+  document.getElementById('mabarRank').value='';
+  document.getElementById('mabarGameCount').value='3';
+  calculateMabarPrice();
+}
+
+document.getElementById('mabarModal').addEventListener('click',function(e){if(e.target===this)closeMabarModal()});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    closeOrderModal();
+    closeMabarModal();
+  }
+});
+
+function calculateMabarPrice(){
+  const rank=document.getElementById('mabarRank').value;
+  const games=parseInt(document.getElementById('mabarGameCount').value)||1;
+  const pDisp=document.getElementById('mabarTotalPrice');
+  const pDet=document.getElementById('mabarPriceDetail');
+  const wa=document.getElementById('orderMabarWhatsApp');
+
+  // GM, Epic, Legend = 8rb | Mythic+ = 15rb
+  const lowRankPrice=8000;
+  const highRankPrice=15000;
+  const mythicRanks=['Mythic','MythicHonor','MythicGlory','MythicImmortal'];
+
+  const pricePerGame=mythicRanks.includes(rank) ? highRankPrice : lowRankPrice;
+  const total=games*pricePerGame;
+
+  pDisp.textContent=`Rp ${total.toLocaleString()}`;
+  pDet.textContent=`${games} game × Rp${pricePerGame.toLocaleString()}/game`;
+
+  const rankName=rank || 'Rank Apapun';
+  let msg=`Halo, saya mau order Mabar Bareng Joki MLBB:\n\n`;
+  msg+=`🎮 Rank Saat Ini: ${rankName}\n`;
+  msg+=`🎯 Jumlah Game: ${games} game\n`;
+  msg+=`💰 Total: Rp${total.toLocaleString()}\n\nMohon info lanjut!`;
+  wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
+}
+
+function onCurrentRankChange(){
+  const tar=document.getElementById('targetRank');
+  const cur=document.getElementById('currentRank');
+  const cVal=cur.value;
+
+  if(cVal){
+    const openedRankName=window.currentOpenedRank;
+
+    // Determine selected rank category
+    let selectedRankCategory=null;
+    if(cVal.includes('Grandmaster_')) selectedRankCategory='Grandmaster';
+    else if(cVal.includes('Epic_')) selectedRankCategory='Epic';
+    else if(cVal.includes('Legend_')) selectedRankCategory='Legend';
+    else if(cVal.startsWith('Mythic_') && !cVal.startsWith('MythicHonor') && !cVal.startsWith('MythicGlory') && !cVal.startsWith('MythicImmortal')) selectedRankCategory='Mythic';
+    else if(cVal.startsWith('MythicHonor_')) selectedRankCategory='MythicHonor';
+    else if(cVal.startsWith('MythicGlory_')) selectedRankCategory='MythicGlory';
+    else if(cVal.startsWith('MythicImmortal_')) selectedRankCategory='MythicImmortal';
+
+    if(selectedRankCategory && selectedRankCategory!==openedRankName){
+      // User switched to different rank category - show only that category's options
+      for(let i=0;i<cur.options.length;i++) cur.options[i].hidden=false;
+
+      // Hide all, then show only selected category
+      if(nonMythicRanks.includes(selectedRankCategory)){
+        for(let i=0;i<cur.options.length;i++){
+          if(cur.options[i].value.includes(selectedRankCategory+'_')){
+            cur.options[i].hidden=false;
+          } else {
+            cur.options[i].hidden=true;
+          }
+        }
+      } else {
+        for(let i=0;i<cur.options.length;i++){
+          if(cur.options[i].value.startsWith(selectedRankCategory+'_')){
+            cur.options[i].hidden=false;
+          } else {
+            cur.options[i].hidden=true;
+          }
+        }
+      }
+
+      cur.value='';
+      tar.value='';
+      tar.disabled=true;
+      calculatePrice();
+      return;
+    }
+
+    // Same category - unlock target rank
+    tar.disabled=false;
+    filterTargetOptions();
+    calculatePrice();
+  } else {
+    tar.disabled=true;
+    tar.value='';
+    calculatePrice();
+  }
+}
+function onTargetRankChange(){
+  const t=document.getElementById('targetRank').value;
+  const inp=document.getElementById('starCount');
+  const lbl=inp.closest('.order-form-group').querySelector('label');
+  const group=document.getElementById('starCountGroup');
+
+  // Hide points input for Mythic since we're selecting points from dropdown
+  if(t){
+    lbl.textContent='Jumlah Bintang / Poin';
+    inp.placeholder='Otomatis dari dropdown';
+    group.style.display='none';
+    inp.value='';
+  } else {
+    lbl.textContent='Jumlah Bintang / Poin';
+    inp.placeholder='Pilih rank target dulu';
+    group.style.display='none';
+    inp.value='';
+  }
+  filterTargetOptions();
+  calculatePrice();
+}
+
+function calculatePrice(){
+  const cVal=document.getElementById('currentRank').value;
+  const tVal=document.getElementById('targetRank').value;
+  const userInp=parseInt(document.getElementById('starCount').value)||0;
+  const pDisp=document.getElementById('totalPrice');
+  const pDet=document.getElementById('priceDetail');
+  const wa=document.getElementById('orderWhatsApp');
+
+  // Must select current rank first
+  if(!cVal){
+    pDisp.textContent='Rp 0';
+    pDet.textContent='Pilih rank saat ini terlebih dahulu';
+    wa.href='https://wa.me/6289684943741';
+    return;
+  }
+
+  if(!tVal){pDisp.textContent='Rp 0';pDet.textContent='Pilih rank target';wa.href='https://wa.me/6289684943741';return;}
+  const cur=parseRank(cVal);
+  const tar=parseRank(tVal);
+
+  // If target is Mythic tier
+  if(tar && tar.isMythic){
+    const mythicPrice=rankPrices[tar.baseRank];
+    const targetPoints=tar.stars;
+
+    // From non-Mythic to Mythic
+    if(cur && !cur.isMythic){
+      let breakdown=[];
+      let total=0;
+
+      const curIdx=getRankIdx(cur.baseRank);
+      const legendIdx=getRankIdx('Legend');
+      const curDivIdx=getDivIdx(cur.div);
+
+      // 1. Complete current div
+      const curRemain=5-cur.stars;
+      if(curRemain>0){
+        breakdown.push({rank:cur.baseRank, div:cur.div, stars:curRemain, price:rankPrices[cur.baseRank]});
+        total+=curRemain*rankPrices[cur.baseRank];
+      }
+
+      // 2. Complete remaining divisions in current rank
+      for(let d=0;d<curDivIdx;d++){
+        breakdown.push({rank:cur.baseRank, div:['V','IV','III','II','I'][d], stars:5, price:rankPrices[cur.baseRank]});
+        total+=5*rankPrices[cur.baseRank];
+      }
+
+      // 3. Full intermediate ranks
+      for(let i=curIdx+1;i<legendIdx;i++){
+        const rankName=rankOrder[i];
+        breakdown.push({rank:rankName, div:'Full', stars:25, price:rankPrices[rankName]});
+        total+=25*rankPrices[rankName];
+      }
+
+      // 4. Complete Legend V to I
+      breakdown.push({rank:'Legend', div:'V-I', stars:5, price:rankPrices['Legend']});
+      total+=5*rankPrices['Legend'];
+
+      // 5. Mythic points
+      breakdown.push({rank:tar.baseRank, div:'Poin', stars:targetPoints, price:mythicPrice});
+      total+=targetPoints*mythicPrice;
+
+      pDisp.textContent=`Rp ${total.toLocaleString()}`;
+      pDet.textContent=`📍 ${fmt(cur)} → ${tar.baseRank}\n`;
+      breakdown.forEach(item=>{
+        const divLabel=item.div==='Full' || item.div==='Poin' || item.div==='V-I' ? item.div+' ':item.div+' ';
+        pDet.textContent+=`⭐ ${item.rank} ${divLabel}${item.stars}×Rp${item.price.toLocaleString()}\n`;
+      });
+      pDet.textContent+=`💰 Total: Rp${total.toLocaleString()}`;
+
+      let msg=`Halo, saya mau order joki MLBB:\n\n`;
+      msg+=`📍 Rank Saat Ini: ${fmt(cur)}\n`;
+      msg+=`🎯 Rank Target: ${tar.baseRank}\n`;
+      msg+=`⭐ Detail:\n`;
+      breakdown.forEach(item=>{
+        const divLabel=item.div==='Full' || item.div==='Poin' || item.div==='V-I' ? item.div+' ':item.div+' ';
+        msg+=`   - ${item.rank} ${divLabel}${item.stars} × Rp${item.price.toLocaleString()}\n`;
+      });
+      msg+=`💰 Total: Rp${total.toLocaleString()}\n\nMohon info lanjut!`;
+      wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
+      return;
+    }
+
+    // From Mythic to Mythic
+    if(cur && cur.isMythic){
+      const curTierIdx=mythicTiers.indexOf(cur.baseRank);
+      const tarTierIdx=mythicTiers.indexOf(tar.baseRank);
+      const curPoints=cur.stars;
+      const targetPoints=tar.stars;
+
+      let breakdown=[];
+      let total=0;
+
+      if(curTierIdx===tarTierIdx){
+        // Same tier - just difference
+        const pointsDiff=targetPoints-curPoints;
+        breakdown.push({rank:tar.baseRank, div:'Poin', stars:pointsDiff, price:mythicPrice});
+        total+=pointsDiff*mythicPrice;
+      } else {
+        // Different tier
+        const tierMaxPoints={'Mythic':24,'MythicHonor':49,'MythicGlory':99,'MythicImmortal':200};
+        const maxPoints=tierMaxPoints[cur.baseRank];
+        const tierStartPoints={'Mythic':1,'MythicHonor':25,'MythicGlory':50,'MythicImmortal':100};
+
+        // 1. Complete current tier
+        const curRemain=maxPoints-curPoints+1;
+        breakdown.push({rank:cur.baseRank, div:'Selesai', stars:curRemain, price:mythicPrice});
+        total+=curRemain*mythicPrice;
+
+        // 2. Full tiers in between
+        for(let i=curTierIdx+1;i<tarTierIdx;i++){
+          const tierName=mythicTiers[i];
+          const tierMax=tierMaxPoints[tierName];
+          const tierStart=tierStartPoints[tierName];
+          const tierStars=tierMax-tierStart+1;
+          breakdown.push({rank:tierName, div:'Full', stars:tierStars, price:rankPrices[tierName]});
+          total+=tierStars*rankPrices[tierName];
+        }
+
+        // 3. To target points
+        const targetStart=tierStartPoints[tar.baseRank];
+        const toTarget=targetPoints-targetStart+1;
+        breakdown.push({rank:tar.baseRank, div:'Poin', stars:toTarget, price:mythicPrice});
+        total+=toTarget*mythicPrice;
+      }
+
+      pDisp.textContent=`Rp ${total.toLocaleString()}`;
+      pDet.textContent=`📍 ${cur.baseRank} (${curPoints}) → ${tar.baseRank} (${targetPoints})\n`;
+      breakdown.forEach(item=>{
+        pDet.textContent+=`🏆 ${item.rank} ${item.div} ${item.stars}×Rp${item.price.toLocaleString()}\n`;
+      });
+      pDet.textContent+=`💰 Total: Rp${total.toLocaleString()}`;
+
+      let msg=`Halo, saya mau order joki MLBB:\n\n`;
+      msg+=`📍 Rank Saat Ini: ${cur.baseRank} (${curPoints} poin)\n`;
+      msg+=`🎯 Rank Target: ${tar.baseRank} (${targetPoints} poin)\n`;
+      msg+=`🏆 Detail:\n`;
+      breakdown.forEach(item=>{
+        msg+=`   - ${item.rank} ${item.div} ${item.stars} × Rp${item.price.toLocaleString()}\n`;
+      });
+      msg+=`💰 Total: Rp${total.toLocaleString()}\n\nMohon info lanjut!`;
+      wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
+      return;
+    }
+
+    // No current rank
+    const total=targetPoints*mythicPrice;
+    pDisp.textContent=`Rp ${total.toLocaleString()}`;
+    pDet.textContent=`📍 → ${tar.baseRank}\n🏆 Poin Mythic: ${targetPoints} × Rp${mythicPrice.toLocaleString()}\n💰 Total: Rp${total.toLocaleString()}`;
+    wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
+  }
+
+  // Non-mythic - calculate with proper per-rank breakdown
+  if(!cur || !tar){pDisp.textContent='Rp 0';pDet.textContent='Pilih rank';return;}
+
+  const cIdx=getRankIdx(cur.baseRank);
+  const tIdx=getRankIdx(tar.baseRank);
+  const cDiv=getDivIdx(cur.div);
+  const tDiv=getDivIdx(tar.div);
+
+  // Build breakdown
+  let breakdown=[];
+  let total=0;
+
+  if(cIdx===tIdx){
+    // Same rank - all use same price
+    if(cDiv===tDiv){
+      // Same division
+      const stars=tar.stars-cur.stars;
+      if(stars>0){
+        breakdown.push({rank:cur.baseRank, div:cur.div, stars:stars, price:rankPrices[cur.baseRank]});
+        total+=stars*rankPrices[cur.baseRank];
+      }
+    } else {
+      // Complete current div
+      const curRemain=5-cur.stars;
+      if(curRemain>0){
+        breakdown.push({rank:cur.baseRank, div:cur.div, stars:curRemain, price:rankPrices[cur.baseRank]});
+        total+=curRemain*rankPrices[cur.baseRank];
+      }
+      // Middle divisions (loop from cDiv+1 to tDiv-1)
+      for(let d=cDiv+1; d<tDiv; d++){
+        breakdown.push({rank:cur.baseRank, div:['V','IV','III','II','I'][d], stars:5, price:rankPrices[cur.baseRank]});
+        total+=5*rankPrices[cur.baseRank];
+      }
+      // Target div stars (same rank, use current rank price)
+      if(tar.stars>0){
+        breakdown.push({rank:tar.baseRank, div:tar.div, stars:tar.stars, price:rankPrices[cur.baseRank]});
+        total+=tar.stars*rankPrices[cur.baseRank];
+      }
+    }
+  } else {
+    // Different ranks
+
+    // 1. Complete current div (remaining stars to finish current div)
+    const curRemain=5-cur.stars;
+    if(curRemain>0){
+      breakdown.push({rank:cur.baseRank, div:cur.div, stars:curRemain, price:rankPrices[cur.baseRank]});
+      total+=curRemain*rankPrices[cur.baseRank];
+    }
+
+    // 2. Complete ALL remaining divisions in current rank
+    //    If cDiv=0 (e.g. GM V), loop from 0 to cDiv=0 doesn't run.
+    //    But we need to complete all divisions V through (cDiv-1).
+    //    Loop: for d=0 to cDiv-1, we need 5 iterations when cDiv=5.
+    //    Actually: we need to complete divisions BELOW current div.
+    //    Since division index: V=0, IV=1, III=2, II=3, I=4
+    //    So we need to add divisions 0,1,2,3,4 that are < cDiv.
+    //    Wait, if cDiv=4 (GM I), we need GM V,IV,III,II = 4 divisions (0,1,2,3)
+    //    Loop: for(d=0; d<cDiv; d++) gives us 4 iterations when cDiv=4 ✓
+    //    But if cDiv=0 (GM V), we need GM IV,III,II,I = 4 divisions
+    //    This is WRONG! When at GM V, we have NO divisions below to complete.
+    //    The divisions to complete are actually cDiv+1 through 4.
+    //    So: for(d=cDiv+1; d<5; d++)
+    for(let d=cDiv+1; d<5; d++){
+      breakdown.push({rank:cur.baseRank, div:['V','IV','III','II','I'][d], stars:5, price:rankPrices[cur.baseRank]});
+      total+=5*rankPrices[cur.baseRank];
+    }
+
+    // 3. Full intermediate ranks (complete all divisions V-I)
+    for(let i=cIdx+1; i<tIdx; i++){
+      const rankName=rankOrder[i];
+      breakdown.push({rank:rankName, div:'V-I', stars:25, price:rankPrices[rankName]});
+      total+=25*rankPrices[rankName];
+    }
+
+    // 4. Target rank - complete divisions BEFORE target div
+    for(let d=0; d<tDiv; d++){
+      breakdown.push({rank:tar.baseRank, div:['V','IV','III','II','I'][d], stars:5, price:rankPrices[tar.baseRank]});
+      total+=5*rankPrices[tar.baseRank];
+    }
+    // 5. Add target stars in target div
+    if(tar.stars>0){
+      breakdown.push({rank:tar.baseRank, div:tar.div, stars:tar.stars, price:rankPrices[tar.baseRank]});
+      total+=tar.stars*rankPrices[tar.baseRank];
+    }
+  }
+
+  // Display
+  pDisp.textContent=`Rp ${total.toLocaleString()}`;
+  pDet.textContent=`📍 ${fmt(cur)} → ${fmt(tar)}\n`;
+  breakdown.forEach(item=>{
+    const divLabel=item.div==='Full'?'':item.div+' ';
+    pDet.textContent+=`⭐ ${item.rank} ${divLabel}${item.stars}×Rp${item.price.toLocaleString()}\n`;
+  });
+  pDet.textContent+=`💰 Total: Rp${total.toLocaleString()}`;
+
+  let msg=`Halo, saya mau order joki MLBB:\n\n`;
+  msg+=`📍 Rank Saat Ini: ${fmt(cur)}\n`;
+  msg+=`🎯 Rank Target: ${fmt(tar)}\n`;
+  msg+=`⭐ Detail:\n`;
+  breakdown.forEach(item=>{
+    const divLabel=item.div==='Full'?'':item.div+' ';
+    msg+=`   - ${item.rank} ${divLabel}${item.stars} bintang × Rp${item.price.toLocaleString()}\n`;
+  });
+  msg+=`💰 Total: Rp${total.toLocaleString()}\n\nMohon info lanjut!`;
+  wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
+}
+
+// Counter Animation
+function animateCounters(){
+  const counters=document.querySelectorAll('.stat-v[data-count]');
+  counters.forEach(counter=>{
+    const target=parseFloat(counter.dataset.count);
+    const suffix=counter.dataset.suffix||'';
+    const isDecimal=counter.dataset.decimal==='true';
+    const duration=2000;
+    const start=performance.now();
+
+    function update(currentTime){
+      const elapsed=currentTime-start;
+      const progress=Math.min(elapsed/duration,1);
+      const eased=1-Math.pow(1-progress,3);
+      const current=target*eased;
+
+      if(isDecimal){
+        counter.textContent=current.toFixed(1)+suffix;
+      }else if(target>=1000){
+        counter.textContent=Math.floor(current).toLocaleString()+suffix+'+';
+      }else{
+        counter.textContent=Math.floor(current)+suffix+'+';
+      }
+
+      if(progress<1){requestAnimationFrame(update);}
+    }
+    requestAnimationFrame(update);
+  });
+}
+
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      animateCounters();
+      observer.disconnect();
+    }
+  });
+},{threshold:0.5});
+observer.observe(document.querySelector('.hero-stats'));
+
+// Mobile Nav
+function toggleNav(){document.getElementById('navLinks').classList.toggle('active')}
+document.querySelectorAll('.nav-links a').forEach(link=>{link.addEventListener('click',()=>{document.getElementById('navLinks').classList.remove('active')})});
+
+// FAQ
+function toggleFaq(item){
+  const isActive=item.classList.contains('active');
+  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('active'));
+  if(!isActive){
+    item.classList.add('active');
+    const answer=item.querySelector('.faq-answer');
+    answer.style.maxHeight=answer.scrollHeight+'px';
+  }else{
+    item.querySelector('.faq-answer').style.maxHeight='0';
+  }
+}
+
+// Toast
+function showToast(message){
+  const toast=document.getElementById('toast');
+  toast.textContent=message;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
