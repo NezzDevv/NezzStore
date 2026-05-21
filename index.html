@@ -25,7 +25,11 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scroll-padding-top:80px}
-body{font-family:'Outfit',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body{font-family:'Outfit',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoothing:antialiased;max-width:100vw}
+@media(max-width:480px){
+  html,body{max-width:100vw;overflow-x:hidden;width:100%}
+  *{max-width:100vw}
+}
 
 /* SCROLL PROGRESS */
 .scroll-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--primary-glow),var(--gold));z-index:1001;transition:width .1s}
@@ -41,7 +45,6 @@ body{font-family:'Outfit',sans-serif;color:var(--text);background:var(--bg);over
 @keyframes loadBar{0%{width:0}50%{width:70%}100%{width:100%}}
 .loader-text{font-size:12px;color:var(--muted);margin-top:16px;letter-spacing:2px}
 @media(max-width:480px){
-  .loader-overlay{justify-content:center;padding-left:15%}
   .loader-logo{width:100px}
   .loader-bar{width:140px}
   .loader-text{font-size:10px}
@@ -359,6 +362,22 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
   .testi-text{font-size:10px;margin-bottom:8px}
   .testi-name{font-size:11px}
   .testi-role{font-size:9px}
+
+  /* Trust badges mobile */
+  .trust-badges{gap:8px;padding-top:16px;margin-top:16px}
+  .trust-item{padding:6px 10px;gap:4px}
+  .trust-icon{font-size:12px}
+  .trust-text{font-size:9px}
+
+  /* Footer mobile */
+  footer{padding:24px 16px}
+  .footer-links{gap:12px;margin-bottom:16px}
+  .footer-links a{font-size:10px}
+  .footer-social{margin-bottom:16px}
+  .footer-social a{width:32px;height:32px}
+  .footer-social a img{width:16px;height:16px}
+  .footer-dev{font-size:10px;margin-bottom:8px}
+  .footer-copy{font-size:9px}
 }
 
 /* HP 6.78 inci (360-420px) */
@@ -491,65 +510,66 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
     <!-- RANK CARDS -->
     <div class="rank-grid" id="rankCards">
       <div class="rank-card">
+        <div class="rank-icon"><img src="https://plain-apac-prod-public.komododecks.com/202605/21/xGiWIT8lz7ZGUF1GK99p/image.png" alt="Master" style="width:48px;height:48px;object-fit:contain;"></div>
+        <div class="rank-name">Master</div>
+        <div class="rank-price">Rp1.500</div>
+        <div class="rank-note">1 Star = Rp1.500</div>
+        <button onclick="openOrderModal('Master')" class="btn-rank">Order Sekarang</button>
+      </div>
+
+      <div class="rank-card">
         <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg-TkuQDQ2-cWyyxhUW0vvccLFrJcG_kV03EYkDEDRkhCa3yc_HVPOZXayYO0Jqz2ZsD6TDKNmWv2wFH3-u68Axo_AvFWXd4VqMYGhcmVuelRa47U8_fxIE_wztx6ioRdVPOoGhNkQsn3u_vSunkenu17hGhAZmC41618KMapM_SxSqkKKrvwXQ5NFzjiMP/s513/logo-icon-rankgrandmaster-png-ml.png" alt="Grandmaster" style="width:48px;height:48px;object-fit:contain;"></div>
         <div class="rank-name">Grandmaster</div>
-        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
-        <div class="rank-price">Rp3.000</div>
-        <div class="rank-note">1 Star = Rp3.000</div>
+        <div class="rank-price">Rp2.500</div>
+        <div class="rank-note">1 Star = Rp2.500</div>
         <button onclick="openOrderModal('Grandmaster')" class="btn-rank">Order Sekarang</button>
       </div>
 
       <div class="rank-card">
         <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDmxNd6WpplFWYUlVs_JZwSCcoxnP_DOEh4kP-x29_NXFcqeKQGUl5xcZjaiGeQ-qAA9ZhlIynZiixAJxEfQbp9E4Is0R1VZpAF4O5YucMMmSmTwGKA-qCwRBCFLP_KWcEs0i7a2F2_nEbXRs1e20SH9peEZ4Y0ItkyEPVVdnYblpD5wDP7rG6d_RuMM2R/s477/logo-icon-rank-epic-png-ml.png" alt="Epic" style="width:48px;height:48px;object-fit:contain;"></div>
         <div class="rank-name">Epic</div>
-        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
-        <div class="rank-price">Rp4.500</div>
-        <div class="rank-note">1 Star = Rp4.500</div>
+        <div class="rank-price">Rp4.000</div>
+        <div class="rank-note">1 Star = Rp4.000</div>
         <button onclick="openOrderModal('Epic')" class="btn-rank">Order Sekarang</button>
       </div>
 
       <div class="rank-card">
         <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhCkRwReOtdyByANktWBOuR_suAL0BvHxd-6xfuShs3BYwdt1hmoMCrQd5XeDI4MvRv5Lm8ObM0EJnOW0eDt53WiQYQhT5uPKKcsevUenpFix-J4Yqtg-OvBAwXv3mhjxg8RZ5tAr2IJ26vEI2Y-oUyxjNiOprxKElwrgyBxUunitA1AkUIWtIIsQv3pNn1/s473/logo-icon-rank-legend-png-ml.png" alt="Legend" style="width:48px;height:48px;object-fit:contain;"></div>
         <div class="rank-name">Legend</div>
-        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
-        <div class="rank-price">Rp6.000</div>
-        <div class="rank-note">1 Star = Rp6.000</div>
+        <div class="rank-price">Rp5.000</div>
+        <div class="rank-note">1 Star = Rp5.000</div>
         <button onclick="openOrderModal('Legend')" class="btn-rank">Order Sekarang</button>
       </div>
 
-      <div class="rank-card featured">
+      <div class="rank-card">
         <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhHL46fqUGye4n3fF9EoAY58SG6HR6KT_Xrq0J9PsrHZB1pKcI8N_H_2_bgc1ddbzh5v0hpxw7Yna1TByYA8D02qEOlpDvG7tpYbpKUPyTRALcnC4_a4NBAuvXJwXcvgIXIyZI9c2_WD0Rm4cdMnQZ9tynvg_FKej0TOkk90AASJ29qaY8W-GVpREBimRfk/s467/logo-icon-rank-mythic-png-ml.png" alt="Mythic" style="width:48px;height:48px;object-fit:contain;"></div>
         <div class="rank-name">Mythic</div>
-        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
-        <div class="rank-price">Rp8.000</div>
-        <div class="rank-note">1 Star = Rp8.000</div>
+        <div class="rank-price">Rp7.000</div>
+        <div class="rank-note">1 Star = Rp7.000</div>
         <button onclick="openOrderModal('Mythic')" class="btn-rank">Order Sekarang</button>
       </div>
 
       <div class="rank-card">
         <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh8FV7yiXzQY_5we3v0ctXq6hcf3V5ZSMVR2pS_RRiG-uflh1Iop4nfGpv5wibLyALUrpsOacaN_A_Q0LY4XFhXR6J5Qx8NjPj4X0UM0jYHQlYb_kg9n5Xvcz_43QB4_umU2-mgDVanGgAKAb3HJ7CJQW36GsciuukA3u7VjpHiSF35mHGKfKtFf_zH94Rm/s482/logo-icon-rank-mythical-honor-png-ml.png" alt="Mythic Honor" style="width:48px;height:48px;object-fit:contain;"></div>
         <div class="rank-name">Mythic Honor</div>
-        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
-        <div class="rank-price">Rp11.000</div>
-        <div class="rank-note">1 Star = Rp11.000</div>
+        <div class="rank-price">Rp9.000</div>
+        <div class="rank-note">1 Star = Rp9.000</div>
         <button onclick="openOrderModal('MythicHonor')" class="btn-rank">Order Sekarang</button>
       </div>
 
       <div class="rank-card">
         <div class="rank-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjsZZHOSqICOEii8GLsBkEeJU88zarMSjdN2ETN21HYvYrALNCtjR9BtPZ8m-DsbVc1toJOiFu7RqL6sty7sm1okJYqB_DeFbiUMivd2xejSDn1m40ngUbNU4w6CwQoBPjYj-d_-fcHnXTDVaZMgHFb7X8HW5OT_il7rqxI07HEy24FaycMLYTxTdOzZKCW/s484/logo-icon-rank-mythical-glory-png-ml.png" alt="Mythic Glory" style="width:48px;height:48px;object-fit:contain;"></div>
         <div class="rank-name">Mythic Glory</div>
-        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
-        <div class="rank-price">Rp16.000</div>
-        <div class="rank-note">1 Star = Rp16.000</div>
+        <div class="rank-price">Rp13.000</div>
+        <div class="rank-note">1 Star = Rp13.000</div>
         <button onclick="openOrderModal('MythicGlory')" class="btn-rank">Order Sekarang</button>
       </div>
 
-      <div class="rank-card">
+      <div class="rank-card featured">
         <div class="rank-icon"><img src="https://plain-apac-prod-public.komododecks.com/202605/21/k77ezG5ut0gEJgwTTNls/image.png" alt="Mythic Immortal" style="width:48px;height:48px;object-fit:contain;"></div>
         <div class="rank-name">Mythic Immortal</div>
-        <div class="rank-stars">⭐⭐⭐⭐⭐</div>
-        <div class="rank-price">Rp20.000</div>
-        <div class="rank-note">1 Star = Rp20.000</div>
+        <div class="rank-price">Rp16.000</div>
+        <div class="rank-note">1 Star = Rp16.000</div>
         <button onclick="openOrderModal('MythicImmortal')" class="btn-rank">Order Sekarang</button>
       </div>
 
@@ -683,31 +703,9 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
       <div class="cta-feature">Aman & Privacy</div>
     </div>
     <a href="https://wa.me/6289684943741" target="_blank" class="btn-primary">Chat WhatsApp Sekarang</a>
-    <p class="cta-note">★ Free konsultasi · No ribet ★</p>
+    <p class="cta-note">©NezzDev 2026. All rights reserved.</p>
   </div>
 </section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo-wrap">
-    <span style="font-size:36px;">🎮</span>
-    <span style="font-size:24px;font-weight:800;margin-left:8px;color:var(--gold);">JOKI ML</span>
-  </div>
-  <div class="footer-links">
-    <a href="#">Beranda</a>
-    <a href="#harga">Harga</a>
-    <a href="#cara">Cara Order</a>
-    <a href="#testi">Testimonial</a>
-    <a href="#faq">FAQ</a>
-  </div>
-  <div class="footer-social">
-    <a href="https://wa.me/6289684943741" target="_blank" class="wa" title="WhatsApp"><img src="https://static.vecteezy.com/system/resources/thumbnails/022/794/113/small/3d-render-whatsapp-logo-icon-isolated-on-transparent-background-free-png.png" style="width:24px;height:24px;object-fit:contain;"></a>
-    <a href="https://www.youtube.com/@akuoness" target="_blank" class="yt" title="YouTube"><img src="https://static.vecteezy.com/system/resources/thumbnails/065/386/840/small/youtube-icon-logo-yt-app-editable-transparent-background-premium-social-media-design-for-digital-download-free-png.png" style="width:24px;height:24px;object-fit:contain;"></a>
-    <a href="https://www.instagram.com/onesszz" target="_blank" class="ig" title="Instagram"><img src="https://static.vecteezy.com/system/resources/thumbnails/042/127/160/small/instagram-logo-on-circle-style-with-transparent-background-free-png.png" style="width:24px;height:24px;object-fit:contain;"></a>
-  </div>
-  <a href="https://wa.me/6289684943741" target="_blank" class="footer-dev">Made with ❤️ by AkuOness ✦</a>
-  <p class="footer-copy">© 2026 Joki MLBB — Boosting Service</p>
-</footer>
 
 <div id="toast"></div>
 
@@ -783,12 +781,12 @@ window.addEventListener('load',function(){
 
 // Rank data
 const rankPrices={
-  'Grandmaster':3000,'Epic':4500,'Legend':6000,
-  'Mythic':8000,'MythicHonor':11000,'MythicGlory':16000,'MythicImmortal':20000
+  'Master':1500,'Grandmaster':2500,'Epic':4000,'Legend':5000,
+  'Mythic':7000,'MythicHonor':9000,'MythicGlory':13000,'MythicImmortal':16000
 };
 const mythicTiers=['Mythic','MythicHonor','MythicGlory','MythicImmortal'];
-const nonMythicRanks=['Grandmaster','Epic','Legend'];
-const rankOrder=['Grandmaster','Epic','Legend','Mythic','MythicHonor','MythicGlory','MythicImmortal'];
+const nonMythicRanks=['Master','Grandmaster','Epic','Legend'];
+const rankOrder=['Master','Grandmaster','Epic','Legend','Mythic','MythicHonor','MythicGlory','MythicImmortal'];
 
 // Initialize dropdown options
 function initRankOptions(){
