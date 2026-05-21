@@ -31,7 +31,7 @@ body{font-family:'Outfit',sans-serif;color:var(--text);background:var(--bg);over
 .scroll-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--primary-glow),var(--gold));z-index:1001;transition:width .1s}
 
 /* LOADER */
-.loader-overlay{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
+.loader-overlay{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .6s,visibility .6s}
 .loader-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
 .loader-logo-wrap{position:relative;margin-bottom:30px;text-align:center;width:100%}
 .loader-logo{width:150px;height:auto;display:inline-block;animation:loaderPulse 1.5s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(251,191,36,.5))}
@@ -39,7 +39,14 @@ body{font-family:'Outfit',sans-serif;color:var(--text);background:var(--bg);over
 .loader-bar{width:200px;height:4px;background:#1a1a24;border-radius:4px;overflow:hidden;margin:0 auto}
 .loader-progress{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--gold));border-radius:4px;animation:loadBar 2s ease-in-out forwards}
 @keyframes loadBar{0%{width:0}50%{width:70%}100%{width:100%}}
-.loader-text{font-size:12px;color:var(--muted);margin-top:16px;letter-spacing:2px;text-align:center}
+.loader-text{font-size:12px;color:var(--muted);margin-top:16px;letter-spacing:2px}
+@media(max-width:480px){
+  .loader-overlay{justify-content:center;padding-left:15%}
+  .loader-logo{width:100px}
+  .loader-bar{width:140px}
+  .loader-text{font-size:10px}
+  .loader-logo-wrap{margin-bottom:20px}
+}
 
 /* BG */
 .bg{position:fixed;inset:0;z-index:0;background:var(--bg)}
@@ -126,20 +133,14 @@ body{font-family:'Outfit',sans-serif;color:var(--text);background:var(--bg);over
 .trust-text{font-size:13px;font-weight:600;color:var(--success)}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:500;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(10,10,15,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.nav-logo-wrap{position:relative;display:flex;align-items:center}
-.nav-logo-wrap img{height:36px;filter:drop-shadow(0 0 10px rgba(251,191,36,.5));transition:filter .3s}
+nav{position:fixed;top:0;left:0;right:0;z-index:500;height:52px;display:flex;align-items:center;padding:0 8px;background:rgba(10,10,15,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo-wrap{display:flex;align-items:center;flex-shrink:0;margin-right:12px}
+.nav-logo-wrap img{height:26px;filter:drop-shadow(0 0 10px rgba(251,191,36,.5));transition:filter .3s}
 .nav-logo-wrap:hover img{filter:drop-shadow(0 0 20px rgba(251,191,36,.8)) drop-shadow(0 0 40px rgba(251,191,36,.4))}
-.nav-links{display:flex;gap:32px;list-style:none}
-.nav-links a{font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links{display:flex;gap:8px;list-style:none;margin:0;padding:0}
+.nav-links a{font-size:11px;font-weight:600;color:var(--muted);text-decoration:none;transition:color .2s;white-space:nowrap}
 .nav-links a:hover{color:var(--text)}
-.nav-links a.cta-link{color:var(--gold)}
-.nav-links a.cta-link:hover{color:#fbbf24}
-.nav-toggle{display:none}
-.btn-nav{font-size:14px;font-weight:700;padding:10px 24px;background:linear-gradient(135deg,var(--primary),var(--orange));color:#fff;border:none;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 4px 20px rgba(249,115,22,.3)}
-.btn-nav:hover{transform:translateY(-2px);box-shadow:0 4px 30px rgba(249,115,22,.5)}
 .nav-links li{border:none}
-.nav-links a{display:inline;padding:0}
 
 /* HERO */
 .hero{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px}
@@ -182,31 +183,36 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;height:64px;display:flex;ali
 .sec-h{font-size:clamp(24px,4vw,40px);font-weight:800;text-align:center;margin-bottom:16px}
 .sec-sub{font-size:16px;color:var(--muted);text-align:center;max-width:500px;margin:0 auto 48px;line-height:1.6}
 
-/* RANK LIST */
-.rank-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:900px;margin:0 auto}
-.rank-card{max-width:240px;margin:0 auto}
-.rank-card.mabar-card{border-color:var(--primary);cursor:pointer}
-.rank-card.mabar-card:hover{border-color:var(--primary-glow);box-shadow:0 12px 30px rgba(99,102,241,.3)}
-.mabar-card .rank-name{color:var(--primary-glow)}
-.mabar-card .rank-stars{color:var(--muted);font-size:14px}
-.mythic-immortal-promo{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
-.speech-bubble{background:var(--gold);color:#000;padding:12px 16px;border-radius:16px;border-bottom-left-radius:4px;font-size:13px;font-weight:700;position:relative;max-width:180px;text-align:center;animation:bounce 2s ease-in-out infinite}
-.speech-bubble::after{content:'';position:absolute;bottom:-8px;left:20px;width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid var(--gold)}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.rank-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .3s;text-align:center;position:relative;overflow:hidden}
-.rank-card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(251,191,36,.05),transparent);transition:left .5s;pointer-events:none}
-.rank-card:hover::before{left:100%}
-.rank-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(251,191,36,.15);border-color:rgba(251,191,36,.3)}
-.rank-card.featured{border-color:var(--gold);box-shadow:0 0 30px rgba(251,191,36,.2)}
-.rank-card.featured::after{content:'BEST SELLER';position:absolute;top:12px;right:-28px;background:linear-gradient(135deg,var(--gold),var(--orange));color:#000;font-size:9px;font-weight:800;padding:3px 35px;transform:rotate(45deg)}
-.rank-icon{font-size:36px;margin-bottom:10px}
-.rank-name{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text)}
-.rank-stars{font-size:14px;color:var(--gold);margin-bottom:10px}
-.rank-price{font-size:22px;font-weight:800;color:var(--gold);margin-bottom:4px}
-.rank-price span{font-size:12px;font-weight:400;color:var(--muted)}
-.rank-note{font-size:11px;color:var(--muted);margin-bottom:14px}
-.btn-rank{display:inline-block;padding:10px 20px;background:linear-gradient(135deg,var(--primary),var(--orange));color:#fff;font-size:12px;font-weight:700;border-radius:8px;text-decoration:none;transition:all .2s}
-.btn-rank:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(249,115,22,.3)}
+/* RANK LIST - 4 kolom di mobile */
+.rank-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.rank-card {
+  max-width: none;
+  margin: 0;
+}
+.mythic-immortal-promo { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px }
+.speech-bubble { background: var(--gold); color: #000; padding: 10px 14px; border-radius: 14px; border-bottom-left-radius: 4px; font-size: 11px; font-weight: 700; position: relative; max-width: 150px; text-align: center; animation: bounce 2s ease-in-out infinite }
+.speech-bubble::after { content: ''; position: absolute; bottom: -7px; left: 16px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid var(--gold) }
+@keyframes bounce { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
+.rank-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 8px; transition: all .3s; text-align: center; position: relative; overflow: hidden }
+.rank-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(251,191,36,.05), transparent); transition: left .5s; pointer-events: none }
+.rank-card:hover::before { left: 100% }
+.rank-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(251,191,36,.15); border-color: rgba(251,191,36,.3) }
+.rank-card.featured { border-color: var(--gold); box-shadow: 0 0 25px rgba(251,191,36,.2) }
+.rank-card.featured::after { content: 'BEST'; position: absolute; top: 8px; right: -24px; background: linear-gradient(135deg, var(--gold), var(--orange)); color: #000; font-size: 8px; font-weight: 800; padding: 2px 30px; transform: rotate(45deg) }
+.rank-icon { font-size: 28px; margin-bottom: 6px }
+.rank-icon img { width: 36px; height: 36px; object-fit: contain; }
+.rank-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; color: var(--text) }
+.rank-stars { font-size: 11px; color: var(--gold); margin-bottom: 6px }
+.rank-price { font-size: 16px; font-weight: 800; color: var(--gold); margin-bottom: 2px }
+.rank-price span { font-size: 10px; font-weight: 400; color: var(--muted) }
+.rank-note { font-size: 9px; color: var(--muted); margin-bottom: 8px; line-height: 1.2 }
+.btn-rank { display: inline-block; padding: 7px 12px; background: linear-gradient(135deg, var(--primary), var(--orange)); color: #fff; font-size: 10px; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all .2s }
 
 /* GAME MODES */
 .modes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
@@ -227,22 +233,22 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;height:64px;display:flex;ali
 
 /* GUARANTEE */
 .guarantee{background:linear-gradient(135deg,rgba(34,197,94,.1) 0%,rgba(16,185,129,.1) 100%);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.guarantee-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
-.guarantee-item{text-align:center;padding:24px}
-.guarantee-icon{font-size:48px;margin-bottom:16px}
-.guarantee-title{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text)}
-.guarantee-desc{font-size:13px;color:var(--muted);line-height:1.5}
+.guarantee-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.guarantee-item{text-align:center;padding:16px}
+.guarantee-icon{font-size:28px;margin-bottom:8px}
+.guarantee-title{font-size:12px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.guarantee-desc{font-size:10px;color:var(--muted);line-height:1.4}
 
 /* TESTIMONIALS */
 .testimonials{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.testi-card{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:28px;transition:all .3s}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.testi-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;transition:all .3s}
 .testi-card:hover{transform:translateY(-4px);border-color:rgba(251,191,36,.3)}
-.testi-avatar{width:48px;height:48px;background:linear-gradient(135deg,var(--primary),var(--gold));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px}
-.testi-stars{color:#fbbf24;margin-bottom:12px;font-size:16px}
-.testi-text{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:16px;font-style:italic}
-.testi-name{font-size:14px;font-weight:700;color:var(--text)}
-.testi-role{font-size:12px;color:var(--muted)}
+.testi-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--gold));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:12px}
+.testi-stars{color:#fbbf24;margin-bottom:8px;font-size:12px}
+.testi-text{font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:12px;font-style:italic}
+.testi-name{font-size:12px;font-weight:700;color:var(--text)}
+.testi-role{font-size:10px;color:var(--muted)}
 
 /* FAQ */
 .faq-list{max-width:700px;margin:0 auto}
@@ -288,48 +294,98 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
 /* ORDER MODAL */
-.order-modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.9);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .3s;padding:20px}
-.order-modal.active{opacity:1;visibility:visible}
-.order-modal-content{background:var(--card);border:1px solid rgba(251,191,36,.3);border-radius:20px;width:100%;max-width:420px;padding:32px;position:relative;transform:scale(.9);transition:transform .3s;min-height:400px}
-.order-modal.active .order-modal-content{transform:scale(1)}
-.order-modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;transition:color .2s}
+.order-modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.9);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .3s;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.order-modal.active{opacity:1;visibility:visible;overflow-y:auto}
+.order-modal-content{background:var(--card);border:1px solid rgba(251,191,36,.3);border-radius:10px;width:240px;padding:12px 10px;position:relative;margin:10px auto}
+.order-modal.active .order-modal-content{transform:none}
+.order-modal-close{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px;line-height:1}
 .order-modal-close:hover{color:var(--text)}
-.order-modal-header{text-align:center;margin-bottom:24px}
-.order-modal-header h3{font-size:20px;font-weight:700;margin-bottom:8px;color:var(--gold)}
-.order-modal-header p{font-size:14px;color:var(--muted)}
-.order-form-group{margin-bottom:16px}
-.order-form-group label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px}
-.order-form-group input,.order-form-group select{width:100%;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none;transition:border-color .2s}
+.order-modal-header{text-align:center;margin-bottom:8px;padding-right:18px}
+.order-modal-header h3{font-size:13px;font-weight:700;margin-bottom:2px;color:var(--gold)}
+.order-modal-header p{font-size:8px;color:var(--muted);line-height:1.2}
+.order-form-group{margin-bottom:6px}
+.order-form-group label{display:block;font-size:8px;font-weight:600;color:var(--muted);margin-bottom:2px}
+.order-form-group input,.order-form-group select{width:100%;padding:5px 6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:9px;outline:none;transition:border-color .2s}
 .order-form-group input:focus,.order-form-group select:focus{border-color:var(--gold)}
 .order-form-group select:disabled{opacity:0.5;cursor:not-allowed}
 .order-form-group select option{background:var(--card)}
-.order-price-display{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(249,115,22,.1));border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px}
-.order-price-display .label{font-size:12px;color:var(--muted);margin-bottom:4px}
-.order-price-display .price{font-size:28px;font-weight:800;color:var(--gold)}
-.order-price-display .detail{font-size:12px;color:var(--muted);margin-top:4px}
-.btn-order{width:100%;padding:16px;background:linear-gradient(135deg,var(--primary),var(--orange));color:#fff;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer;transition:all .2s;text-align:center;display:block;text-decoration:none}
-.btn-order:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(249,115,22,.4)}
+.order-price-display{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(249,115,22,.1));border:1px solid rgba(251,191,36,.3);border-radius:5px;padding:6px;text-align:center;margin-bottom:8px}
+.order-price-display .label{font-size:7px;color:var(--muted);margin-bottom:2px}
+.order-price-display .price{font-size:14px;font-weight:800;color:var(--gold)}
+.order-price-display .detail{font-size:7px;color:var(--muted);margin-top:2px;white-space:pre-line}
+.btn-order{width:100%;padding:7px;background:linear-gradient(135deg,var(--primary),var(--orange));color:#fff;font-size:9px;font-weight:700;border:none;border-radius:5px;cursor:pointer;transition:all .2s;text-align:center;display:block;text-decoration:none}
+.btn-order:hover{transform:translateY(-1px)}
 
-/* RESPONSIVE - Desktop style di Android */
+/* RESPONSIVE */
+@media(max-width:768px){
+  .rank-grid{grid-template-columns:repeat(4,1fr);gap:8px;max-width:100%;padding:0 8px}
+  .rank-card{padding:10px 6px}
+  .rank-icon img{width:32px;height:32px}
+  .rank-name{font-size:11px}
+  .rank-stars{font-size:10px}
+  .rank-price{font-size:14px}
+  .rank-note{font-size:8px}
+  .btn-rank{padding:6px 10px;font-size:9px}
+}
 @media(max-width:480px){
-  /* Same as desktop, hanya allow scrolling horizontal */
-  body{min-width:320px;overflow-x:auto}
+  body{min-width:auto}
   .hero{min-height:100vh}
   nav .nav-toggle{display:none}
-  .order-modal{position:fixed;overflow-y:auto}
-  .order-modal-content{min-width:420px;max-width:420px;margin:0 auto;border-radius:20px;padding:32px}
-  .order-modal-close{position:absolute;top:16px;right:16px;font-size:24px;padding:8px}
-  .order-modal-header{margin-bottom:24px}
-  .order-modal-header h3{font-size:20px;margin-bottom:8px}
-  .order-modal-header p{font-size:14px}
-  .order-form-group{margin-bottom:16px}
-  .order-form-group label{font-size:13px;margin-bottom:8px}
-  .order-form-group input,.order-form-group select{padding:14px 16px;font-size:14px;border-radius:10px}
-  .order-price-display{padding:20px;margin-bottom:20px}
-  .order-price-display .price{font-size:28px}
-  .order-price-display .label,.order-price-display .detail{font-size:12px}
-  .btn-order{padding:16px;font-size:15px;border-radius:12px}
   .back-to-top,.wa-float{position:fixed}
+
+  /* Nav mobile - KIRI */
+  nav{justify-content:flex-start}
+  .nav-logo-wrap{position:relative}
+  .nav-logo-wrap img{height:22px!important}
+  .nav-links a{font-size:9px!important;padding:0}
+
+  /* Back to top & WA mobile */
+  .back-to-top{bottom:16px;right:16px;width:40px;height:40px;font-size:16px}
+  .wa-float{bottom:16px;left:16px;width:44px;height:44px;font-size:22px}
+  .wa-float img{width:24px;height:24px}
+
+  /* Guarantee mobile */
+  .guarantee-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .guarantee-item{padding:10px}
+  .guarantee-icon{font-size:22px;margin-bottom:4px}
+  .guarantee-title{font-size:10px;margin-bottom:2px}
+  .guarantee-desc{font-size:9px}
+
+  /* Testimonial mobile */
+  .testi-grid{grid-template-columns:1fr;gap:10px}
+  .testi-card{padding:12px}
+  .testi-avatar{width:32px;height:32px;font-size:12px;margin-bottom:8px}
+  .testi-stars{font-size:10px;margin-bottom:6px}
+  .testi-text{font-size:10px;margin-bottom:8px}
+  .testi-name{font-size:11px}
+  .testi-role{font-size:9px}
+}
+
+/* HP 6.78 inci (360-420px) */
+@media screen and (max-width:420px) and (min-height:700px){
+  .order-modal{justify-content:center;align-items:flex-start;padding:20px 0}
+  .order-modal-content{width:220px;margin:0 auto;padding:10px 8px}
+  .order-modal-close{top:4px;right:4px;font-size:14px}
+  .order-modal-header{margin-bottom:6px;padding-right:14px}
+  .order-modal-header h3{font-size:11px}
+  .order-modal-header p{font-size:7px}
+  .order-form-group{margin-bottom:5px}
+  .order-form-group label{font-size:7px}
+  .order-form-group input,.order-form-group select{padding:5px 6px;font-size:8px}
+  .order-price-display{padding:6px 4px;margin-bottom:6px}
+  .order-price-display .label{font-size:6px}
+  .order-price-display .price{font-size:14px}
+  .order-price-display .detail{font-size:6px}
+  .btn-order{padding:6px;font-size:8px}
+}
+
+@media(max-width:360px){
+  .rank-grid{grid-template-columns:repeat(4,1fr);gap:6px;padding:0 4px}
+  .rank-card{padding:8px 4px}
+  .rank-icon img{width:28px;height:28px}
+  .rank-name{font-size:10px}
+  .rank-price{font-size:12px}
+  .btn-rank{padding:5px 8px;font-size:8px}
 }
 
 /* PROMO BANNER */
@@ -384,25 +440,16 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
 
 <!-- NAV -->
 <nav>
-  <button class="nav-toggle" onclick="toggleNav()">☰</button>
   <a href="#" class="nav-logo-wrap">
-    <img src="https://plain-apac-prod-public.komododecks.com/202605/20/ulWbfLykwXVJzpwXT4Qx/image.png" alt="JOKI ML" style="height:50px;">
-    <span style="font-size:18px;font-weight:800;margin-left:8px;color:var(--gold);"></span>
+    <img src="https://plain-apac-prod-public.komododecks.com/202605/20/ulWbfLykwXVJzpwXT4Qx/image.png" alt="JOKI ML" style="height:28px;">
   </a>
   <ul class="nav-links" id="navLinks">
-    <li><a href="#">Beranda</a></li>
+    <li><a href="#">Home</a></li>
     <li><a href="#harga">Harga</a></li>
-    <li><a href="#cara">Cara Order</a></li>
-    <li><a href="#testi">Testimonial</a></li>
+    <li><a href="#testi">Testi</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
-  <a href="#harga" class="btn-nav">Order Now</a>
 </nav>
-
-<!-- FLOATING ORDER BUTTON -->
-<a href="#harga" class="float-order-btn">
-  <span>⚡</span> Order Sekarang
-</a>
 
 <!-- HERO -->
 <section class="hero">
@@ -506,16 +553,7 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
         <button onclick="openOrderModal('MythicImmortal')" class="btn-rank">Order Sekarang</button>
       </div>
 
-      <!-- MABAR BARENG -->
-      <div class="rank-card mabar-card" onclick="openMabarModal()">
-        <div class="rank-icon">🎮</div>
-        <div class="rank-name">Mabar Bareng</div>
-        <div class="rank-stars">Joki Handal</div>
-        <div class="rank-price">Rp8.000<span style="font-size:12px;font-weight:400;">/game</span></div>
-        <div class="rank-note">GM-Legend Rp8rb | Mythic+ Rp15rb</div>
-        <button class="btn-rank">Order Sekarang</button>
-      </div>
-    </div>
+          </div>
 
     <!-- TRUST BADGES -->
     <div class="trust-badges">
@@ -706,50 +744,6 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
   </div>
 </div>
 
-<!-- MABAR MODAL -->
-<div class="order-modal" id="mabarModal">
-  <div class="order-modal-content">
-    <button class="order-modal-close" onclick="closeMabarModal()">×</button>
-    <div class="order-modal-header">
-      <h3>Mabar Bareng</h3>
-      <p>Main bareng joki handal! Rank apapun gas aja!</p>
-    </div>
-    <div class="order-form-group">
-      <label>Rank Saat Ini</label>
-      <select id="mabarRank" onchange="calculateMabarPrice()">
-        <option value="">-- Pilih Rank Saat Ini --</option>
-        <option value="GM">Grandmaster</option>
-        <option value="Epic">Epic</option>
-        <option value="Legend">Legend</option>
-        <option value="Mythic">Mythic</option>
-        <option value="MythicHonor">Mythic Honor</option>
-        <option value="MythicGlory">Mythic Glory</option>
-        <option value="MythicImmortal">Mythic Immortal</option>
-      </select>
-    </div>
-    <div class="order-form-group">
-      <label>Jumlah Game</label>
-      <select id="mabarGameCount" onchange="calculateMabarPrice()">
-        <option value="1">1 Game</option>
-        <option value="2">2 Game</option>
-        <option value="3">3 Game</option>
-        <option value="4">4 Game</option>
-        <option value="5">5 Game</option>
-        <option value="6">6 Game</option>
-        <option value="7">7 Game</option>
-        <option value="8">8 Game</option>
-        <option value="9">9 Game</option>
-        <option value="10">10 Game</option>
-      </select>
-    </div>
-    <div class="order-price-display">
-      <div class="label">Total Harga</div>
-      <div class="price" id="mabarTotalPrice">Rp 45.000</div>
-      <div class="detail" id="mabarPriceDetail">3 game × Rp15.000</div>
-    </div>
-    <a href="#" id="orderMabarWhatsApp" target="_blank" class="btn-order">💬 Chat WhatsApp untuk Order</a>
-  </div>
-</div>
 
 <script>
 // Particles
@@ -1039,55 +1033,6 @@ function closeOrderModal(){
   window.currentOpenedRank=null;
 }
 
-// Mabar Modal Functions
-function openMabarModal(){
-  document.getElementById('mabarModal').classList.add('active');
-  document.body.style.overflow='hidden';
-  calculateMabarPrice();
-}
-
-function closeMabarModal(){
-  document.getElementById('mabarModal').classList.remove('active');
-  document.body.style.overflow='';
-  // Reset form
-  document.getElementById('mabarRank').value='';
-  document.getElementById('mabarGameCount').value='3';
-  calculateMabarPrice();
-}
-
-document.getElementById('mabarModal').addEventListener('click',function(e){if(e.target===this)closeMabarModal()});
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){
-    closeOrderModal();
-    closeMabarModal();
-  }
-});
-
-function calculateMabarPrice(){
-  const rank=document.getElementById('mabarRank').value;
-  const games=parseInt(document.getElementById('mabarGameCount').value)||1;
-  const pDisp=document.getElementById('mabarTotalPrice');
-  const pDet=document.getElementById('mabarPriceDetail');
-  const wa=document.getElementById('orderMabarWhatsApp');
-
-  // GM, Epic, Legend = 8rb | Mythic+ = 15rb
-  const lowRankPrice=8000;
-  const highRankPrice=15000;
-  const mythicRanks=['Mythic','MythicHonor','MythicGlory','MythicImmortal'];
-
-  const pricePerGame=mythicRanks.includes(rank) ? highRankPrice : lowRankPrice;
-  const total=games*pricePerGame;
-
-  pDisp.textContent=`Rp ${total.toLocaleString()}`;
-  pDet.textContent=`${games} game × Rp${pricePerGame.toLocaleString()}/game`;
-
-  const rankName=rank || 'Rank Apapun';
-  let msg=`Halo, saya mau order Mabar Bareng Joki MLBB:\n\n`;
-  msg+=`🎮 Rank Saat Ini: ${rankName}\n`;
-  msg+=`🎯 Jumlah Game: ${games} game\n`;
-  msg+=`💰 Total: Rp${total.toLocaleString()}\n\nMohon info lanjut!`;
-  wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
-}
 
 function onCurrentRankChange(){
   const tar=document.getElementById('targetRank');
