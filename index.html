@@ -492,6 +492,16 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--gold);color:#fff;padding:14px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:2000;opacity:0;transition:all .4s;box-shadow:0 0 30px rgba(251,191,36,.3)}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
+/* REDEEM BUTTON */
+.btn-redeem-float{position:fixed;top:70px;right:24px;padding:12px 20px;background:linear-gradient(135deg,var(--gold),var(--orange));color:#000;font-size:13px;font-weight:700;border-radius:25px;display:flex;align-items:center;gap:8px;z-index:900;box-shadow:0 4px 20px rgba(251,191,36,.4);text-decoration:none;transition:all .3s;animation:redeemPulse 2s ease-in-out infinite}
+.btn-redeem-float:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 8px 30px rgba(251,191,36,.5)}
+.btn-redeem-float span{font-size:16px}
+@keyframes redeemPulse{0%,100%{box-shadow:0 4px 20px rgba(251,191,36,.4)}50%{box-shadow:0 4px 30px rgba(251,191,36,.6),0 0 20px rgba(251,191,36,.3)}}
+@media(max-width:768px){.btn-redeem-float{display:none}}
+
+/* BUTTON DISABLED STATE */
+.btn-order-disabled{opacity:0.5;cursor:not-allowed;pointer-events:none}
+
 /* ORDER MODAL - MODERN NEON STYLE */
 .order-modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.95);backdrop-filter:blur(15px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .4s;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .order-modal.active{opacity:1;visibility:visible;overflow-y:auto}
@@ -696,6 +706,9 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
 
 <!-- WHATSAPP FLOAT -->
 <a href="https://wa.me/6289684943741" target="_blank" class="wa-float">💬</a>
+
+<!-- REDEEM FLOAT BUTTON -->
+<a href="#" onclick="openRedeemModal(); return false;" class="btn-redeem-float"><span>🎁</span> Redeem Code</a>
 
 <!-- NAV -->
 <nav>
@@ -1033,9 +1046,161 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
       <div class="price" id="totalPrice">Rp 0</div>
       <div class="detail" id="priceDetail">Pilih rank saat ini terlebih dahulu</div>
     </div>
-    <a href="#" id="orderWhatsApp" target="_blank" class="btn-order">💬 Chat WhatsApp Sekarang</a>
+    <a href="#" id="orderWhatsApp" target="_blank" class="btn-order" style="opacity: 0.5; pointer-events: none;">💬 Chat WhatsApp Sekarang</a>
   </div>
 </div>
+
+<!-- REDEEM CODE MODAL -->
+<div class="order-modal" id="redeemModal">
+  <div class="order-modal-content">
+    <button class="order-modal-close" onclick="closeRedeemModal()">×</button>
+    <div class="order-modal-header">
+      <h3>🎁 Redeem Code</h3>
+      <p>Masukkan kode promo untuk mendapatkan diskon!</p>
+    </div>
+    <div class="order-form-group">
+      <label>Kode Promo</label>
+      <input type="text" id="redeemCodeInput" placeholder="Masukkan kode promo..." style="text-transform: uppercase;">
+    </div>
+    <div class="order-price-display" id="redeemResult" style="display: none;">
+      <div class="label">Status</div>
+      <div class="price" id="redeemStatus">Berhasil!</div>
+      <div class="detail" id="redeemDetail"></div>
+    </div>
+    <button onclick="submitRedeemCode()" class="btn-order">🎟️ Redeem Sekarang</button>
+  </div>
+</div>
+
+<script>
+// Active discount codes database
+const validCodes = {
+  'JOKIML': { discount: 10, type: 'percent', description: 'Diskon 10% untuk pembelian pertama', maxUses: 100, currentUses: 0 },
+  'NEZZDEV': { discount: 15000, type: 'fixed', description: 'Diskon Rp15.000 untuk semua order', maxUses: 50, currentUses: 0 },
+  'MYTHIC50': { discount: 50, type: 'percent', description: 'Diskon 50% untuk Mythic Immortal', maxUses: 20, currentUses: 0 },
+  'EPIC25': { discount: 25, type: 'percent', description: 'Diskon 25% untuk rank Epic', maxUses: 30, currentUses: 0 },
+  'FLASHSALE': { discount: 5000, type: 'fixed', description: 'Diskon Rp5.000 flash sale', maxUses: 200, currentUses: 0 }
+};
+
+// User's redeemed codes (stored in localStorage)
+let userRedeemedCodes = JSON.parse(localStorage.getItem('redeemedCodes') || '[]');
+
+function openRedeemModal() {
+  document.getElementById('redeemModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  // Reset form
+  document.getElementById('redeemCodeInput').value = '';
+  document.getElementById('redeemResult').style.display = 'none';
+}
+
+function closeRedeemModal() {
+  document.getElementById('redeemModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function submitRedeemCode() {
+  const codeInput = document.getElementById('redeemCodeInput');
+  const code = codeInput.value.trim().toUpperCase();
+  const resultDiv = document.getElementById('redeemResult');
+  const statusDiv = document.getElementById('redeemStatus');
+  const detailDiv = document.getElementById('redeemDetail');
+
+  if (!code) {
+    showToast('⚠️ Masukkan kode promo terlebih dahulu!');
+    return;
+  }
+
+  // Check if code exists
+  if (!validCodes[code]) {
+    resultDiv.style.display = 'block';
+    statusDiv.textContent = '❌ Kode Tidak Valid';
+    statusDiv.style.color = 'var(--danger)';
+    detailDiv.textContent = 'Kode promo yang Anda masukkan tidak tersedia atau sudah kadaluarsa.';
+    return;
+  }
+
+  // Check if user already redeemed this code
+  if (userRedeemedCodes.includes(code)) {
+    resultDiv.style.display = 'block';
+    statusDiv.textContent = '⚠️ Sudah Digunakan';
+    statusDiv.style.color = 'var(--warning)';
+    detailDiv.textContent = 'Anda sudah menggunakan kode promo ini sebelumnya.';
+    return;
+  }
+
+  // Check if code has reached max uses
+  const codeData = validCodes[code];
+  if (codeData.currentUses >= codeData.maxUses) {
+    resultDiv.style.display = 'block';
+    statusDiv.textContent = '❌ Kode Habis';
+    statusDiv.style.color = 'var(--danger)';
+    detailDiv.textContent = 'Maaf, kode promo ini sudah mencapai batas penggunaan.';
+    return;
+  }
+
+  // Code is valid - save it
+  userRedeemedCodes.push(code);
+  localStorage.setItem('redeemedCodes', JSON.stringify(userRedeemedCodes));
+  codeData.currentUses++;
+
+  // Show success message
+  resultDiv.style.display = 'block';
+  statusDiv.textContent = '✅ Berhasil!';
+  statusDiv.style.color = 'var(--success)';
+
+  let discountText = codeData.type === 'percent'
+    ? `${codeData.discount}%`
+    : `Rp${codeData.discount.toLocaleString()}`;
+
+  detailDiv.textContent = `Anda mendapatkan diskon ${discountText}!\n${codeData.description}`;
+
+  showToast(`🎉 Kode ${code} berhasil diredeem!`);
+
+  // Close modal after 2 seconds
+  setTimeout(() => {
+    closeRedeemModal();
+  }, 2000);
+}
+
+// Add redeem button to nav
+document.addEventListener('DOMContentLoaded', function() {
+  const navLinks = document.getElementById('navLinks');
+  const redeemLi = document.createElement('li');
+  redeemLi.innerHTML = '<a href="#" onclick="openRedeemModal(); return false;" style="color: var(--gold);">🎁 Redeem</a>';
+  navLinks.appendChild(redeemLi);
+});
+
+// Modify calculatePrice to apply discount
+const originalCalculatePrice = calculatePrice;
+calculatePrice = function() {
+  originalCalculatePrice();
+
+  // Apply discount if user has redeemed codes
+  if (userRedeemedCodes.length > 0) {
+    const latestCode = userRedeemedCodes[userRedeemedCodes.length - 1];
+    const codeData = validCodes[latestCode];
+
+    if (codeData) {
+      const priceText = document.getElementById('totalPrice').textContent;
+      const currentPrice = parseInt(priceText.replace(/[Rp ,.]/g, ''));
+
+      if (currentPrice > 0) {
+        let discountedPrice;
+        if (codeData.type === 'percent') {
+          discountedPrice = currentPrice * (1 - codeData.discount / 100);
+        } else {
+          discountedPrice = Math.max(0, currentPrice - codeData.discount);
+        }
+
+        const priceDetail = document.getElementById('priceDetail');
+        const savings = currentPrice - discountedPrice;
+        priceDetail.textContent += `\n💸 Diskon: -Rp${savings.toLocaleString()}\n✨ Final: Rp${discountedPrice.toLocaleString()}`;
+        document.getElementById('totalPrice').textContent = `Rp ${Math.floor(discountedPrice).toLocaleString()}`;
+      }
+    }
+  }
+}
+</script>
 
 
 <script>
@@ -1265,6 +1430,7 @@ function openOrderModal(rankName){
   document.body.style.overflow='hidden';
   const cur=document.getElementById('currentRank');
   const tar=document.getElementById('targetRank');
+  const wa=document.getElementById('orderWhatsApp');
 
   // Store which rank category was opened
   window.currentOpenedRank=rankName;
@@ -1272,6 +1438,12 @@ function openOrderModal(rankName){
   // Reset target rank - LOCKED until current rank is selected
   tar.value='';
   tar.disabled=true;
+
+  // Reset WhatsApp button to disabled state
+  wa.classList.add('btn-order-disabled');
+  wa.style.opacity = '0.5';
+  wa.style.pointerEvents = 'none';
+  wa.style.cursor = 'not-allowed';
 
   // Reset both dropdowns
   for(let i=0;i<cur.options.length;i++) cur.options[i].hidden=false;
@@ -1377,16 +1549,37 @@ function onCurrentRankChange(){
     tar.disabled=false;
     filterTargetOptions();
     calculatePrice();
+    updateOrderButton();
   } else {
     tar.disabled=true;
     tar.value='';
     calculatePrice();
+    updateOrderButton();
   }
 }
 function onTargetRankChange(){
   const t=document.getElementById('targetRank').value;
   filterTargetOptions();
   calculatePrice();
+  updateOrderButton();
+}
+
+function updateOrderButton(){
+  const cVal=document.getElementById('currentRank').value;
+  const tVal=document.getElementById('targetRank').value;
+  const wa=document.getElementById('orderWhatsApp');
+
+  if(cVal && tVal){
+    wa.classList.remove('btn-order-disabled');
+    wa.style.opacity = '1';
+    wa.style.pointerEvents = 'auto';
+    wa.style.cursor = 'pointer';
+  } else {
+    wa.classList.add('btn-order-disabled');
+    wa.style.opacity = '0.5';
+    wa.style.pointerEvents = 'none';
+    wa.style.cursor = 'not-allowed';
+  }
 }
 
 function calculatePrice(){
@@ -1400,11 +1593,18 @@ function calculatePrice(){
   if(!cVal){
     pDisp.textContent='Rp 0';
     pDet.textContent='Pilih rank saat ini terlebih dahulu';
-    wa.href='https://wa.me/6289684943741';
+    wa.href='https://wa.me/6289684943741?text=' + encodeURIComponent('Halo, saya mau order joki MLBB. Mohon infonya!');
+    updateOrderButton();
     return;
   }
 
-  if(!tVal){pDisp.textContent='Rp 0';pDet.textContent='Pilih rank target';wa.href='https://wa.me/6289684943741';return;}
+  if(!tVal){
+    pDisp.textContent='Rp 0';
+    pDet.textContent='Pilih rank target';
+    wa.href='https://wa.me/6289684943741?text=' + encodeURIComponent('Halo, saya mau order joki MLBB. Mohon infonya!');
+    updateOrderButton();
+    return;
+  }
   const cur=parseRank(cVal);
   const tar=parseRank(tVal);
 
@@ -1468,6 +1668,7 @@ function calculatePrice(){
       });
       msg+=`💰 Total: Rp${total.toLocaleString()}\n\nMohon info lanjut!`;
       wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
+      updateOrderButton();
       return;
     }
 
@@ -1530,6 +1731,7 @@ function calculatePrice(){
       });
       msg+=`💰 Total: Rp${total.toLocaleString()}\n\nMohon info lanjut!`;
       wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
+      updateOrderButton();
       return;
     }
 
@@ -1538,10 +1740,11 @@ function calculatePrice(){
     pDisp.textContent=`Rp ${total.toLocaleString()}`;
     pDet.textContent=`📍 → ${tar.baseRank}\n🏆 Poin Mythic: ${targetPoints} × Rp${mythicPrice.toLocaleString()}\n💰 Total: Rp${total.toLocaleString()}`;
     wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
+    updateOrderButton();
   }
 
   // Non-mythic - calculate with proper per-rank breakdown
-  if(!cur || !tar){pDisp.textContent='Rp 0';pDet.textContent='Pilih rank';return;}
+  if(!cur || !tar){pDisp.textContent='Rp 0';pDet.textContent='Pilih rank';updateOrderButton();return;}
 
   const cIdx=getRankIdx(cur.baseRank);
   const tIdx=getRankIdx(tar.baseRank);
@@ -1643,8 +1846,33 @@ function calculatePrice(){
     const divLabel=item.div==='Full'?'':item.div+' ';
     msg+=`   - ${item.rank} ${divLabel}${item.stars} bintang × Rp${item.price.toLocaleString()}\n`;
   });
-  msg+=`💰 Total: Rp${total.toLocaleString()}\n\nMohon info lanjut!`;
+
+  // Apply discount if user has redeemed codes
+  let discountedTotal = total;
+  let discountInfo = '';
+  if (userRedeemedCodes.length > 0) {
+    const latestCode = userRedeemedCodes[userRedeemedCodes.length - 1];
+    const codeData = validCodes[latestCode];
+
+    if (codeData) {
+      if (codeData.type === 'percent') {
+        const discount = total * codeData.discount / 100;
+        discountedTotal = total - discount;
+        discountInfo = `\n💸 Diskon ${codeData.discount}%: -Rp${discount.toLocaleString()}`;
+      } else {
+        discountedTotal = Math.max(0, total - codeData.discount);
+        discountInfo = `\n💸 Diskon: -Rp${codeData.discount.toLocaleString()}`;
+      }
+
+      pDet.textContent += discountInfo;
+      pDet.textContent += `\n✨ Final: Rp${discountedTotal.toLocaleString()}`;
+      pDisp.textContent = `Rp ${Math.floor(discountedTotal).toLocaleString()}`;
+    }
+  }
+
+  msg+=`💰 Total: Rp${total.toLocaleString()}${discountInfo}\n✨ Final: Rp${discountedTotal.toLocaleString()}\n\nMohon info lanjut!`;
   wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
+  updateOrderButton();
 }
 
 // Counter Animation
