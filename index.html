@@ -281,6 +281,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;height:52px;display:flex;ali
   box-shadow:0 4px 15px rgba(99,102,241,.3);
   position:relative;
   overflow:hidden;
+  border:none;
+  cursor:pointer;
 }
 .btn-rank::before{
   content:'';
@@ -372,7 +374,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;height:52px;display:flex;ali
   opacity:0.5;
   cursor:not-allowed;
   pointer-events:none;
-  background:linear-gradient(135deg,#666,#888);
 }
 
 /* JASA EDIT MONTAGE */
@@ -412,6 +413,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;height:52px;display:flex;ali
   flex-shrink:0;
 }
 .btn-montage:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(99,102,241,.5)}
+
+/* REDEEM SECTION IN MODAL */
+.redeem-logo-wrap{text-align:center;margin-bottom:16px}
+.redeem-logo{width:80px;height:auto;display:inline-block;filter:drop-shadow(0 0 15px rgba(251,191,36,.5));animation:redeemFloat 2s ease-in-out infinite}
+@keyframes redeemFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
 /* GAME MODES */
 .modes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
@@ -502,54 +508,72 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
 /* BUTTON DISABLED STATE */
 .btn-order-disabled{opacity:0.5;cursor:not-allowed;pointer-events:none}
 
-/* ORDER MODAL - MODERN NEON STYLE */
-.order-modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.95);backdrop-filter:blur(15px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .4s;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.order-modal.active{opacity:1;visibility:visible;overflow-y:auto}
-.order-modal-content{background:var(--card);border-radius:20px;width:280px;padding:24px 20px;position:relative;margin:10px auto;
-  /* RGB Neon Border */
-  border:2px solid transparent;
-  background-clip:padding-box;
-  box-shadow:
-    0 0 20px rgba(255,0,0,.3),
-    0 0 40px rgba(0,255,0,.2),
-    0 0 60px rgba(0,0,255,.2),
-    inset 0 0 30px rgba(255,0,0,.05);
-}
-.order-modal-content::before{
-  content:'';
-  position:absolute;
-  inset:-2px;
-  border-radius:22px;
-  padding:2px;
-  background:linear-gradient(90deg, #ff0000, #00ff00, #0000ff, #ff0000, #00ff00, #0000ff);
-  background-size:300% 100%;
-  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-  animation:rgbBorder 3s linear infinite;
-}
-@keyframes rgbBorder{0%{background-position:0% 0%}100%{background-position:300% 0%}}
+/* ORDER MODAL */
+.order-modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .3s cubic-bezier(.4,0,.2,1);padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.order-modal.active{opacity:1;visibility:visible}
+.order-modal-content{position:relative;width:300px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#15152a 0%,#0e0e1a 100%);border-radius:24px;padding:28px 22px 24px;border:1px solid rgba(251,191,36,.25);box-shadow:0 0 60px rgba(251,191,36,.12),0 30px 80px rgba(0,0,0,.6);animation:modalSlideIn .35s cubic-bezier(.4,0,.2,1)}
+@keyframes modalSlideIn{from{opacity:0;transform:translateY(30px) scale(.93)}to{opacity:1;transform:translateY(0) scale(1)}}
+.order-modal-content::before{content:'';position:absolute;top:0;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--orange),transparent);border-radius:0 0 4px 4px}
+.order-modal-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--muted);font-size:15px;width:30px;height:30px;border-radius:8px;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;line-height:1;z-index:10}
+.order-modal-close:hover{background:rgba(239,68,68,.3);color:#fff;border-color:rgba(239,68,68,.5);transform:rotate(90deg) scale(1.1)}
 
-.order-modal-close{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:var(--muted);font-size:18px;cursor:pointer;padding:6px 10px;line-height:1;border-radius:8px;transition:all .3s;backdrop-filter:blur(10px)}
-.order-modal-close:hover{background:rgba(239,68,68,.3);color:#fff;border-color:rgba(239,68,68,.5);transform:rotate(90deg)}
-.order-modal-header{text-align:center;margin-bottom:16px;padding-right:30px}
-.order-modal-header h3{font-size:18px;font-weight:800;margin-bottom:4px;background:linear-gradient(135deg,var(--gold),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-shadow:none;filter:drop-shadow(0 0 10px rgba(251,191,36,.5))}
-.order-modal-header p{font-size:11px;color:var(--muted);line-height:1.3}
-.order-form-group{margin-bottom:12px}
-.order-form-group label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
-.order-form-group input,.order-form-group select{width:100%;padding:10px 12px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:13px;outline:none;transition:all .3s;backdrop-filter:blur(10px)}
-.order-form-group input:focus,.order-form-group select:focus{border-color:var(--primary);box-shadow:0 0 20px rgba(99,102,241,.3),inset 0 0 20px rgba(99,102,241,.05)}
-.order-form-group select:disabled{opacity:0.5;cursor:not-allowed}
-.order-form-group select option{background:var(--card)}
-.order-price-display{background:linear-gradient(135deg,rgba(251,191,36,.15) 0%,rgba(249,115,22,.1) 100%);border:1px solid rgba(251,191,36,.4);border-radius:12px;padding:14px;text-align:center;margin-bottom:16px}
-.order-price-display .label{font-size:10px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
-.order-price-display .price{font-size:24px;font-weight:900;color:var(--gold);text-shadow:0 0 20px rgba(251,191,36,.5),0 0 40px rgba(251,191,36,.3);margin-bottom:8px}
-.order-price-display .detail{font-size:10px;color:var(--muted);margin-top:4px;white-space:pre-line;line-height:1.5}
+/* MODAL HEADER */
+.order-modal-header{text-align:center;margin-bottom:18px;padding-right:30px}
+.order-modal-header h3{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:2px}
 
-/* NEON BUTTON ORDER */
-.btn-order{width:100%;padding:14px 20px;background:linear-gradient(135deg,var(--primary),var(--orange));color:#fff;font-size:14px;font-weight:800;border:none;border-radius:12px;cursor:pointer;transition:all .3s;text-align:center;display:block;text-decoration:none;text-transform:uppercase;letter-spacing:1px}
-.btn-order:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(99,102,241,.4)}
+/* MODAL SECTION TITLE */
+.modal-section-title{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:6px}
+.modal-section-title .modal-icon{font-size:22px;filter:drop-shadow(0 0 10px rgba(251,191,36,.5))}
+.modal-section-title h3{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.modal-subtitle{text-align:center;font-size:11px;color:var(--muted);margin-bottom:20px;letter-spacing:.3px}
+
+/* MODAL DIVIDER */
+.modal-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
+.modal-divider::before,.modal-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(251,191,36,.2),transparent)}
+.modal-divider span{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase}
+
+/* MODAL BACK BUTTON */
+.order-modal-back{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--muted);font-size:11px;padding:8px 14px;border-radius:10px;cursor:pointer;transition:all .25s;margin-bottom:16px;display:inline-flex;align-items:center;gap:5px;font-family:inherit}
+.order-modal-back:hover{background:rgba(255,255,255,.1);color:#fff}
+
+/* FORM GROUP */
+.order-form-group{margin-bottom:14px}
+.order-form-group label{display:block;font-size:10px;font-weight:700;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:1.5px}
+.order-form-group input,.order-form-group select{width:100%;padding:13px 14px;background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.08);border-radius:12px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:all .25s;-webkit-appearance:none}
+.order-form-group input::placeholder{color:rgba(156,163,175,.4)}
+.order-form-group input:focus,.order-form-group select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.12),0 0 20px rgba(99,102,241,.15)}
+.order-form-group select:disabled{opacity:.3;cursor:not-allowed}
+.order-form-group select option{background:#0e0e1a}
+
+/* PRICE DISPLAY */
+.order-price-display{background:linear-gradient(135deg,rgba(251,191,36,.08) 0%,rgba(249,115,22,.05) 100%);border:1.5px solid rgba(251,191,36,.25);border-radius:16px;padding:18px 14px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden}
+.order-price-display::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,191,36,.5),transparent)}
+.order-price-display .label{font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:2px;font-weight:700}
+.order-price-display .price{font-size:28px;font-weight:900;color:var(--gold);text-shadow:0 0 30px rgba(251,191,36,.4);margin-bottom:6px}
+.order-price-display .detail{font-size:10px;color:var(--muted);line-height:1.5}
+
+/* BUTTONS */
+.btn-order{width:100%;padding:15px 20px;background:linear-gradient(135deg,var(--primary),#7c3aed);color:#fff;font-size:13px;font-weight:800;border:none;border-radius:14px;cursor:pointer;transition:all .3s;letter-spacing:.5px;display:block;text-align:center;text-decoration:none;text-transform:uppercase;font-family:inherit;box-shadow:0 4px 20px rgba(99,102,241,.3)}
+.btn-order:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(99,102,241,.45)}
+.btn-order:active{transform:translateY(0) scale(.98)}
+.btn-order-disabled{opacity:.35;cursor:not-allowed;background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(124,58,237,.2));box-shadow:none}
+.btn-order-disabled:hover{transform:none;box-shadow:none}
+.btn-order-alt{background:transparent;border:1.5px solid rgba(251,191,36,.3);color:var(--gold);font-size:12px;padding:13px 20px;text-transform:capitalize;letter-spacing:0;box-shadow:none}
+.btn-order-alt:hover{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.5);box-shadow:0 0 25px rgba(251,191,36,.12)}
+.btn-order-gold{background:linear-gradient(135deg,var(--gold),var(--orange));color:#000;box-shadow:0 4px 25px rgba(251,191,36,.35)}
+.btn-order-gold:hover{box-shadow:0 10px 40px rgba(251,191,36,.5)}
+
+/* REDEEM SECTION */
+.redeem-logo-wrap{text-align:center;margin-bottom:16px}
+.redeem-logo{width:72px;height:auto;display:inline-block;filter:drop-shadow(0 0 20px rgba(251,191,36,.6));animation:redeemFloat 2.5s ease-in-out infinite}
+@keyframes redeemFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.03)}}
+
+/* REDEEM RESULT */
+#redeemResult.success{border-color:rgba(34,197,94,.4);background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(34,197,94,.05))}
+#redeemResult.success::before{background:linear-gradient(90deg,transparent,rgba(34,197,94,.5),transparent)}
+#redeemResult.success .price{color:#4ade80;text-shadow:0 0 25px rgba(34,197,94,.4)}
+#redeemResult.success{border-color:rgba(34,197,94,.5);background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(34,197,94,.05))}
+#redeemResult.success .price{color:#4ade80;text-shadow:0 0 20px rgba(34,197,94,.5)}
 
 /* RESPONSIVE */
 @media(max-width:768px){
@@ -616,10 +640,21 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
 /* HP 6.78 inci (360-420px) */
 @media screen and (max-width:420px) and (min-height:700px){
   .order-modal{justify-content:center;align-items:flex-start;padding:20px 0}
-  .order-modal-content{width:260px;margin:0 auto;padding:20px 16px}
-  .order-modal-close{top:8px;right:8px;font-size:16px}
-  .order-modal-header{margin-bottom:12px;padding-right:26px}
+  .order-modal-content{width:280px;margin:16px auto;border-radius:20px}
+  .order-modal-close{top:10px;right:10px;width:28px;height:28px;font-size:14px}
+  .order-modal-header{margin-bottom:14px;padding-right:28px}
   .order-modal-header h3{font-size:16px}
+  .order-form-group{margin-bottom:12px}
+  .order-form-group label{font-size:9px}
+  .order-form-group input,.order-form-group select{padding:11px 12px;font-size:12px}
+  .order-price-display{padding:14px 12px;margin-bottom:14px;border-radius:14px}
+  .order-price-display .label{font-size:8px}
+  .order-price-display .price{font-size:24px}
+  .order-price-display .detail{font-size:9px}
+  .btn-order{padding:13px 16px;font-size:12px;border-radius:12px}
+  .modal-divider{margin:12px 0}
+  .modal-section-title{margin-bottom:14px}
+  .redeem-logo{width:64px}
   .order-modal-header p{font-size:9px}
   .order-form-group{margin-bottom:10px}
   .order-form-group label{font-size:9px}
@@ -707,8 +742,6 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
 <!-- WHATSAPP FLOAT -->
 <a href="https://wa.me/6289684943741" target="_blank" class="wa-float">💬</a>
 
-<!-- REDEEM FLOAT BUTTON -->
-<a href="#" onclick="openRedeemModal(); return false;" class="btn-redeem-float"><span>🎁</span> Redeem Code</a>
 
 <!-- NAV -->
 <nav>
@@ -769,7 +802,7 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
           <div class="rank-price">Rp1.500</div>
         </div>
         <div class="rank-note">1 Star = Rp1.500</div>
-        <button onclick="openOrderModal('Master')" class="btn-rank">Order Sekarang</button>
+        <button onclick="openOrderModal('Master')" class="btn-rank">Order</button>
       </div>
 
       <div class="rank-card">
@@ -779,7 +812,7 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
           <div class="rank-price">Rp2.500</div>
         </div>
         <div class="rank-note">1 Star = Rp2.500</div>
-        <button onclick="openOrderModal('Grandmaster')" class="btn-rank">Order Sekarang</button>
+        <button onclick="openOrderModal('Grandmaster')" class="btn-rank">Order</button>
       </div>
 
       <div class="rank-card">
@@ -789,7 +822,7 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
           <div class="rank-price">Rp4.000</div>
         </div>
         <div class="rank-note">1 Star = Rp4.000</div>
-        <button onclick="openOrderModal('Epic')" class="btn-rank">Order Sekarang</button>
+        <button onclick="openOrderModal('Epic')" class="btn-rank">Order</button>
       </div>
 
       <div class="rank-card">
@@ -799,7 +832,7 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
           <div class="rank-price">Rp4.500</div>
         </div>
         <div class="rank-note">1 Star = Rp4.500</div>
-        <button onclick="openOrderModal('Legend')" class="btn-rank">Order Sekarang</button>
+        <button onclick="openOrderModal('Legend')" class="btn-rank">Order</button>
       </div>
 
       <div class="rank-card">
@@ -809,7 +842,7 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
           <div class="rank-price">Rp6.000</div>
         </div>
         <div class="rank-note">1 Poin = Rp6.000</div>
-        <button onclick="openOrderModal('Mythic')" class="btn-rank">Order Sekarang</button>
+        <button onclick="openOrderModal('Mythic')" class="btn-rank">Order</button>
       </div>
 
       <div class="rank-card">
@@ -819,7 +852,7 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
           <div class="rank-price">Rp7.500</div>
         </div>
         <div class="rank-note">1 Poin = Rp7.500</div>
-        <button onclick="openOrderModal('MythicHonor')" class="btn-rank">Order Sekarang</button>
+        <button onclick="openOrderModal('MythicHonor')" class="btn-rank">Order</button>
       </div>
 
       <div class="rank-card">
@@ -829,7 +862,7 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
           <div class="rank-price">Rp10.000</div>
         </div>
         <div class="rank-note">1 Poin = Rp10.000</div>
-        <button onclick="openOrderModal('MythicGlory')" class="btn-rank">Order Sekarang</button>
+        <button onclick="openOrderModal('MythicGlory')" class="btn-rank">Order</button>
       </div>
 
       <div class="rank-card">
@@ -839,7 +872,7 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
           <div class="rank-price">Rp13.000</div>
         </div>
         <div class="rank-note">1 Poin = Rp13.000</div>
-        <button onclick="openOrderModal('MythicImmortal')" class="btn-rank">Order Sekarang</button>
+        <button onclick="openOrderModal('MythicImmortal')" class="btn-rank">Order</button>
       </div>
 
     </div>
@@ -1023,953 +1056,558 @@ footer{position:relative;z-index:10;padding:48px 24px;text-align:center;border-t
 
 <!-- ORDER MODAL -->
 <div class="order-modal" id="orderModal">
-  <div class="order-modal-content">
-    <button class="order-modal-close" onclick="closeOrderModal()">×</button>
-    <div class="order-modal-header">
-      <h3>Order Joki</h3>
-    </p>
-    </div>
-    <div class="order-form-group">
-      <label>Rank Saat Ini <span class="required">*</span></label>
-      <select id="currentRank" onchange="onCurrentRankChange(); calculatePrice();">
-        <option value="">-- Pilih Rank Saat Ini --</option>
-      </select>
-    </div>
-    <div class="order-form-group">
-      <label>Rank Target <span class="required">*</span></label>
-      <select id="targetRank" onchange="onTargetRankChange(); calculatePrice();" disabled>
-        <option value="">-- Pilih Rank Target (setelah rank saat ini) --</option>
-      </select>
-    </div>
-    <div class="order-price-display">
-      <div class="label">Estimasi Harga</div>
-      <div class="price" id="totalPrice">Rp 0</div>
-      <div class="detail" id="priceDetail">Pilih rank saat ini terlebih dahulu</div>
-    </div>
-    <a href="#" id="orderWhatsApp" target="_blank" class="btn-order" style="opacity: 0.5; pointer-events: none;">💬 Chat WhatsApp Sekarang</a>
-  </div>
-</div>
+  <div class="order-modal-content" onclick="event.stopPropagation()">
 
-<!-- REDEEM CODE MODAL -->
-<div class="order-modal" id="redeemModal">
-  <div class="order-modal-content">
-    <button class="order-modal-close" onclick="closeRedeemModal()">×</button>
-    <div class="order-modal-header">
-      <h3>🎁 Redeem Code</h3>
-      <p>Masukkan kode promo untuk mendapatkan diskon!</p>
+    <!-- ORDER SECTION -->
+    <div id="orderSection">
+      <div class="modal-section-title" style="justify-content:flex-start;gap:6px;padding-right:40px;margin-bottom:20px">
+        <span class="modal-icon">⚡</span>
+        <h3 style="font-size:17px;margin:0">Order Joki</h3>
+      </div>
+
+      <div class="order-form-group">
+        <label>Rank Saat Ini</label>
+        <select id="currentRank" onchange="onCurrentRankChange(); calculatePrice();">
+          <option value="">-- Pilih Rank --</option>
+        </select>
+      </div>
+
+      <div class="order-form-group">
+        <label>Rank Target</label>
+        <select id="targetRank" onchange="onTargetRankChange(); calculatePrice();" disabled>
+          <option value="">-- Pilih Target --</option>
+        </select>
+      </div>
+
+      <div class="order-price-display">
+        <div class="label">Estimasi Harga</div>
+        <div class="price" id="totalPrice">Rp 0</div>
+        <div class="detail" id="priceDetail">Pilih rank untuk lihat harga</div>
+      </div>
+
+      <button id="orderWhatsAppBtn" class="btn-order btn-order-disabled">💬 Chat WhatsApp Sekarang</button>
+
+      <div class="modal-divider"><span>atau</span></div>
+
+      <button onclick="showRedeemSection()" class="btn-order btn-order-alt">🎟️ Punya Kode Promo?</button>
     </div>
-    <div class="order-form-group">
-      <label>Kode Promo</label>
-      <input type="text" id="redeemCodeInput" placeholder="Masukkan kode promo..." style="text-transform: uppercase;">
+
+    <!-- REDEEM SECTION -->
+    <div id="redeemSection" style="display:none">
+      <button class="order-modal-back" onclick="showOrderSection()">← Kembali</button>
+
+      <div class="redeem-logo-wrap">
+        <img src="https://plain-apac-prod-public.komododecks.com/202605/20/ulWbfLykwXVJzpwXT4Qx/image.png" alt="Logo" class="redeem-logo">
+      </div>
+
+      <div class="modal-section-title">
+        <span class="modal-icon">🎁</span>
+        <h3>Redeem Code</h3>
+      </div>
+      <p class="modal-subtitle">Masukkan kode promo untuk diskon spesial!</p>
+
+      <div class="order-form-group">
+        <label>Kode Promo</label>
+        <input type="text" id="redeemCodeInput" placeholder="Ketik kode di sini..." style="text-transform:uppercase;font-size:15px;text-align:center;letter-spacing:3px;font-weight:700">
+      </div>
+
+      <div class="order-price-display" id="redeemResult" style="display:none">
+        <div class="label">Status</div>
+        <div class="price" id="redeemStatus" style="font-size:18px">Berhasil!</div>
+        <div class="detail" id="redeemDetail"></div>
+      </div>
+
+      <button onclick="submitRedeemCode()" class="btn-order btn-order-gold">🎟️ Redeem Sekarang</button>
     </div>
-    <div class="order-price-display" id="redeemResult" style="display: none;">
-      <div class="label">Status</div>
-      <div class="price" id="redeemStatus">Berhasil!</div>
-      <div class="detail" id="redeemDetail"></div>
-    </div>
-    <button onclick="submitRedeemCode()" class="btn-order">🎟️ Redeem Sekarang</button>
+
+    <button class="order-modal-close" onclick="closeOrderModal()">×</button>
   </div>
 </div>
 
 <script>
-// Active discount codes database
+// ==================== DATA ====================
+const rankPrices = {
+  'Master': 1500, 'Grandmaster': 2500, 'Epic': 4000, 'Legend': 4500,
+  'Mythic': 6000, 'MythicHonor': 7500, 'MythicGlory': 10000, 'MythicImmortal': 13000
+};
+const mythicTiers = ['Mythic', 'MythicHonor', 'MythicGlory', 'MythicImmortal'];
+const nonMythicRanks = ['Master', 'Grandmaster', 'Epic', 'Legend'];
+const rankOrder = ['Master', 'Grandmaster', 'Epic', 'Legend', 'Mythic', 'MythicHonor', 'MythicGlory', 'MythicImmortal'];
+
+// DISCOUNT CODES
 const validCodes = {
   'JOKIML': { discount: 10, type: 'percent', description: 'Diskon 10% untuk pembelian pertama', maxUses: 100, currentUses: 0 },
   'NEZZDEV': { discount: 15000, type: 'fixed', description: 'Diskon Rp15.000 untuk semua order', maxUses: 50, currentUses: 0 },
-  'MYTHIC50': { discount: 50, type: 'percent', description: 'Diskon 50% untuk Mythic Immortal', maxUses: 20, currentUses: 0 },
-  'EPIC25': { discount: 25, type: 'percent', description: 'Diskon 25% untuk rank Epic', maxUses: 30, currentUses: 0 },
-  'FLASHSALE': { discount: 5000, type: 'fixed', description: 'Diskon Rp5.000 flash sale', maxUses: 200, currentUses: 0 }
+  'MYTHIC50': { discount: 50, type: 'percent', description: 'Diskon 50% untuk Mythic Immortal', maxUses: 20, currentUses: 0 }
 };
 
-// User's redeemed codes (stored in localStorage)
 let userRedeemedCodes = JSON.parse(localStorage.getItem('redeemedCodes') || '[]');
-
-function openRedeemModal() {
-  document.getElementById('redeemModal').classList.add('active');
-  document.body.style.overflow = 'hidden';
-
-  // Reset form
-  document.getElementById('redeemCodeInput').value = '';
-  document.getElementById('redeemResult').style.display = 'none';
+let activeDiscount = null;
+if (userRedeemedCodes.length > 0) {
+  const lastCode = userRedeemedCodes[userRedeemedCodes.length - 1];
+  if (validCodes[lastCode]) activeDiscount = validCodes[lastCode];
 }
 
-function closeRedeemModal() {
-  document.getElementById('redeemModal').classList.remove('active');
+// ==================== PARTICLES ====================
+const particlesContainer = document.getElementById('particles');
+if (particlesContainer) {
+  for (let i = 0; i < 30; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDelay = Math.random() * 15 + 's';
+    particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+    particle.style.width = (2 + Math.random() * 4) + 'px';
+    particle.style.height = particle.style.width;
+    particlesContainer.appendChild(particle);
+  }
+}
+
+// ==================== SCROLL ====================
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const progress = (scrollTop / scrollHeight) * 100;
+  const scrollProgress = document.getElementById('scrollProgress');
+  if (scrollProgress) scrollProgress.style.width = progress + '%';
+  const backToTop = document.getElementById('backToTop');
+  if (backToTop) {
+    if (scrollTop > 500) backToTop.classList.add('visible');
+    else backToTop.classList.remove('visible');
+  }
+});
+
+function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    const loader = document.getElementById('loader');
+    if (loader) loader.classList.add('hidden');
+  }, 2200);
+});
+
+// ==================== RANK HELPERS ====================
+function getDivIdx(div) { return ['V', 'IV', 'III', 'II', 'I'].indexOf(div); }
+
+function parseRank(v) {
+  if (!v) return null;
+  const parts = v.split('_');
+  if (parts.length === 2 && mythicTiers.includes(parts[0])) {
+    return { baseRank: parts[0], div: null, stars: parseInt(parts[1]), isMythic: true };
+  }
+  if (parts.length === 3 && nonMythicRanks.includes(parts[0])) {
+    return { baseRank: parts[0], div: parts[1], stars: parseInt(parts[2]), isMythic: false };
+  }
+  return null;
+}
+
+function getRankIdx(rank) { return rankOrder.indexOf(rank); }
+
+function fmt(parsed) {
+  if (!parsed) return '';
+  return parsed.isMythic
+    ? `${parsed.baseRank} (${parsed.stars} Poin)`
+    : `${parsed.baseRank} ${parsed.div} (${parsed.stars}⭐)`;
+}
+
+// ==================== BUTTON STATE ====================
+function setOrderBtnReady(ready) {
+  const waBtn = document.getElementById('orderWhatsAppBtn');
+  if (!waBtn) return;
+  if (ready) {
+    waBtn.style.opacity = '1';
+    waBtn.style.pointerEvents = 'auto';
+    waBtn.style.cursor = 'pointer';
+    waBtn.classList.remove('btn-order-disabled');
+  } else {
+    waBtn.style.opacity = '0.5';
+    waBtn.style.pointerEvents = 'none';
+    waBtn.style.cursor = 'not-allowed';
+    waBtn.classList.add('btn-order-disabled');
+  }
+}
+
+// ==================== INIT RANK OPTIONS ====================
+function initRankOptions() {
+  const currentSelect = document.getElementById('currentRank');
+  const targetSelect = document.getElementById('targetRank');
+  if (!currentSelect || !targetSelect) return;
+
+  currentSelect.innerHTML = '<option value="">-- Pilih Rank Saat Ini --</option>';
+  targetSelect.innerHTML = '<option value="">-- Pilih Rank Target --</option>';
+
+  nonMythicRanks.forEach(rankName => {
+    let opts = '';
+    ['V', 'IV', 'III', 'II', 'I'].forEach(div => {
+      for (let s = 0; s <= 5; s++) {
+        opts += `<option value="${rankName}_${div}_${s}">${rankName} ${div} (${s}⭐)</option>`;
+      }
+    });
+    currentSelect.innerHTML += `<optgroup label="${rankName}">${opts}</optgroup>`;
+    targetSelect.innerHTML += `<optgroup label="${rankName}">${opts}</optgroup>`;
+  });
+
+  let mythicOpts = '';
+  for (let p = 1; p <= 24; p++) mythicOpts += `<option value="Mythic_${p}">Mythic (${p} Poin)</option>`;
+  for (let p = 25; p <= 49; p++) mythicOpts += `<option value="MythicHonor_${p}">Mythic Honor (${p} Poin)</option>`;
+  for (let p = 50; p <= 99; p++) mythicOpts += `<option value="MythicGlory_${p}">Mythic Glory (${p} Poin)</option>`;
+  for (let p = 100; p <= 200; p++) mythicOpts += `<option value="MythicImmortal_${p}">Mythic Immortal (${p} Poin)</option>`;
+
+  currentSelect.innerHTML += `<optgroup label="Mythic">${mythicOpts}</optgroup>`;
+  targetSelect.innerHTML += `<optgroup label="Mythic">${mythicOpts}</optgroup>`;
+}
+initRankOptions();
+
+function filterTargetOptions() {
+  const curVal = document.getElementById('currentRank').value;
+  const targetSelect = document.getElementById('targetRank');
+  const cur = parseRank(curVal);
+  if (!cur) return;
+  for (let i = 0; i < targetSelect.options.length; i++) {
+    const opt = targetSelect.options[i];
+    const target = parseRank(opt.value);
+    if (!target) { opt.hidden = true; continue; }
+    if (cur.isMythic && target.isMythic) {
+      const curIdx = mythicTiers.indexOf(cur.baseRank);
+      const targetIdx = mythicTiers.indexOf(target.baseRank);
+      if (targetIdx < curIdx) opt.hidden = true;
+      else if (targetIdx === curIdx && target.stars <= cur.stars) opt.hidden = true;
+      else opt.hidden = false;
+    } else if (!cur.isMythic && !target.isMythic) {
+      const curRankIdx = getRankIdx(cur.baseRank);
+      const targetRankIdx = getRankIdx(target.baseRank);
+      const curDiv = getDivIdx(cur.div);
+      const targetDiv = getDivIdx(target.div);
+      if (targetRankIdx < curRankIdx) opt.hidden = true;
+      else if (targetRankIdx === curRankIdx && (targetDiv < curDiv || (targetDiv === curDiv && target.stars <= cur.stars))) opt.hidden = true;
+      else opt.hidden = false;
+    } else if (!cur.isMythic && target.isMythic) {
+      opt.hidden = getRankIdx(cur.baseRank) < getRankIdx('Legend');
+    } else {
+      opt.hidden = true;
+    }
+  }
+}
+
+// ==================== ORDER MODAL ====================
+function openOrderModal(rankName) {
+  const modal = document.getElementById('orderModal');
+  if (!modal) return;
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  document.getElementById('orderSection').style.display = 'block';
+  document.getElementById('redeemSection').style.display = 'none';
+
+  const cur = document.getElementById('currentRank');
+  const tar = document.getElementById('targetRank');
+  if (!cur || !tar) return;
+
+  cur.value = '';
+  tar.value = '';
+  tar.disabled = true;
+  setOrderBtnReady(false);
+
+  for (let i = 0; i < cur.options.length; i++) cur.options[i].hidden = false;
+
+  if (nonMythicRanks.includes(rankName)) {
+    for (let i = 0; i < cur.options.length; i++) {
+      cur.options[i].hidden = cur.options[i].value !== '' && !cur.options[i].value.startsWith(rankName + '_');
+    }
+  } else {
+    for (let i = 0; i < cur.options.length; i++) {
+      cur.options[i].hidden = cur.options[i].value !== '' && !cur.options[i].value.startsWith(rankName + '_');
+    }
+  }
+
+  calculatePrice();
+}
+
+function closeOrderModal() {
+  const modal = document.getElementById('orderModal');
+  if (!modal) return;
+  const cur = document.getElementById('currentRank');
+  const tar = document.getElementById('targetRank');
+  if (cur) { cur.value = ''; for (let i = 0; i < cur.options.length; i++) cur.options[i].hidden = false; }
+  if (tar) { tar.value = ''; tar.disabled = true; }
+  setOrderBtnReady(false);
+  document.getElementById('orderSection').style.display = 'block';
+  document.getElementById('redeemSection').style.display = 'none';
+  modal.classList.remove('active');
   document.body.style.overflow = '';
 }
 
+function onCurrentRankChange() {
+  const tar = document.getElementById('targetRank');
+  const cur = document.getElementById('currentRank');
+  if (!tar || !cur) return;
+  tar.value = '';
+  if (cur.value) {
+    tar.disabled = false;
+    filterTargetOptions();
+  } else {
+    tar.disabled = true;
+  }
+  setOrderBtnReady(false);
+  calculatePrice();
+}
+
+function onTargetRankChange() {
+  calculatePrice();
+}
+
+// ==================== CALCULATE PRICE ====================
+function calculateTotalPrice(cur, tar) {
+  if (!cur || !tar) return 0;
+  let total = 0;
+  if (cur.isMythic && tar.isMythic) {
+    const curTierIdx = mythicTiers.indexOf(cur.baseRank);
+    const tarTierIdx = mythicTiers.indexOf(tar.baseRank);
+    const mythicPrice = rankPrices[tar.baseRank];
+    if (curTierIdx === tarTierIdx) {
+      total = (tar.stars - cur.stars) * mythicPrice;
+    } else {
+      const tierMax = { 'Mythic': 24, 'MythicHonor': 49, 'MythicGlory': 99, 'MythicImmortal': 200 };
+      total += (tierMax[cur.baseRank] - cur.stars + 1) * rankPrices[cur.baseRank];
+      for (let i = curTierIdx + 1; i < tarTierIdx; i++) {
+        const tier = mythicTiers[i];
+        const start = (tier === 'Mythic' ? 1 : tier === 'MythicHonor' ? 25 : tier === 'MythicGlory' ? 50 : 100);
+        total += (tierMax[tier] - start + 1) * rankPrices[tier];
+      }
+      const targetStart = (tar.baseRank === 'Mythic' ? 1 : tar.baseRank === 'MythicHonor' ? 25 : tar.baseRank === 'MythicGlory' ? 50 : 100);
+      total += (tar.stars - targetStart + 1) * rankPrices[tar.baseRank];
+    }
+  } else if (!cur.isMythic && tar.isMythic) {
+    const curIdx = getRankIdx(cur.baseRank);
+    const legendIdx = getRankIdx('Legend');
+    const curDiv = getDivIdx(cur.div);
+    const mythicPrice = rankPrices[tar.baseRank];
+    total += (5 - cur.stars) * rankPrices[cur.baseRank];
+    for (let d = curDiv + 1; d < 5; d++) total += 5 * rankPrices[cur.baseRank];
+    for (let i = curIdx + 1; i < legendIdx; i++) total += 25 * rankPrices[rankOrder[i]];
+    total += 5 * rankPrices['Legend'];
+    total += tar.stars * mythicPrice;
+  } else if (!cur.isMythic && !tar.isMythic) {
+    const cIdx = getRankIdx(cur.baseRank);
+    const tIdx = getRankIdx(tar.baseRank);
+    const cDiv = getDivIdx(cur.div);
+    const tDiv = getDivIdx(tar.div);
+    if (cIdx === tIdx && cDiv === tDiv) {
+      total = (tar.stars - cur.stars) * rankPrices[cur.baseRank];
+    } else {
+      total += (5 - cur.stars) * rankPrices[cur.baseRank];
+      for (let d = cDiv + 1; d < 5; d++) total += 5 * rankPrices[cur.baseRank];
+      for (let i = cIdx + 1; i < tIdx; i++) total += 25 * rankPrices[rankOrder[i]];
+      for (let d = 0; d < tDiv; d++) total += 5 * rankPrices[tar.baseRank];
+      if (tar.stars > 0) total += tar.stars * rankPrices[tar.baseRank];
+    }
+  }
+  return total > 0 ? total : 0;
+}
+
+function calculatePrice() {
+  const cVal = document.getElementById('currentRank');
+  const tVal = document.getElementById('targetRank');
+  const pDisp = document.getElementById('totalPrice');
+  const pDet = document.getElementById('priceDetail');
+  if (!cVal || !tVal || !pDisp || !pDet) return;
+
+  if (!cVal.value) {
+    pDisp.textContent = 'Rp 0';
+    pDet.textContent = 'Pilih rank saat ini terlebih dahulu';
+    setOrderBtnReady(false);
+    return;
+  }
+  if (!tVal.value) {
+    pDisp.textContent = 'Rp 0';
+    pDet.textContent = 'Pilih rank target';
+    setOrderBtnReady(false);
+    return;
+  }
+
+  const cur = parseRank(cVal.value);
+  const tar = parseRank(tVal.value);
+  if (!cur || !tar) {
+    pDisp.textContent = 'Rp 0';
+    pDet.textContent = 'Data rank tidak valid';
+    setOrderBtnReady(false);
+    return;
+  }
+
+  let total = calculateTotalPrice(cur, tar);
+  let finalTotal = total;
+  let discountText = '';
+
+  if (activeDiscount) {
+    if (activeDiscount.type === 'percent') {
+      finalTotal = total * (1 - activeDiscount.discount / 100);
+      discountText = `\n💸 Diskon ${activeDiscount.discount}%: -Rp${(total - finalTotal).toLocaleString()}`;
+    } else {
+      finalTotal = Math.max(0, total - activeDiscount.discount);
+      discountText = `\n💸 Diskon: -Rp${activeDiscount.discount.toLocaleString()}`;
+    }
+  }
+
+  pDisp.textContent = `Rp ${Math.floor(finalTotal).toLocaleString()}`;
+  pDet.textContent = `📍 ${fmt(cur)} → ${fmt(tar)}\n💰 Total: Rp${total.toLocaleString()}${discountText}\n✨ Bayar: Rp${Math.floor(finalTotal).toLocaleString()}`;
+
+  // Aktifkan tombol - pakai inline style supaya override semua CSS class
+  setOrderBtnReady(true);
+}
+
+// ==================== WHATSAPP ORDER ====================
+function openOrderWhatsApp() {
+  const cVal = document.getElementById('currentRank');
+  const tVal = document.getElementById('targetRank');
+  if (!cVal || !tVal || !cVal.value || !tVal.value) {
+    showToast('⚠️ Pilih rank saat ini dan rank target terlebih dahulu!');
+    return;
+  }
+
+  const cur = parseRank(cVal.value);
+  const tar = parseRank(tVal.value);
+  let total = calculateTotalPrice(cur, tar);
+  let finalTotal = total;
+
+  if (activeDiscount) {
+    if (activeDiscount.type === 'percent') {
+      finalTotal = total * (1 - activeDiscount.discount / 100);
+    } else {
+      finalTotal = Math.max(0, total - activeDiscount.discount);
+    }
+  }
+
+  let msg = `Halo, saya mau order joki MLBB!\n\n`;
+  msg += `📍 Rank Saat Ini: ${fmt(cur)}\n`;
+  msg += `🎯 Rank Target: ${fmt(tar)}\n`;
+  msg += `💰 Total: Rp${Math.floor(finalTotal).toLocaleString()}\n\n`;
+  msg += `Mohon info pembayaran dan prosesnya!`;
+
+  window.open(`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// Redeem is now inside Order Modal — no separate modal needed.
+
 function submitRedeemCode() {
   const codeInput = document.getElementById('redeemCodeInput');
+  if (!codeInput) return;
   const code = codeInput.value.trim().toUpperCase();
   const resultDiv = document.getElementById('redeemResult');
   const statusDiv = document.getElementById('redeemStatus');
   const detailDiv = document.getElementById('redeemDetail');
 
-  if (!code) {
-    showToast('⚠️ Masukkan kode promo terlebih dahulu!');
-    return;
-  }
+  if (!code) { showToast('⚠️ Masukkan kode promo terlebih dahulu!'); return; }
 
-  // Check if code exists
   if (!validCodes[code]) {
     resultDiv.style.display = 'block';
     statusDiv.textContent = '❌ Kode Tidak Valid';
-    statusDiv.style.color = 'var(--danger)';
-    detailDiv.textContent = 'Kode promo yang Anda masukkan tidak tersedia atau sudah kadaluarsa.';
+    detailDiv.textContent = 'Kode promo tidak tersedia.';
     return;
   }
-
-  // Check if user already redeemed this code
   if (userRedeemedCodes.includes(code)) {
     resultDiv.style.display = 'block';
     statusDiv.textContent = '⚠️ Sudah Digunakan';
-    statusDiv.style.color = 'var(--warning)';
-    detailDiv.textContent = 'Anda sudah menggunakan kode promo ini sebelumnya.';
+    detailDiv.textContent = 'Anda sudah menggunakan kode ini.';
     return;
   }
-
-  // Check if code has reached max uses
   const codeData = validCodes[code];
   if (codeData.currentUses >= codeData.maxUses) {
     resultDiv.style.display = 'block';
     statusDiv.textContent = '❌ Kode Habis';
-    statusDiv.style.color = 'var(--danger)';
-    detailDiv.textContent = 'Maaf, kode promo ini sudah mencapai batas penggunaan.';
+    detailDiv.textContent = 'Kode promo sudah mencapai batas.';
     return;
   }
 
-  // Code is valid - save it
   userRedeemedCodes.push(code);
   localStorage.setItem('redeemedCodes', JSON.stringify(userRedeemedCodes));
   codeData.currentUses++;
+  activeDiscount = codeData;
 
-  // Show success message
   resultDiv.style.display = 'block';
   statusDiv.textContent = '✅ Berhasil!';
-  statusDiv.style.color = 'var(--success)';
+  const discText = codeData.type === 'percent' ? `${codeData.discount}%` : `Rp${codeData.discount.toLocaleString()}`;
+  detailDiv.textContent = `Diskon ${discText}! ${codeData.description}`;
+  showToast(`🎉 Kode ${code} berhasil! Diskon ${discText}`);
 
-  let discountText = codeData.type === 'percent'
-    ? `${codeData.discount}%`
-    : `Rp${codeData.discount.toLocaleString()}`;
-
-  detailDiv.textContent = `Anda mendapatkan diskon ${discountText}!\n${codeData.description}`;
-
-  showToast(`🎉 Kode ${code} berhasil diredeem!`);
-
-  // Close modal after 2 seconds
-  setTimeout(() => {
-    closeRedeemModal();
-  }, 2000);
+  if (document.getElementById('orderModal').classList.contains('active')) calculatePrice();
 }
 
-// Add redeem button to nav
-document.addEventListener('DOMContentLoaded', function() {
-  const navLinks = document.getElementById('navLinks');
-  const redeemLi = document.createElement('li');
-  redeemLi.innerHTML = '<a href="#" onclick="openRedeemModal(); return false;" style="color: var(--gold);">🎁 Redeem</a>';
-  navLinks.appendChild(redeemLi);
-});
-
-// Modify calculatePrice to apply discount
-const originalCalculatePrice = calculatePrice;
-calculatePrice = function() {
-  originalCalculatePrice();
-
-  // Apply discount if user has redeemed codes
-  if (userRedeemedCodes.length > 0) {
-    const latestCode = userRedeemedCodes[userRedeemedCodes.length - 1];
-    const codeData = validCodes[latestCode];
-
-    if (codeData) {
-      const priceText = document.getElementById('totalPrice').textContent;
-      const currentPrice = parseInt(priceText.replace(/[Rp ,.]/g, ''));
-
-      if (currentPrice > 0) {
-        let discountedPrice;
-        if (codeData.type === 'percent') {
-          discountedPrice = currentPrice * (1 - codeData.discount / 100);
-        } else {
-          discountedPrice = Math.max(0, currentPrice - codeData.discount);
-        }
-
-        const priceDetail = document.getElementById('priceDetail');
-        const savings = currentPrice - discountedPrice;
-        priceDetail.textContent += `\n💸 Diskon: -Rp${savings.toLocaleString()}\n✨ Final: Rp${discountedPrice.toLocaleString()}`;
-        document.getElementById('totalPrice').textContent = `Rp ${Math.floor(discountedPrice).toLocaleString()}`;
-      }
-    }
-  }
-}
-</script>
-
-
-<script>
-// Particles
-const particlesContainer=document.getElementById('particles');
-for(let i=0;i<30;i++){
-  const particle=document.createElement('div');
-  particle.className='particle';
-  particle.style.left=Math.random()*100+'%';
-  particle.style.animationDelay=Math.random()*15+'s';
-  particle.style.animationDuration=(15+Math.random()*10)+'s';
-  particle.style.width=(2+Math.random()*4)+'px';
-  particle.style.height=particle.style.width;
-  particlesContainer.appendChild(particle);
+function showRedeemSection() {
+  document.getElementById('orderSection').style.display = 'none';
+  document.getElementById('redeemSection').style.display = 'block';
+  const input = document.getElementById('redeemCodeInput');
+  if (input) input.value = '';
+  const result = document.getElementById('redeemResult');
+  if (result) result.style.display = 'none';
 }
 
-// Scroll Progress
-window.addEventListener('scroll',()=>{
-  const scrollTop=document.documentElement.scrollTop;
-  const scrollHeight=document.documentElement.scrollHeight-document.documentElement.clientHeight;
-  const progress=(scrollTop/scrollHeight)*100;
-  document.getElementById('scrollProgress').style.width=progress+'%';
-
-  const backToTop=document.getElementById('backToTop');
-  if(scrollTop>500){backToTop.classList.add('visible');}else{backToTop.classList.remove('visible');}
-
-  // Show floating decorative images from promo banner to bottom
-  });
-
-function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'})}
-
-// Loader
-window.addEventListener('load',function(){
-  setTimeout(function(){
-    document.getElementById('loader').classList.add('hidden');
-  },2200);
-});
-
-// Rank data
-const rankPrices={
-  'Master':1500,'Grandmaster':2500,'Epic':4000,'Legend':4500,
-  'Mythic':6000,'MythicHonor':7500,'MythicGlory':10000,'MythicImmortal':13000
-};
-const mythicTiers=['Mythic','MythicHonor','MythicGlory','MythicImmortal'];
-const nonMythicRanks=['Master','Grandmaster','Epic','Legend'];
-const rankOrder=['Master','Grandmaster','Epic','Legend','Mythic','MythicHonor','MythicGlory','MythicImmortal'];
-
-// Initialize dropdown options
-function initRankOptions(){
-  const currentSelect=document.getElementById('currentRank');
-  const targetSelect=document.getElementById('targetRank');
-
-  currentSelect.innerHTML='<option value="">-- Pilih Rank Saat Ini --</option>';
-  targetSelect.innerHTML='<option value="">-- Pilih Rank Target --</option>';
-
-  nonMythicRanks.forEach(rankName=>{
-    let opts='';
-    ['V','IV','III','II','I'].forEach(div=>{
-      for(let s=0;s<=5;s++){
-        const v=`${rankName}_${div}_${s}`;
-        opts+=`<option value="${v}">${rankName} ${div} (${s}⭐)</option>`;
-      }
-    });
-    currentSelect.innerHTML+=`<optgroup label="${rankName}">${opts}</optgroup>`;
-    targetSelect.innerHTML+=`<optgroup label="${rankName}">${opts}</optgroup>`;
-  });
-
-  // Mythic with individual point options
-  let mythicGroupCurrent='';
-  let mythicGroupTarget='';
-
-  // Mythic: 1-24
-  for(let p=1;p<=24;p++){
-    mythicGroupCurrent+=`<option value="Mythic_${p}">Mythic (${p} Poin)</option>`;
-    mythicGroupTarget+=`<option value="Mythic_${p}">Mythic (${p} Poin)</option>`;
-  }
-  // Mythic Honor: 25-49
-  for(let p=25;p<=49;p++){
-    mythicGroupCurrent+=`<option value="MythicHonor_${p}">Mythic Honor (${p} Poin)</option>`;
-    mythicGroupTarget+=`<option value="MythicHonor_${p}">Mythic Honor (${p} Poin)</option>`;
-  }
-  // Mythic Glory: 50-99
-  for(let p=50;p<=99;p++){
-    mythicGroupCurrent+=`<option value="MythicGlory_${p}">Mythic Glory (${p} Poin)</option>`;
-    mythicGroupTarget+=`<option value="MythicGlory_${p}">Mythic Glory (${p} Poin)</option>`;
-  }
-  // Mythic Immortal: 100-200
-  for(let p=100;p<=200;p++){
-    mythicGroupCurrent+=`<option value="MythicImmortal_${p}">Mythic Immortal (${p} Poin)</option>`;
-    mythicGroupTarget+=`<option value="MythicImmortal_${p}">Mythic Immortal (${p} Poin)</option>`;
-  }
-
-  currentSelect.innerHTML+=`<optgroup label="Mythic (Poin)">${mythicGroupCurrent}</optgroup>`;
-  targetSelect.innerHTML+=`<optgroup label="Mythic (Poin)">${mythicGroupTarget}</optgroup>`;
-}
-initRankOptions();
-
-function getDivIdx(div){
-  return ['V','IV','III','II','I'].indexOf(div);
+function showOrderSection() {
+  document.getElementById('orderSection').style.display = 'block';
+  document.getElementById('redeemSection').style.display = 'none';
 }
 
-function parseRank(v){
-  if(!v) return null;
-
-  // Check for Mythic with points format (e.g., "Mythic_5", "MythicHonor_30")
-  const mythicParts=v.split('_');
-  if(mythicParts.length===2){
-    const tier=mythicParts[0];
-    const points=parseInt(mythicParts[1]);
-    if(mythicTiers.includes(tier) && !isNaN(points)){
-      return {baseRank:tier,div:null,stars:points,isMythic:true};
-    }
-  }
-
-  // Legacy format for simple mythic tiers
-  if(mythicTiers.includes(v)) return {baseRank:v,div:null,stars:0,isMythic:true};
-
-  // Non-mythic ranks (GM, Epic, Legend)
-  const p=v.split('_');
-  if(p.length===3){
-    const rn=p[0],div=p[1],s=parseInt(p[2]);
-    if(nonMythicRanks.includes(rn) && div && !isNaN(s)){
-      return {baseRank:rn,div,stars:s,isMythic:false};
-    }
-  }
-  return null;
-}
-
-function getRankIdx(rank){
-  return rankOrder.indexOf(rank);
-}
-
-function fmt(parsed){
-  if(!parsed) return '';
-  return parsed.isMythic ? parsed.baseRank : `${parsed.baseRank} ${parsed.div} (${parsed.stars}⭐)`;
-}
-
-function calcStars(cur, tar){
-  if(!cur || !tar || cur.isMythic || tar.isMythic) return null;
-  const cIdx=getRankIdx(cur.baseRank);
-  const tIdx=getRankIdx(tar.baseRank);
-  const cDiv=getDivIdx(cur.div);
-  const tDiv=getDivIdx(tar.div);
-  if(cIdx>tIdx) return null;
-  if(cIdx===tIdx && cDiv>tDiv) return null;
-  if(cIdx===tIdx && cDiv===tDiv && cur.stars>=tar.stars) return null;
-
-  let stars=0;
-
-  if(cIdx===tIdx){
-    // Same rank
-    if(cDiv===tDiv){
-      // Same division
-      stars+=(tar.stars-cur.stars);
-    } else {
-      // Different division - complete current then go up
-      stars+=(5-cur.stars); // Complete current div
-      stars+=(tDiv-cDiv-1)*5; // Middle divisions
-      stars+=tar.stars; // Target division
-    }
-  } else {
-    // Different ranks
-    // Complete current division first
-    stars+=(5-cur.stars);
-    // Complete remaining divisions in current rank
-    stars+=cDiv*5;
-    // Full intermediate ranks
-    for(let i=cIdx+1;i<tIdx;i++) stars+=25;
-    // Complete target rank
-    stars+=tDiv*5;
-    stars+=tar.stars;
-  }
-  return stars;
-}
-
-function filterTargetOptions(){
-  const cur=document.getElementById('currentRank').value;
-  const sel=document.getElementById('targetRank');
-  const parsed=parseRank(cur);
-  for(let i=0;i<sel.options.length;i++) sel.options[i].hidden=false;
-  if(!parsed) return;
-  if(parsed.isMythic){
-    const cIdx=mythicTiers.indexOf(parsed.baseRank);
-    const curPoints=parsed.stars;
-    for(let i=0;i<sel.options.length;i++){
-      const v=sel.options[i].value;
-      const p=parseRank(v);
-      if(!p) continue;
-      if(!p.isMythic){
-        sel.options[i].hidden=true;
-        continue;
-      }
-      const tIdx=mythicTiers.indexOf(p.baseRank);
-      if(tIdx<cIdx){
-        sel.options[i].hidden=true;
-      } else if(tIdx===cIdx){
-        // Same tier - only show higher points
-        sel.options[i].hidden=p.stars<=curPoints;
-      }
-      // Lower tier is hidden, same tier with higher points is shown
-    }
-    return;
-  }
-  const cIdx=getRankIdx(parsed.baseRank);
-  const cDiv=getDivIdx(parsed.div);
-  const cStars=parsed.stars;
-  for(let i=0;i<sel.options.length;i++){
-    const opt=sel.options[i];
-    const v=opt.value;
-    if(mythicTiers.includes(v)){
-      // Show Mythic if current rank is Legend or above
-      opt.hidden=cIdx<2; // Grandmaster=0, Epic=1, Legend=2
-      continue;
-    }
-    const p=parseRank(v);
-    if(!p) continue;
-    const oIdx=getRankIdx(p.baseRank);
-    const oDiv=getDivIdx(p.div);
-    if(oIdx<cIdx) opt.hidden=true;
-    else if(oIdx===cIdx && (oDiv<cDiv || (oDiv===cDiv && p.stars<=cStars))) opt.hidden=true;
-  }
-}
-
-// Order Modal
-function openOrderModal(rankName){
-  document.getElementById('orderModal').classList.add('active');
-  document.body.style.overflow='hidden';
-  const cur=document.getElementById('currentRank');
-  const tar=document.getElementById('targetRank');
-  const wa=document.getElementById('orderWhatsApp');
-
-  // Store which rank category was opened
-  window.currentOpenedRank=rankName;
-
-  // Reset target rank - LOCKED until current rank is selected
-  tar.value='';
-  tar.disabled=true;
-
-  // Reset WhatsApp button to disabled state
-  wa.classList.add('btn-order-disabled');
-  wa.style.opacity = '0.5';
-  wa.style.pointerEvents = 'none';
-  wa.style.cursor = 'not-allowed';
-
-  // Reset both dropdowns
-  for(let i=0;i<cur.options.length;i++) cur.options[i].hidden=false;
-  for(let i=0;i<tar.options.length;i++) tar.options[i].hidden=false;
-
-  // If non-mythic rank clicked
-  if(nonMythicRanks.includes(rankName)){
-    // Hide all, then show only this rank's options
-    for(let i=0;i<cur.options.length;i++){
-      const v=cur.options[i].value;
-      if(v.includes(rankName+'_')){
-        cur.options[i].hidden=false;
-      } else {
-        cur.options[i].hidden=true;
-      }
-    }
-    // DO NOT auto-select - let user choose current rank first
-  } else {
-    // Mythic tier clicked - show ONLY this tier's points
-    for(let i=0;i<cur.options.length;i++){
-      const v=cur.options[i].value;
-      if(v.startsWith(rankName+'_')){
-        cur.options[i].hidden=false;
-      } else {
-        cur.options[i].hidden=true;
-      }
-    }
-    // DO NOT auto-select - let user choose current rank first
-  }
-
-  filterTargetOptions();
-  calculatePrice();
-}
-
-function closeOrderModal(){
-  const cur=document.getElementById('currentRank');
-  const tar=document.getElementById('targetRank');
-
-  // Reset form to initial state
-  cur.value='';
-  tar.value='';
-  tar.disabled=true;
-
-  // Show all options again for next modal open
-  for(let i=0;i<cur.options.length;i++) cur.options[i].hidden=false;
-  for(let i=0;i<tar.options.length;i++) tar.options[i].hidden=false;
-
-  document.getElementById('orderModal').classList.remove('active');
-  document.body.style.overflow='';
-  window.currentOpenedRank=null;
-}
-
-
-function onCurrentRankChange(){
-  const tar=document.getElementById('targetRank');
-  const cur=document.getElementById('currentRank');
-  const cVal=cur.value;
-
-  if(cVal){
-    const openedRankName=window.currentOpenedRank;
-
-    // Determine selected rank category
-    let selectedRankCategory=null;
-    if(cVal.includes('Grandmaster_')) selectedRankCategory='Grandmaster';
-    else if(cVal.includes('Epic_')) selectedRankCategory='Epic';
-    else if(cVal.includes('Legend_')) selectedRankCategory='Legend';
-    else if(cVal.startsWith('Mythic_') && !cVal.startsWith('MythicHonor') && !cVal.startsWith('MythicGlory') && !cVal.startsWith('MythicImmortal')) selectedRankCategory='Mythic';
-    else if(cVal.startsWith('MythicHonor_')) selectedRankCategory='MythicHonor';
-    else if(cVal.startsWith('MythicGlory_')) selectedRankCategory='MythicGlory';
-    else if(cVal.startsWith('MythicImmortal_')) selectedRankCategory='MythicImmortal';
-
-    if(selectedRankCategory && selectedRankCategory!==openedRankName){
-      // User switched to different rank category - show only that category's options
-      for(let i=0;i<cur.options.length;i++) cur.options[i].hidden=false;
-
-      // Hide all, then show only selected category
-      if(nonMythicRanks.includes(selectedRankCategory)){
-        for(let i=0;i<cur.options.length;i++){
-          if(cur.options[i].value.includes(selectedRankCategory+'_')){
-            cur.options[i].hidden=false;
-          } else {
-            cur.options[i].hidden=true;
-          }
-        }
-      } else {
-        for(let i=0;i<cur.options.length;i++){
-          if(cur.options[i].value.startsWith(selectedRankCategory+'_')){
-            cur.options[i].hidden=false;
-          } else {
-            cur.options[i].hidden=true;
-          }
-        }
-      }
-
-      cur.value='';
-      tar.value='';
-      tar.disabled=true;
-      calculatePrice();
-      return;
-    }
-
-    // Same category - unlock target rank
-    tar.disabled=false;
-    filterTargetOptions();
-    calculatePrice();
-    updateOrderButton();
-  } else {
-    tar.disabled=true;
-    tar.value='';
-    calculatePrice();
-    updateOrderButton();
-  }
-}
-function onTargetRankChange(){
-  const t=document.getElementById('targetRank').value;
-  filterTargetOptions();
-  calculatePrice();
-  updateOrderButton();
-}
-
-function updateOrderButton(){
-  const cVal=document.getElementById('currentRank').value;
-  const tVal=document.getElementById('targetRank').value;
-  const wa=document.getElementById('orderWhatsApp');
-
-  if(cVal && tVal){
-    wa.classList.remove('btn-order-disabled');
-    wa.style.opacity = '1';
-    wa.style.pointerEvents = 'auto';
-    wa.style.cursor = 'pointer';
-  } else {
-    wa.classList.add('btn-order-disabled');
-    wa.style.opacity = '0.5';
-    wa.style.pointerEvents = 'none';
-    wa.style.cursor = 'not-allowed';
-  }
-}
-
-function calculatePrice(){
-  const cVal=document.getElementById('currentRank').value;
-  const tVal=document.getElementById('targetRank').value;
-  const pDisp=document.getElementById('totalPrice');
-  const pDet=document.getElementById('priceDetail');
-  const wa=document.getElementById('orderWhatsApp');
-
-  // Must select current rank first
-  if(!cVal){
-    pDisp.textContent='Rp 0';
-    pDet.textContent='Pilih rank saat ini terlebih dahulu';
-    wa.href='https://wa.me/6289684943741?text=' + encodeURIComponent('Halo, saya mau order joki MLBB. Mohon infonya!');
-    updateOrderButton();
-    return;
-  }
-
-  if(!tVal){
-    pDisp.textContent='Rp 0';
-    pDet.textContent='Pilih rank target';
-    wa.href='https://wa.me/6289684943741?text=' + encodeURIComponent('Halo, saya mau order joki MLBB. Mohon infonya!');
-    updateOrderButton();
-    return;
-  }
-  const cur=parseRank(cVal);
-  const tar=parseRank(tVal);
-
-  // If target is Mythic tier
-  if(tar && tar.isMythic){
-    const mythicPrice=rankPrices[tar.baseRank];
-    const targetPoints=tar.stars;
-
-    // From non-Mythic to Mythic
-    if(cur && !cur.isMythic){
-      let breakdown=[];
-      let total=0;
-
-      const curIdx=getRankIdx(cur.baseRank);
-      const legendIdx=getRankIdx('Legend');
-      const curDivIdx=getDivIdx(cur.div);
-
-      // 1. Complete current div
-      const curRemain=5-cur.stars;
-      if(curRemain>0){
-        breakdown.push({rank:cur.baseRank, div:cur.div, stars:curRemain, price:rankPrices[cur.baseRank]});
-        total+=curRemain*rankPrices[cur.baseRank];
-      }
-
-      // 2. Complete remaining divisions in current rank
-      for(let d=0;d<curDivIdx;d++){
-        breakdown.push({rank:cur.baseRank, div:['V','IV','III','II','I'][d], stars:5, price:rankPrices[cur.baseRank]});
-        total+=5*rankPrices[cur.baseRank];
-      }
-
-      // 3. Full intermediate ranks
-      for(let i=curIdx+1;i<legendIdx;i++){
-        const rankName=rankOrder[i];
-        breakdown.push({rank:rankName, div:'Full', stars:25, price:rankPrices[rankName]});
-        total+=25*rankPrices[rankName];
-      }
-
-      // 4. Complete Legend V to I
-      breakdown.push({rank:'Legend', div:'V-I', stars:5, price:rankPrices['Legend']});
-      total+=5*rankPrices['Legend'];
-
-      // 5. Mythic points
-      breakdown.push({rank:tar.baseRank, div:'Poin', stars:targetPoints, price:mythicPrice});
-      total+=targetPoints*mythicPrice;
-
-      pDisp.textContent=`Rp ${total.toLocaleString()}`;
-      pDet.textContent=`📍 ${fmt(cur)} → ${tar.baseRank}\n`;
-      breakdown.forEach(item=>{
-        const divLabel=item.div==='Full' || item.div==='Poin' || item.div==='V-I' ? item.div+' ':item.div+' ';
-        pDet.textContent+=`⭐ ${item.rank} ${divLabel}${item.stars}×Rp${item.price.toLocaleString()}\n`;
-      });
-      pDet.textContent+=`💰 Total: Rp${total.toLocaleString()}`;
-
-      let msg=`Halo, saya mau order joki MLBB:\n\n`;
-      msg+=`📍 Rank Saat Ini: ${fmt(cur)}\n`;
-      msg+=`🎯 Rank Target: ${tar.baseRank}\n`;
-      msg+=`⭐ Detail:\n`;
-      breakdown.forEach(item=>{
-        const divLabel=item.div==='Full' || item.div==='Poin' || item.div==='V-I' ? item.div+' ':item.div+' ';
-        msg+=`   - ${item.rank} ${divLabel}${item.stars} × Rp${item.price.toLocaleString()}\n`;
-      });
-      msg+=`💰 Total: Rp${total.toLocaleString()}\n\nMohon info lanjut!`;
-      wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
-      updateOrderButton();
-      return;
-    }
-
-    // From Mythic to Mythic
-    if(cur && cur.isMythic){
-      const curTierIdx=mythicTiers.indexOf(cur.baseRank);
-      const tarTierIdx=mythicTiers.indexOf(tar.baseRank);
-      const curPoints=cur.stars;
-      const targetPoints=tar.stars;
-
-      let breakdown=[];
-      let total=0;
-
-      if(curTierIdx===tarTierIdx){
-        // Same tier - just difference
-        const pointsDiff=targetPoints-curPoints;
-        breakdown.push({rank:tar.baseRank, div:'Poin', stars:pointsDiff, price:mythicPrice});
-        total+=pointsDiff*mythicPrice;
-      } else {
-        // Different tier
-        const tierMaxPoints={'Mythic':24,'MythicHonor':49,'MythicGlory':99,'MythicImmortal':200};
-        const maxPoints=tierMaxPoints[cur.baseRank];
-        const tierStartPoints={'Mythic':1,'MythicHonor':25,'MythicGlory':50,'MythicImmortal':100};
-
-        // 1. Complete current tier
-        const curRemain=maxPoints-curPoints+1;
-        breakdown.push({rank:cur.baseRank, div:'Selesai', stars:curRemain, price:mythicPrice});
-        total+=curRemain*mythicPrice;
-
-        // 2. Full tiers in between
-        for(let i=curTierIdx+1;i<tarTierIdx;i++){
-          const tierName=mythicTiers[i];
-          const tierMax=tierMaxPoints[tierName];
-          const tierStart=tierStartPoints[tierName];
-          const tierStars=tierMax-tierStart+1;
-          breakdown.push({rank:tierName, div:'Full', stars:tierStars, price:rankPrices[tierName]});
-          total+=tierStars*rankPrices[tierName];
-        }
-
-        // 3. To target points
-        const targetStart=tierStartPoints[tar.baseRank];
-        const toTarget=targetPoints-targetStart+1;
-        breakdown.push({rank:tar.baseRank, div:'Poin', stars:toTarget, price:mythicPrice});
-        total+=toTarget*mythicPrice;
-      }
-
-      pDisp.textContent=`Rp ${total.toLocaleString()}`;
-      pDet.textContent=`📍 ${cur.baseRank} (${curPoints}) → ${tar.baseRank} (${targetPoints})\n`;
-      breakdown.forEach(item=>{
-        pDet.textContent+=`🏆 ${item.rank} ${item.div} ${item.stars}×Rp${item.price.toLocaleString()}\n`;
-      });
-      pDet.textContent+=`💰 Total: Rp${total.toLocaleString()}`;
-
-      let msg=`Halo, saya mau order joki MLBB:\n\n`;
-      msg+=`📍 Rank Saat Ini: ${cur.baseRank} (${curPoints} poin)\n`;
-      msg+=`🎯 Rank Target: ${tar.baseRank} (${targetPoints} poin)\n`;
-      msg+=`🏆 Detail:\n`;
-      breakdown.forEach(item=>{
-        msg+=`   - ${item.rank} ${item.div} ${item.stars} × Rp${item.price.toLocaleString()}\n`;
-      });
-      msg+=`💰 Total: Rp${total.toLocaleString()}\n\nMohon info lanjut!`;
-      wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
-      updateOrderButton();
-      return;
-    }
-
-    // No current rank
-    const total=targetPoints*mythicPrice;
-    pDisp.textContent=`Rp ${total.toLocaleString()}`;
-    pDet.textContent=`📍 → ${tar.baseRank}\n🏆 Poin Mythic: ${targetPoints} × Rp${mythicPrice.toLocaleString()}\n💰 Total: Rp${total.toLocaleString()}`;
-    wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
-    updateOrderButton();
-  }
-
-  // Non-mythic - calculate with proper per-rank breakdown
-  if(!cur || !tar){pDisp.textContent='Rp 0';pDet.textContent='Pilih rank';updateOrderButton();return;}
-
-  const cIdx=getRankIdx(cur.baseRank);
-  const tIdx=getRankIdx(tar.baseRank);
-  const cDiv=getDivIdx(cur.div);
-  const tDiv=getDivIdx(tar.div);
-
-  // Build breakdown
-  let breakdown=[];
-  let total=0;
-
-  if(cIdx===tIdx){
-    // Same rank - all use same price
-    if(cDiv===tDiv){
-      // Same division
-      const stars=tar.stars-cur.stars;
-      if(stars>0){
-        breakdown.push({rank:cur.baseRank, div:cur.div, stars:stars, price:rankPrices[cur.baseRank]});
-        total+=stars*rankPrices[cur.baseRank];
-      }
-    } else {
-      // Complete current div
-      const curRemain=5-cur.stars;
-      if(curRemain>0){
-        breakdown.push({rank:cur.baseRank, div:cur.div, stars:curRemain, price:rankPrices[cur.baseRank]});
-        total+=curRemain*rankPrices[cur.baseRank];
-      }
-      // Middle divisions (loop from cDiv+1 to tDiv-1)
-      for(let d=cDiv+1; d<tDiv; d++){
-        breakdown.push({rank:cur.baseRank, div:['V','IV','III','II','I'][d], stars:5, price:rankPrices[cur.baseRank]});
-        total+=5*rankPrices[cur.baseRank];
-      }
-      // Target div stars (same rank, use current rank price)
-      if(tar.stars>0){
-        breakdown.push({rank:tar.baseRank, div:tar.div, stars:tar.stars, price:rankPrices[cur.baseRank]});
-        total+=tar.stars*rankPrices[cur.baseRank];
-      }
-    }
-  } else {
-    // Different ranks
-
-    // 1. Complete current div (remaining stars to finish current div)
-    const curRemain=5-cur.stars;
-    if(curRemain>0){
-      breakdown.push({rank:cur.baseRank, div:cur.div, stars:curRemain, price:rankPrices[cur.baseRank]});
-      total+=curRemain*rankPrices[cur.baseRank];
-    }
-
-    // 2. Complete ALL remaining divisions in current rank
-    //    If cDiv=0 (e.g. GM V), loop from 0 to cDiv=0 doesn't run.
-    //    But we need to complete all divisions V through (cDiv-1).
-    //    Loop: for d=0 to cDiv-1, we need 5 iterations when cDiv=5.
-    //    Actually: we need to complete divisions BELOW current div.
-    //    Since division index: V=0, IV=1, III=2, II=3, I=4
-    //    So we need to add divisions 0,1,2,3,4 that are < cDiv.
-    //    Wait, if cDiv=4 (GM I), we need GM V,IV,III,II = 4 divisions (0,1,2,3)
-    //    Loop: for(d=0; d<cDiv; d++) gives us 4 iterations when cDiv=4 ✓
-    //    But if cDiv=0 (GM V), we need GM IV,III,II,I = 4 divisions
-    //    This is WRONG! When at GM V, we have NO divisions below to complete.
-    //    The divisions to complete are actually cDiv+1 through 4.
-    //    So: for(d=cDiv+1; d<5; d++)
-    for(let d=cDiv+1; d<5; d++){
-      breakdown.push({rank:cur.baseRank, div:['V','IV','III','II','I'][d], stars:5, price:rankPrices[cur.baseRank]});
-      total+=5*rankPrices[cur.baseRank];
-    }
-
-    // 3. Full intermediate ranks (complete all divisions V-I)
-    for(let i=cIdx+1; i<tIdx; i++){
-      const rankName=rankOrder[i];
-      breakdown.push({rank:rankName, div:'V-I', stars:25, price:rankPrices[rankName]});
-      total+=25*rankPrices[rankName];
-    }
-
-    // 4. Target rank - complete divisions BEFORE target div
-    for(let d=0; d<tDiv; d++){
-      breakdown.push({rank:tar.baseRank, div:['V','IV','III','II','I'][d], stars:5, price:rankPrices[tar.baseRank]});
-      total+=5*rankPrices[tar.baseRank];
-    }
-    // 5. Add target stars in target div
-    if(tar.stars>0){
-      breakdown.push({rank:tar.baseRank, div:tar.div, stars:tar.stars, price:rankPrices[tar.baseRank]});
-      total+=tar.stars*rankPrices[tar.baseRank];
-    }
-  }
-
-  // Display
-  pDisp.textContent=`Rp ${total.toLocaleString()}`;
-  pDet.textContent=`📍 ${fmt(cur)} → ${fmt(tar)}\n`;
-  breakdown.forEach(item=>{
-    const divLabel=item.div==='Full'?'':item.div+' ';
-    pDet.textContent+=`⭐ ${item.rank} ${divLabel}${item.stars}×Rp${item.price.toLocaleString()}\n`;
-  });
-  pDet.textContent+=`💰 Total: Rp${total.toLocaleString()}`;
-
-  let msg=`Halo, saya mau order joki MLBB:\n\n`;
-  msg+=`📍 Rank Saat Ini: ${fmt(cur)}\n`;
-  msg+=`🎯 Rank Target: ${fmt(tar)}\n`;
-  msg+=`⭐ Detail:\n`;
-  breakdown.forEach(item=>{
-    const divLabel=item.div==='Full'?'':item.div+' ';
-    msg+=`   - ${item.rank} ${divLabel}${item.stars} bintang × Rp${item.price.toLocaleString()}\n`;
-  });
-
-  // Apply discount if user has redeemed codes
-  let discountedTotal = total;
-  let discountInfo = '';
-  if (userRedeemedCodes.length > 0) {
-    const latestCode = userRedeemedCodes[userRedeemedCodes.length - 1];
-    const codeData = validCodes[latestCode];
-
-    if (codeData) {
-      if (codeData.type === 'percent') {
-        const discount = total * codeData.discount / 100;
-        discountedTotal = total - discount;
-        discountInfo = `\n💸 Diskon ${codeData.discount}%: -Rp${discount.toLocaleString()}`;
-      } else {
-        discountedTotal = Math.max(0, total - codeData.discount);
-        discountInfo = `\n💸 Diskon: -Rp${codeData.discount.toLocaleString()}`;
-      }
-
-      pDet.textContent += discountInfo;
-      pDet.textContent += `\n✨ Final: Rp${discountedTotal.toLocaleString()}`;
-      pDisp.textContent = `Rp ${Math.floor(discountedTotal).toLocaleString()}`;
-    }
-  }
-
-  msg+=`💰 Total: Rp${total.toLocaleString()}${discountInfo}\n✨ Final: Rp${discountedTotal.toLocaleString()}\n\nMohon info lanjut!`;
-  wa.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
-  updateOrderButton();
-}
-
-// Counter Animation
-function animateCounters(){
-  const counters=document.querySelectorAll('.stat-v[data-count]');
-  counters.forEach(counter=>{
-    const target=parseFloat(counter.dataset.count);
-    const suffix=counter.dataset.suffix||'';
-    const isDecimal=counter.dataset.decimal==='true';
-    const duration=2000;
-    const start=performance.now();
-
-    function update(currentTime){
-      const elapsed=currentTime-start;
-      const progress=Math.min(elapsed/duration,1);
-      const eased=1-Math.pow(1-progress,3);
-      const current=target*eased;
-
-      if(isDecimal){
-        counter.textContent=current.toFixed(1)+suffix;
-      }else if(target>=1000){
-        counter.textContent=Math.floor(current).toLocaleString()+suffix+'+';
-      }else{
-        counter.textContent=Math.floor(current)+suffix+'+';
-      }
-
-      if(progress<1){requestAnimationFrame(update);}
-    }
-    requestAnimationFrame(update);
-  });
-}
-
-const observer=new IntersectionObserver((entries)=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      animateCounters();
-      observer.disconnect();
-    }
-  });
-},{threshold:0.5});
-observer.observe(document.querySelector('.hero-stats'));
-
-// Mobile Nav
-function toggleNav(){document.getElementById('navLinks').classList.toggle('active')}
-document.querySelectorAll('.nav-links a').forEach(link=>{link.addEventListener('click',()=>{document.getElementById('navLinks').classList.remove('active')})});
-
-// FAQ
-function toggleFaq(item){
-  const isActive=item.classList.contains('active');
-  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('active'));
-  if(!isActive){
-    item.classList.add('active');
-    const answer=item.querySelector('.faq-answer');
-    answer.style.maxHeight=answer.scrollHeight+'px';
-  }else{
-    item.querySelector('.faq-answer').style.maxHeight='0';
-  }
-}
-
-// Toast
-function showToast(message){
-  const toast=document.getElementById('toast');
-  toast.textContent=message;
-  toast.classList.add('show');
-  setTimeout(()=>toast.classList.remove('show'),3000);
-}
-
-// Mabar Price Calculator
-function calculateMabarPrice(){
-  const rankSelect=document.getElementById('mabarRank');
-  const matchSelect=document.getElementById('mabarMatch');
-  const priceText=document.getElementById('mabarPriceText');
-  const waLink=document.getElementById('mabarWhatsApp');
-
-  if(!rankSelect.value){
-    priceText.textContent='Pilih rank dulu';
+// ==================== MABAR ====================
+function calculateMabarPrice() {
+  const rankSelect = document.getElementById('mabarRank');
+  const matchSelect = document.getElementById('mabarMatch');
+  const priceText = document.getElementById('mabarPriceText');
+  const waLink = document.getElementById('mabarWhatsApp');
+  if (!rankSelect || !matchSelect || !priceText || !waLink) return;
+  if (!rankSelect.value) {
+    priceText.textContent = 'Pilih rank dulu';
     waLink.classList.add('btn-mabar-disabled');
-    waLink.href='#';
+    waLink.href = '#';
     return;
   }
-
   waLink.classList.remove('btn-mabar-disabled');
+  const rankText = rankSelect.options[rankSelect.selectedIndex].text;
+  const totalPrice = parseInt(rankSelect.value) * parseInt(matchSelect.value);
+  priceText.textContent = 'Rp ' + totalPrice.toLocaleString() + ' (' + matchSelect.value + ' match)';
+  waLink.href = `https://wa.me/6289684943741?text=${encodeURIComponent('Halo, saya mau Mabar Bareng Penjoki!\n\n🎮 Rank: ' + rankText + '\n📊 Jumlah Match: ' + matchSelect.value + '\n💰 Total: Rp ' + totalPrice.toLocaleString())}`;
+}
 
-  const rankText=rankSelect.options[rankSelect.selectedIndex].text.split(' - ')[0];
-  const pricePerMatch=parseInt(rankSelect.value);
-  const matchCount=parseInt(matchSelect.value);
-  const totalPrice=pricePerMatch * matchCount;
+// ==================== INIT BUTTON ====================
+document.addEventListener('DOMContentLoaded', function () {
+  // Pasang onclick langsung di sini, TANPA clone
+  const waBtn = document.getElementById('orderWhatsAppBtn');
+  if (waBtn) {
+    waBtn.addEventListener('click', function () {
+      openOrderWhatsApp();
+    });
+  }
 
-  priceText.textContent='Rp '+totalPrice.toLocaleString()+' ('+matchCount+' match)';
+  // Pastikan tombol dimulai dalam state disabled via style
+  setOrderBtnReady(false);
 
-  let msg=`Halo, saya mau Mabar Bareng Penjoki!\n\n`;
-  msg+=`🎮 Rank Saya: ${rankText}\n`;
-  msg+=`📊 Jumlah Match: ${matchCount} match\n`;
-  msg+=`💰 Total Harga: Rp ${totalPrice.toLocaleString()}\n\n`;
-  msg+=`Mohon info jadwal dan cara pembayarannya!`;
+  // Add redeem link to nav
+  const nav = document.getElementById('navLinks');
+  if (nav) {
+    nav.appendChild(li);
+  }
+});
 
-  waLink.href=`https://wa.me/6289684943741?text=${encodeURIComponent(msg)}`;
+// ==================== TOAST & FAQ ====================
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function toggleFaq(item) {
+  if (!item) return;
+  const isActive = item.classList.contains('active');
+  document.querySelectorAll('.faq-item').forEach(i => {
+    i.classList.remove('active');
+    const ans = i.querySelector('.faq-answer');
+    if (ans) ans.style.maxHeight = '0';
+  });
+  if (!isActive) {
+    item.classList.add('active');
+    const ans = item.querySelector('.faq-answer');
+    if (ans) ans.style.maxHeight = ans.scrollHeight + 'px';
+  }
 }
 </script>
 </body>
