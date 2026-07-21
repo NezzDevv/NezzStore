@@ -1,4 +1,9 @@
 // ============================================================
+  // BRAND LOGO — used in receipt header (replaces ☕ emoji)
+  // ============================================================
+  const WARNEZZEL_LOGO_URL = 'https://i.ibb.co.com/Nd7rJ45S/Chat-GPT-Image-Jul-3-2026-11-46-13-AM.png';
+
+  // ============================================================
   // DATA: Minuman (merged coffe + non-coffe), Bundle, Makanan
   // ============================================================
   const menuData = {
@@ -105,6 +110,7 @@
   let currentSection = "minuman";
   let currentProduct = null;
   let currentVariant = "";
+  let paymentConfirmed = false;
 
   // Category title lookup
   const CATEGORY_TITLES = {
@@ -118,13 +124,95 @@
   let isAdminMode = false;
 
   // ============================================================
-  // STAFF AUTH (local-only)
+  // STAFF AUTH (local-only, multi-account via localStorage)
   // ============================================================
-  // Single shared account. In production, replace with proper backend auth.
-  const STAFF_CREDENTIALS = [
-    { username: 'karyawan', password: 'warnezzel2026', name: 'Karyawan WarNezzel' }
-  ];
+  // Accounts are stored in localStorage under 'warnezzel_staff_accounts'.
+  // Passwords are base64-encoded (obfuscation only — not real security).
+  // In production, replace with proper backend auth.
+  const STAFF_ACCOUNTS_KEY = 'warnezzel_staff_accounts';
   const STAFF_SESSION_KEY = 'warnezzel_staff_session';
+
+  // Seed default account if storage empty (first run / cleared storage)
+  function seedDefaultStaff() {
+    const list = loadStaffAccounts();
+    if (list.length === 0) {
+      const defaults = [
+        { username: 'karyawan', password: 'warnezzel2026', name: 'Karyawan WarNezzel' }
+      ];
+      saveStaffAccounts(defaults);
+      return defaults;
+    }
+    return list;
+  }
+
+  // Generate short clerk ID (e.g. "C-A4F2") for staff identification
+  function makeClerkId() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // skip ambiguous chars (0/O, 1/I/L)
+    let id = 'C-';
+    for (let i = 0; i < 4; i++) {
+      id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return id;
+  }
+
+  // Ensure every loaded account has a clerkId (backfill for legacy data)
+  function ensureClerkIds(list) {
+    let mutated = false;
+    list.forEach(a => {
+      if (!a.clerkId) {
+        a.clerkId = makeClerkId();
+        mutated = true;
+      }
+    });
+    if (mutated) saveStaffAccounts(list);
+    return list;
+  }
+
+  function loadStaffAccounts() {
+    try {
+      const raw = localStorage.getItem(STAFF_ACCOUNTS_KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      if (!Array.isArray(arr)) return [];
+      // Normalize: ensure each has username/password/name/clerkId
+      const normalized = arr
+        .filter(a => a && typeof a.username === 'string' && a.username.trim())
+        .map(a => ({
+          username: a.username,
+          password: a.password || '',
+          name: (a.name && a.name.trim()) ? a.name : a.username,
+          clerkId: a.clerkId || null
+        }));
+      return ensureClerkIds(normalized);
+    } catch (e) { return []; }
+  }
+
+  function saveStaffAccounts(list) {
+    try { localStorage.setItem(STAFF_ACCOUNTS_KEY, JSON.stringify(list)); }
+    catch (e) { console.warn('saveStaffAccounts failed', e); }
+  }
+
+  // Obfuscation (NOT real security — local-only auth)
+  function encodeStaffPassword(plain) {
+    try { return btoa(unescape(encodeURIComponent(plain))); }
+    catch (e) { return plain; }
+  }
+  function decodeStaffPassword(encoded) {
+    try { return decodeURIComponent(escape(atob(encoded))); }
+    catch (e) { return encoded; }
+  }
+
+  // Backwards-compatible getter used by login flow
+  function getStaffCredentials() {
+    // Ensure at least the default account exists
+    const list = localStorage.getItem(STAFF_ACCOUNTS_KEY) ? loadStaffAccounts() : seedDefaultStaff();
+    // For login matching, return accounts with decoded passwords
+    return list.map(a => ({
+      username: a.username,
+      password: decodeStaffPassword(a.password),
+      name: a.name
+    }));
+  }
 
   function getStaffSession() {
     try {
@@ -145,34 +233,221 @@
   }
 
   function getCurrentStaff() {
-    return getStaffSession();
+    const session = getStaffSession();
+    if (!session) return null;
+    // Re-attach latest clerkId & name from account list (in case they were updated)
+    const account = loadStaffAccounts().find(a => a.username === session.username);
+    if (account) {
+      return {
+        username: account.username,
+        name: account.name,
+        clerkId: account.clerkId || null
+      };
+    }
+    return session;
   }
 
   function applyStaffUI() {
     const session = getStaffSession();
     const badge = document.getElementById('headerStaffBadge');
     const nameEl = document.getElementById('headerStaffName');
-    const printBtn = document.getElementById('printOrderBtn');
     const staffRequired = document.getElementById('cartStaffRequired');
     const waBtn = document.getElementById('waOrderBtn');
     const bell = document.getElementById('staffOrderBell');
+    const posPanel = document.getElementById('posQuickPanel');
+    const receiptSizeForm = document.getElementById('receiptSizeForm');
+    const cartTitle = document.getElementById('cartHeaderTitle');
+    // POS header & stats strip elements
+    const posHeader = document.getElementById('posHeader');
+    const posStats = document.getElementById('posStats');
+    const posHeaderStaffName = document.getElementById('posHeaderStaffName');
 
     if (session) {
       if (badge) badge.style.display = 'inline-flex';
       if (nameEl) nameEl.textContent = session.name;
-      if (printBtn) printBtn.style.display = '';
       if (staffRequired) staffRequired.style.display = 'none';
       // When staff is logged in, hide WhatsApp (staff uses print receipt)
       if (waBtn) waBtn.style.display = 'none';
+      // Show POS quick panel & receipt size selector
+      if (posPanel) posPanel.style.display = '';
+      // Show POS header & stats strip (khusus mode kasir)
+      if (posHeader) posHeader.style.display = 'flex';
+      if (posStats) posStats.style.display = 'grid';
+      if (posHeaderStaffName) posHeaderStaffName.textContent = session.name;
+      // Show clerk ID badge ("🆔 C-A4F2") — also re-attached from account list if missing
+      const clerkIdEl = document.getElementById('posHeaderClerkId');
+      const clerkId = (typeof getCurrentStaff === 'function' && getCurrentStaff()) ? getCurrentStaff().clerkId : null;
+      if (clerkIdEl) {
+        if (clerkId) {
+          clerkIdEl.textContent = '· 🆔 ' + clerkId;
+          clerkIdEl.style.display = '';
+        } else {
+          clerkIdEl.textContent = '';
+          clerkIdEl.style.display = 'none';
+        }
+      }
+      // Sync radio buttons with persisted size
+      const savedSize = (typeof getStrukSize === 'function') ? getStrukSize() : '58';
+      const radios = document.querySelectorAll('input[name="strukSize"]');
+      radios.forEach(r => { r.checked = (r.value === savedSize); });
+      if (receiptSizeForm) receiptSizeForm.style.display = '';
+      if (cartTitle) cartTitle.textContent = 'Pesanan — Mode Kasir';
+      document.body.classList.add('pos-mode');
+      // Kolom kanan selalu tampil; toggle tombol cetak vs hint WA
+      const colRight = document.getElementById('cartColRight');
+      if (colRight) colRight.style.display = '';
+      const printBtn = document.getElementById('cartPrintBtn');
+      if (printBtn) printBtn.style.display = '';
+      const waHint = document.getElementById('cartWaHint');
+      if (waHint) waHint.style.display = 'none';
+      // Tampilkan form terpisah mode kasir (table/name/phone)
+      ['tableFormPos','nameFormPos','phoneFormPos'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = '';
+      });
+      // Sinkronkan nilai awal dari form customer ke form kasir
+      const sync = (from, to) => {
+        const f = document.getElementById(from);
+        const t = document.getElementById(to);
+        if (f && t) t.value = f.value;
+      };
+      sync('miniCustomerName','miniCustomerNamePos');
+      sync('miniCustomerPhone','miniCustomerPhonePos');
+      sync('miniTableNumber','miniTableNumberPos');
+      // Start POS real-time clock & stats refresh
+      startPosClock();
+      updatePosStats();
+      updatePaymentUI();
+      document.body.classList.add('cart-open');
     } else {
       if (badge) badge.style.display = 'none';
-      if (printBtn) printBtn.style.display = 'none';
       if (staffRequired) staffRequired.style.display = '';
       if (waBtn) waBtn.style.display = '';
       if (bell) bell.style.display = 'none';  // hide bell when logged out
+      // Hide POS-specific UI when staff logs out
+      if (posPanel) posPanel.style.display = 'none';
+      if (receiptSizeForm) receiptSizeForm.style.display = 'none';
+      // Hide POS header & stats strip
+      if (posHeader) posHeader.style.display = 'none';
+      if (posStats) posStats.style.display = 'none';
+      stopPosClock();
+      // Kolom kanan selalu tampil; sembunyikan tombol cetak, tampilkan hint WA
+      const colRight = document.getElementById('cartColRight');
+      if (colRight) colRight.style.display = '';
+      const printBtn = document.getElementById('cartPrintBtn');
+      if (printBtn) printBtn.style.display = 'none';
+      const waHint = document.getElementById('cartWaHint');
+      if (waHint) waHint.style.display = '';
+      // Hide split form fields for kasir
+      ['tableFormPos','nameFormPos','phoneFormPos'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      // Sinkronkan nilai dari form kasir balik ke form customer
+      const syncBack = (from, to) => {
+        const f = document.getElementById(from);
+        const t = document.getElementById(to);
+        if (f && t) t.value = f.value;
+      };
+      syncBack('miniCustomerNamePos','miniCustomerName');
+      syncBack('miniCustomerPhonePos','miniCustomerPhone');
+      syncBack('miniTableNumberPos','miniTableNumber');
+      if (cartTitle) cartTitle.textContent = 'Pesanan Anda';
+      document.body.classList.remove('pos-mode');
+      document.body.classList.remove('cart-open');
+      document.body.classList.remove('pos-cart-visible');
+      paymentConfirmed = false;
+      updateCartBadge(); // sync cart print button enabled state
     }
     // Always refresh bell count (whether logged in or out — but bell is hidden anyway when out)
     updateStaffNotificationBell();
+  }
+
+  // ============================================================
+  // POS CLOCK & STATS — Real-time info untuk mode kasir
+  // ============================================================
+
+  // Tentukan shift berdasarkan jam: Pagi/Siang/Malam
+  function getCurrentShift() {
+    const h = new Date().getHours();
+    if (h >= 6  && h < 11) return 'Pagi';
+    if (h >= 11 && h < 15) return 'Siang';
+    if (h >= 15 && h < 19) return 'Sore';
+    return 'Malam';
+  }
+
+  // Format tanggal Indonesia (contoh: Minggu, 19 Juli 2026)
+  function formatTanggalID(d) {
+    const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const bulan = ['Januari','Februari','Maret','April','Mei','Juni',
+                   'Juli','Agustus','September','Oktober','November','Desember'];
+    return hari[d.getDay()] + ', ' + d.getDate() + ' ' + bulan[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  // Update jam real-time di header POS
+  function updatePosClock() {
+    const timeEl = document.getElementById('posClockTime');
+    const dateEl = document.getElementById('posClockDate');
+    const shiftEl = document.getElementById('posShiftName');
+    if (!timeEl || !dateEl) return;
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    timeEl.textContent = hh + ':' + mm + ':' + ss;
+    dateEl.textContent = formatTanggalID(now);
+    if (shiftEl) shiftEl.textContent = getCurrentShift();
+  }
+
+  let _posClockTimer = null;
+  function startPosClock() {
+    if (_posClockTimer) return; // already running
+    updatePosClock(); // immediate first tick
+    _posClockTimer = setInterval(updatePosClock, 1000);
+    // Also refresh stats every 5s so pesanan masuk updates live
+    _posStatsTimer = setInterval(updatePosStats, 5000);
+  }
+  function stopPosClock() {
+    if (_posClockTimer) { clearInterval(_posClockTimer); _posClockTimer = null; }
+    if (_posStatsTimer) { clearInterval(_posStatsTimer); _posStatsTimer = null; }
+  }
+  let _posStatsTimer = null;
+
+  // Update 4 stat strip POS: pesanan masuk / item cart / estimasi total / shift
+  function updatePosStats() {
+    if (!document.body.classList.contains('pos-mode')) return;
+    const incomingEl = document.getElementById('posStatIncoming');
+    const cartEl = document.getElementById('posStatCart');
+    const totalEl = document.getElementById('posStatTotal');
+    const shiftEl = document.getElementById('posStatShift');
+    if (incomingEl) {
+      const pending = (typeof getPendingOrders === 'function') ? getPendingOrders().length : 0;
+      incomingEl.textContent = pending;
+    }
+    if (cartEl) {
+      const count = (typeof cart !== 'undefined' && Array.isArray(cart))
+        ? cart.reduce((sum, item) => sum + item.qty, 0) : 0;
+      cartEl.textContent = count;
+    }
+    if (totalEl) {
+      const total = (typeof cart !== 'undefined' && Array.isArray(cart))
+        ? cart.reduce((t, i) => t + i.subtotal, 0) : 0;
+      totalEl.textContent = (typeof formatRupiah === 'function')
+        ? formatRupiah(total) : ('Rp ' + total);
+    }
+    if (shiftEl) shiftEl.textContent = getCurrentShift();
+    // Sync bell count POS header juga
+    const bellCountEl = document.getElementById('posHeaderBellCount');
+    const headerBell  = document.getElementById('posHeaderBell');
+    if (bellCountEl && headerBell) {
+      const pending = (typeof getPendingOrders === 'function') ? getPendingOrders().length : 0;
+      if (pending > 0) {
+        bellCountEl.textContent = pending > 99 ? '99+' : pending;
+        bellCountEl.style.display = 'inline-flex';
+      } else {
+        bellCountEl.style.display = 'none';
+      }
+    }
   }
 
   function openStaffLogin() {
@@ -207,22 +482,16 @@
     const u = (document.getElementById('staffUsername').value || '').trim();
     const p = (document.getElementById('staffPassword').value || '');
     const errEl = document.getElementById('staffLoginError');
-    const match = STAFF_CREDENTIALS.find(c => c.username === u && c.password === p);
+    const match = getStaffCredentials().find(c => c.username === u && c.password === p);
     if (match) {
-      setStaffSession({ username: match.username, name: match.name });
+      // Pull clerkId from the full account list (login matching uses decoded passwords, no clerkId)
+      const account = loadStaffAccounts().find(a => a.username === match.username);
+      const clerkId = account && account.clerkId ? account.clerkId : makeClerkId();
+      setStaffSession({ username: match.username, name: match.name, clerkId });
       if (errEl) errEl.textContent = '';
       closeStaffLogin();
       applyStaffUI();
-      showToast('Login berhasil. Selamat bertugas, ' + match.name + '!');
-
-      // When staff logs in, fetch existing cloud orders and start realtime subscription
-      // (idempotent — safe to call multiple times)
-      syncOrdersFromCloud().then(() => {
-        updateStaffNotificationBell();
-      });
-      if (getSupabaseStatus() === 'ready' && !_ordersSubscription) {
-        subscribeToOrderUpdates();
-      }
+      showToast('Login berhasil. Selamat bertugas, ' + match.name + '! [' + clerkId + ']');
     } else {
       if (errEl) { errEl.textContent = 'Username atau password salah.'; errEl.style.color = '#e74c3c'; }
     }
@@ -230,207 +499,210 @@
 
   function logoutStaff() {
     clearStaffSession();
+    paymentConfirmed = false;
     applyStaffUI();
     showToast('Logout berhasil.');
   }
 
   // ============================================================
-  // SUPABASE — cloud sync & real-time subscriptions
-  // Falls back gracefully if Supabase isn't configured.
+  // STAFF MANAGEMENT PANEL — CRUD akun & ubah nama tampilan
   // ============================================================
-  const ORDERS_TABLE = 'orders';
-  let _ordersSubscription = null;
-
-  function getSupabaseStatus() {
-    if (!window.supabase) return 'sdk-missing';
-    if (!isSupabaseConfigured()) return 'not-configured';
-    return 'ready';
+  function openStaffMgmt() {
+    if (!isStaffLoggedIn()) {
+      showToast('Login karyawan dulu.', true);
+      openStaffLogin();
+      return;
+    }
+    const overlay = document.getElementById('staffMgmtOverlay');
+    const backdrop = document.getElementById('staffMgmtBackdrop');
+    if (!overlay || !backdrop) return;
+    // Prefill profil sendiri
+    const me = getCurrentStaff();
+    const usernameEl = document.getElementById('staffSelfUsername');
+    const nameEl = document.getElementById('staffSelfName');
+    const pwEl = document.getElementById('staffSelfPassword');
+    if (usernameEl) usernameEl.value = me ? me.username : '';
+    if (nameEl) nameEl.value = me ? me.name : '';
+    if (pwEl) pwEl.value = '';
+    // Clear error
+    const errEl = document.getElementById('staffMgmtError');
+    if (errEl) errEl.textContent = '';
+    renderStaffMgmtList();
+    overlay.classList.add('open');
+    backdrop.classList.add('visible');
   }
 
-  async function saveOrderToCloud(order) {
-    if (getSupabaseStatus() !== 'ready') return { ok: false, reason: 'not-configured' };
-    const client = getSupabaseClient();
-    if (!client) return { ok: false, reason: 'no-client' };
-    try {
-      const row = {
-        order_id: order.orderId,
-        status: order.status,
-        customer_name: order.customer ? (order.customer.name || 'Anonim') : 'Anonim',
-        customer_phone: order.customer ? (order.customer.phone || null) : null,
-        table_number: order.table,
-        branch: order.branch || null,
-        branch_name: order.branchName || null,
-        items: order.items || [],
-        total: order.total || 0,
-        notes: order.notes || null,
-        source: 'web'
-      };
-      const { data, error } = await client
-        .from(ORDERS_TABLE)
-        .insert(row)
-        .select();
-      if (error) {
-        console.warn('[Supabase] Insert error:', error.message);
-        return { ok: false, reason: error.message };
-      }
-      return { ok: true, data };
-    } catch (e) {
-      console.warn('[Supabase] Insert exception:', e);
-      return { ok: false, reason: String(e) };
+  function closeStaffMgmt() {
+    const overlay = document.getElementById('staffMgmtOverlay');
+    const backdrop = document.getElementById('staffMgmtBackdrop');
+    if (overlay) overlay.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('visible');
+  }
+
+  function renderStaffMgmtList() {
+    const listEl = document.getElementById('staffMgmtList');
+    if (!listEl) return;
+    const accounts = loadStaffAccounts();
+    if (accounts.length === 0) {
+      listEl.innerHTML = '<div class="staff-mgmt-empty">Belum ada akun.</div>';
+      return;
+    }
+    const me = getCurrentStaff();
+    listEl.innerHTML = accounts.map((a, i) => {
+      const isMe = me && me.username === a.username;
+      const safeName = escapeHtml(a.name);
+      const safeUser = escapeHtml(a.username);
+      const safeClerkId = escapeHtml(a.clerkId || '—');
+      return '<div class="staff-mgmt-item' + (isMe ? ' is-me' : '') + '">' +
+               '<div class="staff-mgmt-item-icon">' + (isMe ? '⭐' : '👤') + '</div>' +
+               '<div class="staff-mgmt-item-info">' +
+                 '<div class="staff-mgmt-item-name">' + safeName + (isMe ? ' <span class="staff-mgmt-item-you">(Anda)</span>' : '') + '</div>' +
+                 '<div class="staff-mgmt-item-user">@' + safeUser + ' · <span class="staff-mgmt-item-clerk" title="Clerk ID">🆔 ' + safeClerkId + '</span></div>' +
+               '</div>' +
+               '<div class="staff-mgmt-item-actions">' +
+                 '<button class="staff-mgmt-item-btn" onclick="editStaffAccount(' + i + ')" title="Edit nama">✏️</button>' +
+                 (isMe ? '' : '<button class="staff-mgmt-item-btn danger" onclick="deleteStaffAccount(' + i + ')" title="Hapus akun">🗑️</button>') +
+               '</div>' +
+             '</div>';
+    }).join('');
+  }
+
+  function setStaffMgmtError(msg, color) {
+    const errEl = document.getElementById('staffMgmtError');
+    if (errEl) {
+      errEl.textContent = msg || '';
+      errEl.style.color = color || '#e74c3c';
     }
   }
 
-  async function updateOrderStatusInCloud(orderId, newStatus, completedBy) {
-    if (getSupabaseStatus() !== 'ready') return { ok: false, reason: 'not-configured' };
-    const client = getSupabaseClient();
-    if (!client) return { ok: false, reason: 'no-client' };
-    try {
-      const update = { status: newStatus };
-      if (newStatus === 'completed') {
-        update.completed_at = new Date().toISOString();
-        if (completedBy) update.completed_by = completedBy;
-      }
-      const { data, error } = await client
-        .from(ORDERS_TABLE)
-        .update(update)
-        .eq('order_id', orderId)
-        .select();
-      if (error) return { ok: false, reason: error.message };
-      return { ok: true, data };
-    } catch (e) {
-      return { ok: false, reason: String(e) };
+  // Tambah akun baru
+  function addStaffAccount() {
+    const uEl = document.getElementById('staffNewUsername');
+    const nEl = document.getElementById('staffNewName');
+    const pEl = document.getElementById('staffNewPassword');
+    if (!uEl || !nEl || !pEl) return;
+    const username = uEl.value.trim();
+    const name = nEl.value.trim();
+    const password = pEl.value;
+
+    // Validasi
+    if (!username) { setStaffMgmtError('Username wajib diisi.'); uEl.focus(); return; }
+    if (!/^[A-Za-z0-9._-]{2,20}$/.test(username)) {
+      setStaffMgmtError('Username hanya huruf/angka/./_/- (2-20 karakter).');
+      uEl.focus();
+      return;
     }
+    if (password.length < 4) { setStaffMgmtError('Password minimal 4 karakter.'); pEl.focus(); return; }
+    if (!name) { setStaffMgmtError('Nama tampilan wajib diisi.'); nEl.focus(); return; }
+
+    const accounts = loadStaffAccounts();
+    if (accounts.some(a => a.username.toLowerCase() === username.toLowerCase())) {
+      setStaffMgmtError('Username "' + username + '" sudah dipakai.');
+      uEl.focus();
+      return;
+    }
+
+    accounts.push({
+      username: username,
+      name: name,
+      password: encodeStaffPassword(password),
+      clerkId: makeClerkId()
+    });
+    saveStaffAccounts(accounts);
+    setStaffMgmtError('Akun "' + username + '" berhasil ditambahkan.', '#2e7d32');
+    // Reset form
+    uEl.value = '';
+    nEl.value = '';
+    pEl.value = '';
+    renderStaffMgmtList();
+    showToast('Akun baru ditambahkan: ' + name);
   }
 
-  // Fetch orders from cloud and merge into local history (cloud is the source of truth)
-  async function syncOrdersFromCloud() {
-    if (getSupabaseStatus() !== 'ready') return;
-    const client = getSupabaseClient();
-    if (!client) return;
-    try {
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-      const { data, error } = await client
-        .from(ORDERS_TABLE)
-        .select('*')
-        .gte('created_at', todayStart.toISOString())
-        .order('created_at', { ascending: false })
-        .limit(200);
-      if (error) {
-        console.warn('[Supabase] Fetch error:', error.message);
-        return;
-      }
-      if (!data || data.length === 0) return;
-
-      // Convert cloud rows → local order format & merge into history
-      const existingByOrderId = {};
-      getOrderHistory().forEach(o => { if (o.orderId) existingByOrderId[o.orderId] = o; });
-
-      data.forEach(row => {
-        const localOrder = {
-          orderId: row.order_id,
-          timestamp: row.created_at,
-          customer: {
-            name: row.customer_name || 'Anonim',
-            phone: row.customer_phone || ''
-          },
-          table: row.table_number,
-          branch: row.branch,
-          branchName: row.branch_name,
-          items: row.items || [],
-          total: row.total,
-          status: row.status,
-          notes: row.notes || '',
-          completedAt: row.completed_at,
-          completedBy: row.completed_by,
-          fromCloud: true
-        };
-        existingByOrderId[row.order_id] = localOrder;
-      });
-
-      const merged = Object.values(existingByOrderId)
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      saveOrderHistory(merged);
-    } catch (e) {
-      console.warn('[Supabase] Sync exception:', e);
+  // Edit nama akun (prompt)
+  function editStaffAccount(idx) {
+    const accounts = loadStaffAccounts();
+    const a = accounts[idx];
+    if (!a) return;
+    const newName = prompt('Nama tampilan baru untuk @' + a.username + ' :', a.name);
+    if (newName === null) return;
+    const trimmed = newName.trim();
+    if (!trimmed) { setStaffMgmtError('Nama tidak boleh kosong.'); return; }
+    accounts[idx] = Object.assign({}, a, { name: trimmed });
+    saveStaffAccounts(accounts);
+    // Sync session kalau yg diedit akun sendiri
+    const me = getCurrentStaff();
+    if (me && me.username === a.username) {
+      setStaffSession({ username: me.username, name: trimmed });
+      applyStaffUI();
     }
+    renderStaffMgmtList();
+    showToast('Nama akun diperbarui.');
   }
 
-  // Subscribe to realtime updates — fired whenever a new order is inserted or status changes
-  function subscribeToOrderUpdates() {
-    if (getSupabaseStatus() !== 'ready') return;
-    const client = getSupabaseClient();
-    if (!client) return;
-
-    // Tear down any existing subscription first (avoid duplicates)
-    if (_ordersSubscription) {
-      try { _ordersSubscription.unsubscribe(); } catch (e) {}
-      _ordersSubscription = null;
+  // Hapus akun
+  function deleteStaffAccount(idx) {
+    const accounts = loadStaffAccounts();
+    const a = accounts[idx];
+    if (!a) return;
+    const me = getCurrentStaff();
+    if (me && me.username === a.username) {
+      setStaffMgmtError('Tidak bisa menghapus akun yang sedang login. Logout dulu.');
+      return;
     }
+    if (accounts.length <= 1) {
+      setStaffMgmtError('Minimal harus ada 1 akun kasir.');
+      return;
+    }
+    if (!confirm('Hapus akun @' + a.username + ' (' + a.name + ')? Tindakan ini tidak bisa dibatalkan.')) {
+      return;
+    }
+    accounts.splice(idx, 1);
+    saveStaffAccounts(accounts);
+    setStaffMgmtError('Akun dihapus.', '#2e7d32');
+    renderStaffMgmtList();
+    showToast('Akun dihapus.');
+  }
 
-    _ordersSubscription = client
-      .channel('public:orders')
-      .on('postgres_changes',
-        { event: 'INSERT', schema: 'public', table: ORDERS_TABLE },
-        (payload) => {
-          const row = payload.new;
-          if (!row) return;
-          const order = {
-            orderId: row.order_id,
-            timestamp: row.created_at,
-            customer: { name: row.customer_name || 'Anonim', phone: row.customer_phone || '' },
-            table: row.table_number,
-            branch: row.branch,
-            branchName: row.branch_name,
-            items: row.items || [],
-            total: row.total,
-            status: row.status,
-            notes: row.notes || '',
-            completedAt: row.completed_at,
-            completedBy: row.completed_by,
-            fromCloud: true
-          };
-          // Merge into local history
-          const orders = getOrderHistory().filter(o => o.orderId !== order.orderId);
-          orders.unshift(order);
-          saveOrderHistory(orders);
+  // Simpan profil sendiri (nama & password)
+  function saveStaffSelf() {
+    const me = getCurrentStaff();
+    if (!me) { setStaffMgmtError('Belum login.'); return; }
+    const nameEl = document.getElementById('staffSelfName');
+    const pwEl = document.getElementById('staffSelfPassword');
+    if (!nameEl) return;
+    const newName = nameEl.value.trim();
+    const newPw = pwEl ? pwEl.value : '';
 
-          // If staff is logged in, fire the notification
-          if (isStaffLoggedIn()) {
-            notifyStaffOfOrder(order);
-            const panel = document.getElementById('staffOrderPanel');
-            if (panel && panel.classList.contains('open')) renderStaffOrderList();
-          }
-        }
-      )
-      .on('postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: ORDERS_TABLE },
-        (payload) => {
-          const row = payload.new;
-          if (!row || !row.order_id) return;
-          // Sync local history with the updated status
-          const orders = getOrderHistory();
-          const idx = orders.findIndex(o => o.orderId === row.order_id);
-          if (idx >= 0) {
-            orders[idx].status = row.status;
-            if (row.completed_at) orders[idx].completedAt = row.completed_at;
-            if (row.completed_by) orders[idx].completedBy = row.completed_by;
-            saveOrderHistory(orders);
-            if (isStaffLoggedIn()) {
-              updateStaffNotificationBell();
-              const panel = document.getElementById('staffOrderPanel');
-              if (panel && panel.classList.contains('open')) renderStaffOrderList();
-            }
-          }
-        }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('[Supabase] Realtime subscribed ✓');
-        } else if (status === 'CHANNEL_ERROR') {
-          console.warn('[Supabase] Channel error. Coba cek RLS/replication setup.');
-        }
-      });
+    if (!newName) { setStaffMgmtError('Nama tampilan tidak boleh kosong.'); nameEl.focus(); return; }
+    if (newPw && newPw.length < 4) { setStaffMgmtError('Password baru minimal 4 karakter.'); pwEl.focus(); return; }
+
+    const accounts = loadStaffAccounts();
+    const idx = accounts.findIndex(a => a.username === me.username);
+    if (idx === -1) { setStaffMgmtError('Akun tidak ditemukan di storage.'); return; }
+
+    accounts[idx] = Object.assign({}, accounts[idx], {
+      name: newName,
+      password: newPw ? encodeStaffPassword(newPw) : accounts[idx].password
+    });
+    saveStaffAccounts(accounts);
+
+    // Update session aktif
+    setStaffSession({ username: me.username, name: newName });
+    applyStaffUI();
+
+    setStaffMgmtError('Profil disimpan.', '#2e7d32');
+    if (pwEl) pwEl.value = '';
+    renderStaffMgmtList();
+    showToast('Profil disimpan.');
+  }
+
+  // Reset semua akun ke default
+  function resetStaffAccounts() {
+    if (!confirm('Reset semua akun ke default? Akun tambahan akan dihapus permanen.')) return;
+    localStorage.removeItem(STAFF_ACCOUNTS_KEY);
+    seedDefaultStaff();
+    renderStaffMgmtList();
+    showToast('Akun direset ke default.');
   }
 
   // ============================================================
@@ -542,6 +814,16 @@
       bell.style.display = 'none';
       countEl.style.display = 'none';
     }
+    // Sync bell count ke POS header (khusus mode kasir)
+    const posBellCount = document.getElementById('posHeaderBellCount');
+    if (posBellCount) {
+      if (pending > 0) {
+        posBellCount.textContent = pending > 99 ? '99+' : pending;
+        posBellCount.style.display = 'inline-flex';
+      } else {
+        posBellCount.style.display = 'none';
+      }
+    }
   }
 
   function showOrderToast(order) {
@@ -607,7 +889,7 @@
           <div class="sol-header">
             <div>
               <div class="sol-id">${escapeHtml(order.orderId)}</div>
-              <div class="sol-meta">🕒 ${escapeHtml(dateStr)}${order.customer && order.customer.name !== 'Anonim' ? ' · 👤 ' + escapeHtml(order.customer.name) : ''}</div>
+              <div class="sol-meta">🕒 ${escapeHtml(dateStr)}${order.customer && order.customer.name !== 'Anonim' ? ' · 👤 ' + escapeHtml(order.customer.name) : ''}${order.clerkId ? ' · 🆔 ' + escapeHtml(order.clerkId) : ''}</div>
             </div>
             <div class="sol-meja">Meja <b>${escapeHtml(order.table || '?')}</b></div>
           </div>
@@ -637,17 +919,11 @@
       orders[idx].status = 'completed';
       orders[idx].completedAt = new Date().toISOString();
       orders[idx].completedBy = staff ? staff.name : null;
+      orders[idx].completedByClerk = staff ? staff.clerkId : null;
       saveOrderHistory(orders);
       renderStaffOrderList();
       updateStaffNotificationBell();
       showToast('Pesanan ditandai selesai.');
-
-      // Sync to cloud too (so other devices stop showing it as pending)
-      updateOrderStatusInCloud(orderId, 'completed', staff ? staff.name : null).then((res) => {
-        if (!res.ok && res.reason !== 'not-configured' && res.reason !== 'sdk-missing') {
-          console.warn('[Supabase] Update gagal:', res.reason);
-        }
-      });
     }
   }
 
@@ -710,6 +986,8 @@
           // If the panel is open, refresh it
           const panel = document.getElementById('staffOrderPanel');
           if (panel && panel.classList.contains('open')) renderStaffOrderList();
+          // Refresh POS stats strip (pesanan masuk counter)
+          if (typeof updatePosStats === 'function') updatePosStats();
         }
       });
     } else {
@@ -720,24 +998,13 @@
             const payload = JSON.parse(e.newValue || 'null');
             if (payload && payload.order) notifyStaffOfOrder(payload.order);
           } catch (err) {}
+          // Refresh POS stats strip
+          if (typeof updatePosStats === 'function') updatePosStats();
         }
       });
     }
 
-    // Cross-device (Supabase Realtime) — fires for staff on ANY device
-    if (getSupabaseStatus() === 'ready') {
-      // Pull existing orders so the bell reflects reality even when this tab just opened
-      syncOrdersFromCloud().then(() => {
-        updateStaffNotificationBell();
-        if (isStaffLoggedIn()) {
-          const panel = document.getElementById('staffOrderPanel');
-          if (panel && panel.classList.contains('open')) renderStaffOrderList();
-        }
-      });
-      subscribeToOrderUpdates();
-    } else {
-      console.log('[Supabase] Tidak dikonfigurasi. Aktifkan Supabase untuk notifikasi cross-device. Lihat SUPABASE_SETUP.md.');
-    }
+    // Cross-device sync disabled — Supabase removed. App is local-only.
 
     // Request notification permission lazily — first time staff opens the panel
     const bell = document.getElementById('staffOrderBell');
@@ -1089,9 +1356,17 @@
     }
 
     updateCartBadge();
+    renderCartItems();
+    updatePaymentUI();
     closeProductDetail();
-    showToast('Ditambahkan ke keranjang');
-    pulseHeaderCart();
+    const isPos = document.body.classList.contains('pos-mode');
+    if (!isPos) {
+      showToast('Ditambahkan ke keranjang');
+      pulseHeaderCart();
+    } else {
+      // POS mode: feedback visual di sidebar kanan (Daftar Pesanan)
+      pulsePosOrderList();
+    }
   });
 
   function pulseHeaderCart() {
@@ -1108,6 +1383,23 @@
     setTimeout(() => ring.remove(), 700);
   }
 
+  // POS mode: feedback visual di sidebar pesanan saat item ditambah
+  function pulsePosOrderList() {
+    const cartOverlay = document.getElementById('cartOverlay');
+    if (!cartOverlay) return;
+    cartOverlay.classList.remove('item-added-pulse');
+    void cartOverlay.offsetWidth;
+    cartOverlay.classList.add('item-added-pulse');
+    setTimeout(() => cartOverlay.classList.remove('item-added-pulse'), 700);
+    const list = document.getElementById('cartItemList');
+    if (list) {
+      list.classList.remove('item-added-pulse-inner');
+      void list.offsetWidth;
+      list.classList.add('item-added-pulse-inner');
+      setTimeout(() => list.classList.remove('item-added-pulse-inner'), 600);
+    }
+  }
+
   // ============================================================
   // CART BADGE / VIEW / CLOSE / REMOVE
   // ============================================================
@@ -1118,34 +1410,195 @@
       badge.textContent = count;
       badge.style.display = count > 0 ? 'inline-flex' : 'none';
     }
+    // Sync POS quick panel: enable "Cetak Struk" when cart has items
+    const posCount = document.getElementById('posQuickCount');
+    const posPrint = document.getElementById('posQuickPrintBtn');
+    if (posCount) posCount.textContent = count;
+    if (posPrint) {
+      posPrint.disabled = count === 0;
+      posPrint.style.opacity = count === 0 ? '0.5' : '1';
+      posPrint.style.cursor = count === 0 ? 'not-allowed' : 'pointer';
+      posPrint.style.display = 'none';
+    }
+    // Sync POS header cart button (always visible when staff is logged in)
+    const posHeaderCartCount = document.getElementById('posHeaderCartCount');
+    const posHeaderCart = document.getElementById('posHeaderCart');
+    if (posHeaderCartCount) {
+      posHeaderCartCount.textContent = count;
+      posHeaderCartCount.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+    if (posHeaderCart) {
+      // Add a subtle pulse when there are items
+      if (count > 0) posHeaderCart.classList.add('has-items');
+      else posHeaderCart.classList.remove('has-items');
+    }
+    // Sync cart print button (enabled when cart has items)
+    const cartBtn = document.getElementById('cartPrintBtn');
+    const cartBtnCount = document.getElementById('cartPrintBtnCount');
+    if (cartBtn) {
+      cartBtn.disabled = count === 0;
+      cartBtn.style.opacity = count === 0 ? '0.5' : '1';
+      cartBtn.style.cursor = count === 0 ? 'not-allowed' : 'pointer';
+    }
+    if (cartBtnCount) cartBtnCount.textContent = count;
+    // Sync POS mobile FAB cart badge
+    const toggleBadge = document.getElementById('posCartToggleBadge');
+    if (toggleBadge) {
+      toggleBadge.textContent = count;
+      toggleBadge.style.display = count > 0 ? 'flex' : 'none';
+    }
+    // Refresh POS payment + print gating (POS mode only — harmless in customer mode)
+    if (document.body.classList.contains('pos-mode')) updatePaymentUI();
+    // Sync POS stats strip (item count + estimasi total)
+    if (typeof updatePosStats === 'function') updatePosStats();
+  }
+
+  // ============================================================
+  // POS PAYMENT CONFIRMATION + PRINT GATING
+  // ============================================================
+
+  function canConfirmPayment() {
+    if (!isStaffLoggedIn()) return false;
+    if (cart.length === 0) return false;
+    // Sync POS table field to main field for validation (already mirrored at viewCart,
+    // but staff may have edited it after).
+    if (document.body.classList.contains('pos-mode')) {
+      const syncPos = (from, to) => {
+        const f = document.getElementById(from);
+        const t = document.getElementById(to);
+        if (f && t) t.value = f.value;
+      };
+      syncPos('miniTableNumberPos', 'miniTableNumber');
+      // Jika nomor meja kosong di POS mode, generate otomatis (meja sementara)
+      const tableInput = document.getElementById('miniTableNumber');
+      if (!tableInput || !tableInput.value.trim()) {
+        tableInput.value = 'POS-' + Date.now().toString(36).toUpperCase();
+      }
+      return true; // di POS mode, nomor meja dijamin ada (auto-generated jika kosong)
+    }
+    const tableInput = document.getElementById('miniTableNumber');
+    const table = tableInput ? tableInput.value.trim() : '';
+    return !!table;
+  }
+
+  function confirmPayment() {
+    if (!isStaffLoggedIn()) {
+      showToast('Login karyawan dulu.', true);
+      return;
+    }
+    if (cart.length === 0) {
+      showToast('Keranjang kosong!', true);
+      return;
+    }
+    if (!canConfirmPayment()) {
+      showCartFieldError('Isi nomor meja dulu sebelum konfirmasi pembayaran.');
+      focusRequiredField();
+      return;
+    }
+
+    // Set flag lunas — TIDAK reset keranjang, TIDAK auto print
+    paymentConfirmed = true;
+    updatePaymentUI();
+    showToast('✓ Pembayaran dikonfirmasi. Keranjang aman.');
+  }
+
+  function resetPayment() {
+    paymentConfirmed = false;
+    updatePaymentUI();
+    showToast('Konfirmasi pembayaran dibatalkan.');
+  }
+
+  function manualResetCart() {
+    if (cart.length === 0 && !paymentConfirmed) return;
+    if (!confirm('Reset keranjang? Pesanan yang belum di-cetak akan hilang.')) return;
+    cart = [];
+    paymentConfirmed = false;
+    updateCartBadge();
+    renderCartItems();
+    updatePaymentUI();
+    document.getElementById('miniCustomerName').value = '';
+    document.getElementById('miniCustomerNamePos').value = '';
+    document.getElementById('miniTableNumber').value = '';
+    document.getElementById('miniTableNumberPos').value = '';
+    document.getElementById('orderNotes').value = '';
+    showToast('Keranjang direset.');
+  }
+
+  function updatePaymentUI() {
+    const confirmBtn = document.getElementById('cartConfirmPayBtn');
+    const statusEl = document.getElementById('cartPaymentStatus');
+    const printBtn = document.getElementById('cartPrintBtn');
+    const resetBtn = document.getElementById('cartResetBtn');
+    const cartHasItems = cart.length > 0;
+    const isPos = document.body.classList.contains('pos-mode');
+
+    if (confirmBtn) {
+      const canConfirm = isPos && canConfirmPayment();
+      confirmBtn.disabled = !canConfirm || paymentConfirmed;
+      confirmBtn.style.opacity = (canConfirm && !paymentConfirmed) ? '1' : '0.5';
+      confirmBtn.style.cursor = (!canConfirm || paymentConfirmed) ? 'not-allowed' : 'pointer';
+      confirmBtn.style.display = isPos ? '' : 'none';
+    }
+    if (statusEl) statusEl.style.display = (isPos && paymentConfirmed) ? '' : 'none';
+    if (printBtn) {
+      const canPrint = cartHasItems && (isPos ? paymentConfirmed : true);
+      printBtn.disabled = !canPrint;
+      printBtn.style.opacity = canPrint ? '1' : '0.5';
+      printBtn.style.cursor = canPrint ? 'pointer' : 'not-allowed';
+    }
+    if (resetBtn) {
+      const canReset = isPos && (cartHasItems || paymentConfirmed);
+      resetBtn.disabled = !canReset;
+      resetBtn.style.opacity = canReset ? '1' : '0.5';
+      resetBtn.style.cursor = canReset ? 'pointer' : 'not-allowed';
+    }
+  }
+
+  function togglePosCart() {
+    document.body.classList.toggle('pos-cart-visible');
   }
 
   function viewCart() {
-    const cartOverlay = document.getElementById('cartOverlay');
-    const backdrop = document.getElementById('cartBackdrop');
-    cartOverlay.classList.add('open');
-    backdrop.classList.add('visible');
-    document.body.style.overflow = 'hidden';
+    const isPos = document.body.classList.contains('pos-mode');
+
+    if (!isPos) {
+      const cartOverlay = document.getElementById('cartOverlay');
+      const backdrop = document.getElementById('cartBackdrop');
+      cartOverlay.classList.add('open');
+      backdrop.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+    // POS mode: sidebar selalu terlihat, tidak perlu buka/tutup
 
     // Auto-fill table from QR context
     if (orderContext.table) {
       const tableInput = document.getElementById('miniTableNumber');
       if (tableInput && !tableInput.value) tableInput.value = orderContext.table;
+      if (isPos) {
+        const tableInputPos = document.getElementById('miniTableNumberPos');
+        if (tableInputPos && !tableInputPos.value) tableInputPos.value = orderContext.table;
+      }
     }
 
     // Refresh staff-gated buttons (in case staff logged in/out elsewhere)
     applyStaffUI();
 
     renderCartItems();
+    updatePaymentUI();
   }
 
   function renderCartItems() {
     const cartListEl = document.getElementById('cartItemList');
     const totalEl = document.getElementById('cartTotal');
+    const cartListCust = document.getElementById('cartItemListCustomer');
+    const totalCust = document.getElementById('cartTotalCustomer');
 
     if (cart.length === 0) {
-      cartListEl.innerHTML = '<div class="cart-empty">&#129392;<br>Keranjang masih kosong</div>';
+      const emptyHTML = '<div class="cart-empty">&#129392;<br>Keranjang masih kosong</div>';
+      cartListEl.innerHTML = emptyHTML;
+      if (cartListCust) cartListCust.innerHTML = emptyHTML;
       totalEl.textContent = 'Rp 0';
+      if (totalCust) totalCust.textContent = 'Rp 0';
       return;
     }
 
@@ -1169,22 +1622,97 @@
       `;
     });
     cartListEl.innerHTML = html;
+    if (cartListCust) cartListCust.innerHTML = html;
     const total = cart.reduce((t, i) => t + i.subtotal, 0);
-    totalEl.textContent = formatRupiah(total);
+    const totalStr = formatRupiah(total);
+    totalEl.textContent = totalStr;
+    if (totalCust) totalCust.textContent = totalStr;
+    // renderStrukPreview() — preview section removed
   }
 
+  // ============================================================
+  // SYNC CART FIELD (sync POS fields → main cart fields)
+  // ============================================================
+
+  // Called after payment is confirmed / reset
+
   function closeCart() {
-    const cartOverlay = document.getElementById('cartOverlay');
-    const backdrop = document.getElementById('cartBackdrop');
-    cartOverlay.classList.remove('open');
-    backdrop.classList.remove('visible');
-    document.body.style.overflow = '';
+    const isPos = document.body.classList.contains('pos-mode');
+    if (!isPos) {
+      const cartOverlay = document.getElementById('cartOverlay');
+      const backdrop = document.getElementById('cartBackdrop');
+      cartOverlay.classList.remove('open');
+      backdrop.classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+    // POS mode: sidebar selalu terlihat, tidak perlu ditutup
   }
+  // Tampilkan notif error untuk field wajib (di kolom kiri)
+  function showCartFieldError(message) {
+    const errorEl = document.getElementById('cartFieldError');
+    if (errorEl) {
+      errorEl.innerHTML = '&#9888; ' + message;
+      errorEl.style.display = '';
+      // Auto re-trigger animasi
+      errorEl.style.animation = 'none';
+      void errorEl.offsetWidth;
+      errorEl.style.animation = 'errorFadeIn 0.3s ease';
+      // Auto hide setelah 4 detik
+      clearTimeout(showCartFieldError._t);
+      showCartFieldError._t = setTimeout(() => {
+        errorEl.style.display = 'none';
+        clearFieldErrors();
+      }, 4000);
+    }
+  }
+
+  // Highlight input wajib yang kosong dengan border merah & shake animasi
+  function focusRequiredField() {
+    // Mode kasir: cek field Pos; mode customer: cek field utama
+    const posMode = document.body.classList.contains('pos-mode');
+    const tableEl = document.getElementById(posMode ? 'miniTableNumberPos' : 'miniTableNumber');
+    if (tableEl) {
+      tableEl.classList.add('input-error');
+      // Scroll kolom kiri agar field terlihat
+      const col = document.querySelector('.cart-col-left');
+      if (col) col.scrollTop = 0;
+      setTimeout(() => tableEl.focus(), 50);
+      setTimeout(() => tableEl.classList.remove('input-error'), 2000);
+    }
+  }
+
+  function clearFieldErrors() {
+    document.querySelectorAll('.cart-form input.input-error').forEach(el => el.classList.remove('input-error'));
+  }
+
+  // Reset error saat user mulai mengetik
+  document.addEventListener('input', (e) => {
+    if (e.target.matches('.cart-form input[data-required="true"]')) {
+      e.target.classList.remove('input-error');
+      const errorEl = document.getElementById('cartFieldError');
+      if (errorEl) errorEl.style.display = 'none';
+    }
+    // Live update preview struk saat user mengetik di kolom kiri (mode kasir)
+    if (document.body.classList.contains('pos-mode') &&
+        (e.target.id === 'miniTableNumberPos' ||
+         e.target.id === 'miniCustomerNamePos' ||
+         e.target.id === 'miniCustomerPhonePos' ||
+         e.target.id === 'miniTableNumber' ||
+         e.target.id === 'miniCustomerName' ||
+         e.target.id === 'miniCustomerPhone')) {
+      // renderStrukPreview() — preview section removed
+    }
+  });
 
   function removeCartItem(index) {
     cart.splice(index, 1);
     updateCartBadge();
     renderCartItems();
+    // Reset payment state when cart becomes empty
+    if (cart.length === 0) {
+      paymentConfirmed = false;
+      updatePaymentUI();
+    }
   }
 
   // Show/hide e-wallet sub-options
@@ -1202,9 +1730,24 @@
     // Customer flow: orders via WhatsApp.
     const staff = getCurrentStaff();
 
-    const customerName = document.getElementById('miniCustomerName').value.trim();
-    const customerPhone = document.getElementById('miniCustomerPhone').value.trim();
-    const tableNumber = document.getElementById('miniTableNumber').value.trim();
+    // Mode kasir: sinkronkan nilai dari field Pos ke field utama sebelum baca
+    if (document.body.classList.contains('pos-mode')) {
+      const syncPos = (from, to) => {
+        const f = document.getElementById(from);
+        const t = document.getElementById(to);
+        if (f && t) t.value = f.value;
+      };
+      syncPos('miniCustomerNamePos', 'miniCustomerName');
+      syncPos('miniCustomerPhonePos', 'miniCustomerPhone');
+      syncPos('miniTableNumberPos', 'miniTableNumber');
+    }
+
+    const customerNameEl = document.getElementById('miniCustomerName');
+    const customerPhoneEl = document.getElementById('miniCustomerPhone');
+    const tableNumberEl = document.getElementById('miniTableNumber');
+    const customerName = customerNameEl ? customerNameEl.value.trim() : '';
+    const customerPhone = customerPhoneEl ? customerPhoneEl.value.trim() : '';
+    const tableNumber = tableNumberEl ? tableNumberEl.value.trim() : '';
     const orderNotesEl = document.getElementById('orderNotes');
     const orderNotes = orderNotesEl ? orderNotesEl.value.trim() : '';
 
@@ -1213,7 +1756,8 @@
       return;
     }
     if (!tableNumber) {
-      showToast('Nomor meja wajib diisi!', true);
+      showCartFieldError('Nomor meja wajib diisi!');
+      focusRequiredField();
       return;
     }
 
@@ -1229,25 +1773,16 @@
       items: cart.map(item => ({ ...item })),
       total,
       status: 'pending',  // pending | completed | cancelled
-      notes: orderNotes
+      notes: orderNotes,
+      // Clerk attribution — siapa handle pesanan ini (null untuk customer self-order via WA)
+      clerkId: staff ? staff.clerkId : null,
+      clerkName: staff ? staff.name : null
     };
 
     addOrderToHistory(order);
 
     // Broadcast to any open staff tab on this device (instant cross-tab sync)
     broadcastNewOrder(order);
-
-    // Save to cloud (Supabase) — delivers to staff on OTHER devices & persists for audit
-    saveOrderToCloud(order).then((res) => {
-      if (res.ok) {
-        console.log('[Order] Tersimpan ke Supabase ✓', orderId);
-      } else if (res.reason === 'not-configured' || res.reason === 'sdk-missing') {
-        // Silent: app still works in local-only mode
-      } else {
-        // Real failure — surface to user but don't block
-        showToast('Sinkron cloud gagal: ' + res.reason, true);
-      }
-    });
 
     // Build WhatsApp message
     const waPhone = '6289684943741';
@@ -1276,7 +1811,9 @@
 
     // Clear cart
     cart = [];
+    paymentConfirmed = false;
     updateCartBadge();
+    updatePaymentUI();
     closeCart();
     showToast('Pesanan dikirim! Cek WhatsApp untuk konfirmasi.');
   }
@@ -1285,6 +1822,19 @@
   // PRINT ORDER — compact mini-printer receipt (58mm)
   // Staff-only. Includes "✓ Pembayaran Berhasil" stamp + staff name.
   // ============================================================
+  // Persisted receipt width — '58' (default) or '80' mm
+  function getStrukSize() {
+    try {
+      const v = localStorage.getItem('warnezzel_struk_size');
+      return (v === '58' || v === '80') ? v : '58';
+    } catch (e) { return '58'; }
+  }
+  function setStrukSize(size) {
+    if (size !== '58' && size !== '80') return;
+    try { localStorage.setItem('warnezzel_struk_size', size); } catch (e) {}
+    showToast('Ukuran struk: ' + size + ' mm');
+  }
+
   function printOrder() {
     // Gate: staff must be logged in
     if (!isStaffLoggedIn()) {
@@ -1292,9 +1842,24 @@
       openStaffLogin();
       return;
     }
+    // Gate: in POS mode, payment must be confirmed first
+    if (document.body.classList.contains('pos-mode') && !paymentConfirmed) {
+      showToast('Konfirmasi pembayaran dulu sebelum cetak struk.', true);
+      const btn = document.getElementById('cartConfirmPayBtn');
+      if (btn) {
+        btn.classList.add('pulse-attention');
+        setTimeout(() => btn.classList.remove('pulse-attention'), 1200);
+      }
+      return;
+    }
 
     const customerName = document.getElementById('miniCustomerName').value.trim();
-    const tableNumber = document.getElementById('miniTableNumber').value.trim();
+    let tableNumber = document.getElementById('miniTableNumber').value.trim();
+    // POS mode: jika nomor meja kosong, pakai default agar struk tetap bisa dicetak
+    if (!tableNumber && document.body.classList.contains('pos-mode')) {
+      tableNumber = 'POS-' + Date.now().toString(36).toUpperCase();
+      document.getElementById('miniTableNumber').value = tableNumber;
+    }
     const orderNotesEl = document.getElementById('orderNotes');
     const orderNotes = orderNotesEl ? orderNotesEl.value.trim() : '';
 
@@ -1303,7 +1868,8 @@
       return;
     }
     if (!tableNumber) {
-      showToast('Nomor meja wajib diisi!', true);
+      showCartFieldError('Nomor meja wajib diisi!');
+      focusRequiredField();
       return;
     }
 
@@ -1315,193 +1881,120 @@
       hour: '2-digit', minute: '2-digit'
     });
     const staff = getCurrentStaff();
+    const isPos = document.body.classList.contains('pos-mode');
 
-    // Pad helpers for monospace column alignment on thermal paper
-    function padR(str, len) {
-      str = String(str);
-      while (str.length < len) str += ' ';
-      return str;
+    // POS mode: simpan data untuk finalize (print + reset + catat pemasukan)
+    if (isPos) {
+      finalizeData = {
+        orderId,
+        timestamp: now.toISOString(),
+        dateTimeStr,
+        tableNumber,
+        customerName,
+        cart: JSON.parse(JSON.stringify(cart)),
+        orderNotes,
+        total,
+        staffName: staff ? staff.name : '-'
+      };
     }
-    function padL(str, len) {
-      str = String(str);
-      while (str.length < len) str = ' ' + str;
-      return str;
-    }
 
-    // Meta info rows (Meja, Cabang, Pemesan, Kasir)
-    const metaRows = [
-      { label: 'Meja', value: '#' + tableNumber },
-      { label: 'Kasir', value: staff ? staff.name : '-' }
-    ];
-    if (orderContext.branchName) metaRows.push({ label: 'Cabang', value: orderContext.branchName });
-    if (customerName) metaRows.push({ label: 'Pemesan', value: customerName });
-    const metaHTML = metaRows.map(r =>
-      '<tr><td style="padding:0 0 1px;"><b>' + padR(r.label + ':', 9) + '</b></td><td style="padding:0 0 1px;">' + escapeHtml(r.value) + '</td></tr>'
-    ).join('');
-
-    // Item rows — single line each: " 1. Nescafe Classic x1      Rp 8.000"
-    // Variant on sub-line if non-empty, with thinner font
+    // Item rows
     const itemsHTML = cart.map((item, i) => {
-      const num = padL(String(i + 1), 2);
-      const name = item.name.substring(0, 18);
-      const qty = 'x' + item.qty;
-      const priceCol = padR(formatRupiah(item.subtotal), 12);
-      const line1 = num + '. ' + padR(name + ' ' + qty, 28) + priceCol;
-      let subLine = '';
       const parts = [];
       if (item.variant) parts.push(item.variant);
-      if (item.notes) parts.push('Cat:' + item.notes);
-      if (parts.length) {
-        subLine = '<span style="font-weight:normal;opacity:0.8;">   ' + parts.join('  ·  ') + '</span>';
-      }
-      return '<tr><td style="padding:0 0 1px;line-height:1.15;color:#000;font-weight:bold;">' + line1 + '</td></tr>' +
-        (subLine ? '<tr><td style="padding:0 0 2px;"><span style="font-weight:normal;font-size:1px;">&zwnj;</span>' + subLine + '</td></tr>' : '');
+      if (item.notes) parts.push('Cat: ' + item.notes);
+      const subLine = parts.length
+        ? '<div class="struk-item-sub">&nbsp;&nbsp;' + parts.join(' · ') + '</div>'
+        : '';
+      return '<div class="struk-item">' +
+        '<div class="struk-row"><span>' + (i + 1) + '. ' + escapeHtml(item.name) + ' ×' + item.qty + '</span><span>' + formatRupiah(item.subtotal) + '</span></div>' +
+        subLine +
+      '</div>';
     }).join('');
 
-    const notesHtml = orderNotes
-      ? '<tr><td style="padding:2px 0;font-weight:normal;font-size:1px;">&zwnj;</td></tr><tr><td style="padding:0 0 2px;font-weight:normal;opacity:0.7;"><i>Cat: ' + escapeHtml(orderNotes) + '</i></td></tr>'
+    const notesHTML = orderNotes
+      ? '<div class="struk-note"><i>📝 Catatan: ' + escapeHtml(orderNotes) + '</i></div>'
       : '';
 
-    const brandFontSize = window.matchMedia('print').matches ? '14px' : '16px';
-    const brandLetterSpacing = window.matchMedia('print').matches ? '2px' : '3px';
+    const metaRows = [
+      { label: 'Meja', value: '#' + escapeHtml(tableNumber) },
+      { label: 'Kasir', value: escapeHtml(staff ? staff.name : '-') + (staff && staff.clerkId ? ' [' + escapeHtml(staff.clerkId) + ']' : '') }
+    ];
+    if (orderContext.branchName) metaRows.push({ label: 'Cabang', value: escapeHtml(orderContext.branchName) });
+    if (customerName) metaRows.push({ label: 'Pemesan', value: escapeHtml(customerName) });
+    const metaHTML = metaRows.map(r =>
+      '<div class="struk-row"><span class="struk-bold">' + r.label + ':</span><span>' + r.value + '</span></div>'
+    ).join('');
 
-    const printHTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Struk WarNezzel</title>' +
-      '<style>' +
-      '@page { size: 58mm auto; margin: 3mm; }' +
-      '* { margin: 0; padding: 0; box-sizing: border-box; }' +
-      'body {' +
-      '  font-family: "Courier New", "Lucida Console", "Consolas", monospace;' +
-      '  font-size: 9px;' +
-      '  color: #000;' +
-      '  background: #fff;' +
-      '  line-height: 1.2;' +
-      '  max-width: 300px;' +
-      '  margin: 0 auto;' +
-      '  padding: 4px;' +
-      '}' +
-      '.brand {' +
-      '  text-align: center;' +
-      '  margin-bottom: 2px;' +
-      '}' +
-      '.brand h1 {' +
-      '  font-size: ' + brandFontSize + ';' +
-      '  letter-spacing: ' + brandLetterSpacing + ';' +
-      '  font-weight: 900;' +
-      '  margin: 0;' +
-      '}' +
-      '.brand-sub {' +
-      '  font-size: 8px;' +
-      '  color: #333;' +
-      '  margin: 1px 0 0;' +
-      '}' +
-      '.order-id {' +
-      '  font-size: 7px;' +
-      '  color: #666;' +
-      '  margin-top: 1px;' +
-      '}' +
-      'hr {' +
-      '  border: none;' +
-      '  border-top: 1px solid #000;' +
-      '  margin: 3px 0;' +
-      '}' +
-      'table.meta { width: 100%; font-size: 9px; }' +
-      'table.items { width: 100%; }' +
-      'table.items td { color: #000; font-weight: bold; }' +
-      '.total-row {' +
-      '  display: flex;' +
-      '  justify-content: space-between;' +
-      '  align-items: baseline;' +
-      '  font-size: 11px;' +
-      '  font-weight: 900;' +
-      '  margin: 3px 0 2px;' +
-      '  padding: 2px 0;' +
-      '  border-top: 1px solid #000;' +
-      '}' +
-      '.total-row .total-label { font-size: 10px; font-weight: 900; }' +
-      '.total-row .total-value { font-size: 12px; font-weight: 900; letter-spacing: 0.5px; }' +
-      '.footer {' +
-      '  text-align: center;' +
-      '  margin-top: 6px;' +
-      '  font-size: 8px;' +
-      '  color: #555;' +
-      '  line-height: 1.5;' +
-      '}' +
-      '.footer .tagline { font-size: 9px; color: #000; font-weight: 900; }' +
-      '.paid-stamp {' +
-      '  display: block;' +
-      '  width: 130px;' +
-      '  margin: 6px auto 4px;' +
-      '  padding: 4px 0;' +
-      '  border: 2px solid #1a8a3a;' +
-      '  border-radius: 6px;' +
-      '  color: #1a8a3a;' +
-      '  font-weight: 900;' +
-      '  font-size: 12px;' +
-      '  text-align: center;' +
-      '  letter-spacing: 1px;' +
-      '  transform: rotate(-3deg);' +
-      '  background: rgba(26, 138, 58, 0.06);' +
-      '}' +
-      '.paid-stamp::before { content: "\\2713  "; font-size: 13px; }' +
-      '.paid-sub {' +
-      '  text-align: center;' +
-      '  font-size: 7px;' +
-      '  color: #1a8a3a;' +
-      '  margin: 1px 0 4px;' +
-      '  font-style: italic;' +
-      '}' +
-      '.no-print { text-align: center; margin-bottom: 6px; }' +
-      '.no-print button {' +
-      '  padding: 6px 16px;' +
-      '  font-size: 12px;' +
-      '  cursor: pointer;' +
-      '  border: none;' +
-      '  border-radius: 3px;' +
-      '  margin: 0 3px;' +
-      '  font-weight: bold;' +
-      '}' +
-      '.btn-print { background: #2e1a0f; color: #fff; }' +
-      '.btn-close { background: #ddd; color: #333; }' +
-      '@media print {' +
-      '  body { max-width: none; padding: 0; margin: 0; font-size: 9px; }' +
-      '  .no-print { display: none !important; }' +
-      '  hr { border-top: 0.5px solid #000; margin: 2px 0; }' +
-      '  .total-row { border-top: 0.5px solid #000; margin: 2px 0; }' +
-      '}' +
-      '</style></head><body>' +
-      '<div class="no-print">' +
-      '<button class="btn-print" onclick="window.print()">&#128424; Cetak</button>' +
-      '<button class="btn-close" onclick="window.close()">&#10005; Tutup</button>' +
-      '</div>' +
-      '<div class="brand">' +
-      '<h1>&#9749; WARNEZZEL</h1>' +
-      '<div class="brand-sub">T A N D A &nbsp; P E S A N A N</div>' +
-      '<div class="order-id">' + escapeHtml(orderId) + ' &bull; ' + escapeHtml(dateTimeStr) + '</div>' +
-      '</div>' +
-      '<hr>' +
-      '<table class="meta">' + metaHTML + '</table>' +
-      '<hr>' +
-      '<table class="items">' + itemsHTML + '</table>' +
-      '<hr>' +
-      '<div class="total-row">' +
-      '<span class="total-label">TOTAL</span>' +
-      '<span class="total-value">' + formatRupiah(total) + '</span>' +
-      '</div>' +
-      (notesHtml ? '<table class="items">' + notesHtml + '</table>' : '') +
-      '<hr>' +
-      '<div class="paid-stamp">PEMBAYARAN BERHASIL</div>' +
-      '<div class="paid-sub">Pembayaran telah dikonfirmasi oleh kasir</div>' +
-      '<hr>' +
-      '<div class="footer">' +
-      '<div class="tagline">&#10084;&#65039; Terima kasih!</div>' +
-      'Tunjukkan struk ini ke kasir.' +
-      '</div>' +
-      '</body></html>';
+    const strukSize = getStrukSize(); // '58' or '80'
 
-    const w = window.open('', '_blank', 'width=360,height=500');
-    w.document.write(printHTML);
-    w.document.close();
-    w.focus();
+    const strukHTML =
+      '<div class="struk-thermal ' + (strukSize === '80' ? 'struk-80' : '') + '">' +
+        // Header dengan border dekoratif
+        '<div class="struk-deco-top">★ ★ ★</div>' +
+        '<img src="' + WARNEZZEL_LOGO_URL + '" alt="WarNezzel" class="struk-logo" onerror="this.style.display=\'none\'">' +
+        '<div class="struk-center struk-bold struk-title">WARNEZZEL</div>' +
+        '<div class="struk-center struk-tagline">— Coffee & Eatery —</div>' +
+        '<div class="struk-center struk-orderno">#' + escapeHtml(orderId) + '</div>' +
+        '<div class="struk-center struk-datetime">' + escapeHtml(dateTimeStr) + '</div>' +
+        '<div class="struk-divider-double"></div>' +
+        '<div class="struk-meta">' + metaHTML + '</div>' +
+        '<div class="struk-divider"></div>' +
+        // Daftar item
+        '<div class="struk-items">' + itemsHTML + '</div>' +
+        '<div class="struk-divider"></div>' +
+        '<div class="struk-row struk-total"><span>TOTAL</span><span>' + formatRupiah(total) + '</span></div>' +
+        (notesHTML ? '<div class="struk-notes">' + notesHTML + '</div><div class="struk-divider-dotted"></div>' : '') +
+        // Stamp LUNAS
+        '<div class="struk-stamp">✓ LUNAS</div>' +
+        '<div class="struk-stamp-sub">— Pembayaran Dikonfirmasi Kasir —</div>' +
+        '<div class="struk-divider-double"></div>' +
+        // Footer
+        '<div class="struk-footer-thanks">❤ Terima Kasih ❤</div>' +
+        '<div class="struk-footer-sub">Tunjukkan struk ini ke kasir</div>' +
+        '<div class="struk-footer-sub">Simpan struk sebagai bukti pembayaran</div>' +
+        '<div class="struk-deco-bottom">— ☕ —</div>' +
+      '</div>';
+
+    // Buat strukContainer (sibling langsung di body) agar selalu tampil di print
+    let printContainer = document.getElementById('strukContainer');
+    if (!printContainer) {
+      printContainer = document.createElement('div');
+      printContainer.id = 'strukContainer';
+      printContainer.style.cssText = 'display:none;';
+      document.body.appendChild(printContainer);
+    }
+    printContainer.innerHTML = strukHTML;
+
+    // Render preview modal — close existing if any
+    const existing = document.getElementById('strukPreviewOverlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'strukPreviewOverlay';
+    overlay.classList.add('struk-preview-overlay');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;';
+    overlay.innerHTML =
+      '<div style="background:#fff;border-radius:8px;padding:6px;max-height:90vh;overflow:auto;">' +
+        strukHTML +
+      '</div>' +
+      '<div class="no-print" style="margin-top:12px;display:flex;gap:8px;">' +
+        '<button id="strukPrintBtn" style="background:#2e1a0f;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;">🖨 Cetak</button>' +
+        '<button id="strukCloseBtn" style="background:#ddd;color:#333;border:none;padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;">✕ Tutup</button>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+    document.getElementById('strukPrintBtn').onclick = () => {
+      if (isPos) {
+        finalizePrintAndClear();
+      } else {
+        window.print();
+      }
+    };
+    document.getElementById('strukCloseBtn').onclick = () => overlay.remove();
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.remove();
+    });
   }
 
   // ============================================================
@@ -1510,6 +2003,88 @@
   function changeQty(delta) {
     currentQty = Math.max(1, Math.min(99, currentQty + delta));
     document.getElementById('qtyDisplay').textContent = currentQty;
+  }
+
+  // ============================================================
+  // PRINT FINALIZATION (POS mode: simpan saja, JANGAN auto reset)
+  // ============================================================
+  let finalizeData = {};
+  let finalizeOrderData = null; // simpan untuk callback afterprint
+  function finalizePrintAndClear() {
+    // 1. Simpan data order ke variabel (JANGAN hapus struk dari DOM)
+    finalizeOrderData = {
+      orderId: finalizeData.orderId,
+      timestamp: finalizeData.timestamp,
+      dateTimeStr: finalizeData.dateTimeStr,
+      table: finalizeData.tableNumber,
+      customer: { name: finalizeData.customerName },
+      items: JSON.parse(JSON.stringify(finalizeData.cart)),
+      notes: finalizeData.orderNotes,
+      total: finalizeData.total,
+      status: 'selesai',
+      staff: finalizeData.staffName
+    };
+
+    // 2. Catat order & pemasukan sebelum print
+    addOrderToHistory(finalizeOrderData);
+    recordIncome(finalizeOrderData);
+
+    // 3. Tutup preview overlay setelah print selesai
+    const afterHandler = () => {
+      window.removeEventListener('afterprint', afterHandler);
+      const preview = document.getElementById('strukPreviewOverlay');
+      if (preview) preview.remove();
+      const container = document.getElementById('strukContainer');
+      if (container) container.innerHTML = '';
+      finalizeData = {};
+      showToast('Pesanan dicetak dan disimpan.');
+      if (isPos) {
+        const adminPanel = document.getElementById('adminPanel');
+        if (adminPanel && adminPanel.style.display === 'block') {
+          renderAdminStats();
+          renderAdminOrders();
+          if (typeof renderIncomeStats === 'function') renderIncomeStats();
+        }
+      }
+    };
+
+    window.addEventListener('afterprint', afterHandler);
+
+    // Cetak struk
+    window.print();
+  }
+
+  // ============================================================
+  // INCOME RECORDS (pemasukan)
+  // ============================================================
+  function getIncomeRecords() {
+    try {
+      return JSON.parse(localStorage.getItem('warnezzel_income_records') || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+  function saveIncomeRecords(records) {
+    try {
+      localStorage.setItem('warnezzel_income_records', JSON.stringify(records));
+    } catch (e) {
+      console.warn('Gagal menyimpan data pemasukan', e);
+    }
+  }
+  function recordIncome(order) {
+    const records = getIncomeRecords();
+    records.unshift({
+      orderId: order.orderId,
+      timestamp: order.timestamp,
+      dateTimeStr: order.dateTimeStr,
+      total: order.total,
+      itemCount: order.items.reduce((s, i) => s + i.qty, 0),
+      staff: order.staff || '-',
+      table: order.table || '-',
+      customer: (order.customer && order.customer.name) || '-',
+      source: 'pos'
+    });
+    saveIncomeRecords(records);
   }
 
   // ============================================================
@@ -1578,99 +2153,27 @@
   }
 
   // ============================================================
-  // BANNER SLIDER (unchanged)
+  // WELCOME HUB (pengganti banner)
   // ============================================================
-  let bannerTimer = null;
-  function startBannerSlider() {
-    const slides = document.querySelectorAll('.banner-slide');
-    const dotsContainer = document.getElementById('bannerDots');
-    if (!slides.length) return;
+  function updateWelcomeHub() {
+    // Status Buka/Tutup berdasarkan jam (08.00 — 22.00)
+    const statusEl = document.getElementById('welcomeStatus');
+    const statusTextEl = statusEl ? statusEl.querySelector('.status-text') : null;
+    const dotEl = statusEl ? statusEl.querySelector('.status-dot') : null;
+    const now = new Date();
+    const hour = now.getHours();
+    const isOpen = hour >= 8 && hour < 22;
+    if (statusTextEl) statusTextEl.textContent = isOpen ? 'Buka' : 'Tutup';
+    if (statusEl) statusEl.classList.toggle('is-closed', !isOpen);
+    if (dotEl) dotEl.style.background = isOpen ? '#2e8b57' : '#c0392b';
 
-    if (dotsContainer) {
-      dotsContainer.innerHTML = '';
-      slides.forEach((_, i) => {
-        const dot = document.createElement('button');
-        dot.className = 'dot' + (i === 0 ? ' active' : '');
-        dot.setAttribute('aria-label', 'Slide ' + (i + 1));
-        dot.onclick = (e) => { e.stopPropagation(); goToBannerSlide(i); };
-        dotsContainer.appendChild(dot);
-      });
-    }
+    // Lokasi dari QR context
+    const locEl = document.getElementById('welcomeLocation');
+    if (locEl) locEl.textContent = orderContext.branchName || 'Semua Cabang';
 
-    const hero = document.getElementById('bannerSlider');
-    if (hero) {
-      let startX = 0, startY = 0;
-      hero.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-      }, { passive: true });
-      hero.addEventListener('touchend', (e) => {
-        const endX = e.changedTouches[0].clientX;
-        const endY = e.changedTouches[0].clientY;
-        const dx = endX - startX, dy = endY - startY;
-        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
-          changeBannerSlide(dx < 0 ? 1 : -1);
-        }
-      }, { passive: true });
-      hero.addEventListener('mouseenter', stopBannerAutoPlay);
-      hero.addEventListener('mouseleave', startBannerAutoPlay);
-    }
-
-    startBannerAutoPlay();
-  }
-
-  function startBannerAutoPlay() {
-    stopBannerAutoPlay();
-    const progress = document.getElementById('bannerProgress');
-    if (progress) {
-      progress.classList.remove('running');
-      void progress.offsetWidth;
-      progress.classList.add('running');
-    }
-    bannerTimer = setInterval(() => changeBannerSlide(1), 5000);
-  }
-
-  function stopBannerAutoPlay() {
-    if (bannerTimer) {
-      clearInterval(bannerTimer);
-      bannerTimer = null;
-    }
-    const progress = document.getElementById('bannerProgress');
-    if (progress) progress.classList.remove('running');
-  }
-
-  function changeBannerSlide(delta) {
-    const slides = document.querySelectorAll('.banner-slide');
-    if (!slides.length) return;
-    const currentIdx = Array.from(slides).findIndex(s => s.classList.contains('active'));
-    const nextIdx = (currentIdx + delta + slides.length) % slides.length;
-    goToBannerSlide(nextIdx);
-    startBannerAutoPlay();
-  }
-
-  function goToBannerSlide(idx) {
-    const slides = document.querySelectorAll('.banner-slide');
-    const dots = document.querySelectorAll('.banner-dots .dot');
-    if (!slides.length || idx < 0 || idx >= slides.length) return;
-    const current = document.querySelector('.banner-slide.active');
-    if (current) {
-      current.classList.add('exiting');
-      setTimeout(() => current.classList.remove('exiting'), 900);
-    }
-    slides.forEach(s => {
-      s.classList.remove('active');
-      const card = s.querySelector('.banner-content-card');
-      if (card) {
-        card.style.animation = 'none';
-        void card.offsetWidth;
-        card.style.animation = '';
-      }
-    });
-    dots.forEach(d => d.classList.remove('active'));
-    setTimeout(() => {
-      slides[idx].classList.add('active');
-      if (dots[idx]) dots[idx].classList.add('active');
-    }, 80);
+    // Meja dari QR context
+    const tableEl = document.getElementById('welcomeTable');
+    if (tableEl) tableEl.textContent = orderContext.table ? '#' + orderContext.table : '—';
   }
 
   // ============================================================
@@ -1699,6 +2202,7 @@
 
         if (target === 'menu-mgmt') renderAdminMenu();
         if (target === 'tables') renderAdminTables();
+        if (target === 'income') renderIncomeRecords();
       });
     });
   }
@@ -1787,6 +2291,81 @@
     }
   }
 
+  function renderIncomeRecords() {
+    const records = getIncomeRecords();
+    const filterEl = document.getElementById('incomeMonthFilter');
+
+    // Populate month filter (preserve current selection)
+    const currentFilter = filterEl.value || 'all';
+    const months = new Set();
+    records.forEach(r => {
+      const d = new Date(r.timestamp);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      const label = d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+      months.add(JSON.stringify({ key, label }));
+    });
+    const monthList = Array.from(months).map(s => JSON.parse(s)).sort((a, b) => b.key.localeCompare(a.key));
+    filterEl.innerHTML = '<option value="all">Semua Waktu</option>' +
+      monthList.map(m => `<option value="${m.key}">${m.label}</option>`).join('');
+    filterEl.value = currentFilter;
+
+    // Filter
+    const filter = filterEl.value;
+    const filtered = filter === 'all'
+      ? records
+      : records.filter(r => {
+          const d = new Date(r.timestamp);
+          const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+          return key === filter;
+        });
+
+    // Stats
+    const total = filtered.reduce((s, r) => s + r.total, 0);
+    const today = new Date().toDateString();
+    const todayRecords = records.filter(r => new Date(r.timestamp).toDateString() === today);
+    const todayTotal = todayRecords.reduce((s, r) => s + r.total, 0);
+    document.getElementById('incomeTotal').textContent = formatRupiah(total);
+    document.getElementById('incomeToday').textContent = formatRupiah(todayTotal);
+    document.getElementById('incomeOrders').textContent = filtered.length;
+
+    // List
+    const list = document.getElementById('incomeRecordsList');
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="empty-state">📭<br><h3>Belum ada pemasukan</h3><p>Transaksi yang sudah dicetak akan muncul di sini.</p></div>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(r => {
+      const date = new Date(r.timestamp);
+      const dateStr = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return `
+        <div class="admin-order-card">
+          <div class="admin-order-header">
+            <div>
+              <div class="admin-order-id">${escapeHtml(r.orderId || '-')}</div>
+              <div class="admin-order-meta">${escapeHtml(dateStr)} &middot; Kasir: ${escapeHtml(r.staff || '-')} &middot; Meja ${escapeHtml(r.table || '-')}</div>
+            </div>
+            <div class="history-status" style="background:#1a8a3a;color:#fff;">+ ${formatRupiah(r.total)}</div>
+          </div>
+          <div class="admin-order-meta">Pemesan: ${escapeHtml(r.customer || '-')} &middot; ${r.itemCount || 0} item</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderIncomeStats() {
+    const records = getIncomeRecords();
+    const today = new Date().toDateString();
+    const todayRecords = records.filter(r => new Date(r.timestamp).toDateString() === today);
+    const todayTotal = todayRecords.reduce((s, r) => s + r.total, 0);
+    const incomeTodayEl = document.getElementById('incomeToday');
+    const incomeTotalEl = document.getElementById('incomeTotal');
+    const incomeOrdersEl = document.getElementById('incomeOrders');
+    if (incomeTodayEl) incomeTodayEl.textContent = formatRupiah(todayTotal);
+    if (incomeTotalEl) incomeTotalEl.textContent = formatRupiah(records.reduce((s, r) => s + r.total, 0));
+    if (incomeOrdersEl) incomeOrdersEl.textContent = records.length;
+  }
+
   function toggleOrderDetail(orderId) {
     const el = document.getElementById('order-detail-' + orderId);
     if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
@@ -1870,11 +2449,12 @@
   // ============================================================
   document.addEventListener('DOMContentLoaded', () => {
     detectContext();
+    seedDefaultStaff(); // Pastikan akun default ada di localStorage
     applyStaffUI();
     attachStaffListeners();
     if (!isAdminMode) {
       renderMenu();
-      startBannerSlider();
+      updateWelcomeHub();
       updateCartBadge();
     }
   });
