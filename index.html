@@ -43,77 +43,150 @@
     <span class="header-staff-badge" id="headerStaffBadge" style="display:none;">
       <span class="header-staff-icon" aria-hidden="true">👤</span>
       <span class="header-staff-name" id="headerStaffName"></span>
+      <button class="header-staff-settings" onclick="openStaffMgmt()" title="Pengaturan Karyawan" aria-label="Pengaturan Karyawan">⚙️</button>
       <button class="header-staff-logout" onclick="logoutStaff()" title="Logout" aria-label="Logout">⎋</button>
     </span>
     <button class="header-cart-btn" onclick="viewCart()"><span class="header-cart-icon" aria-hidden="true">🛒</span>Pesanan Anda <span class="header-cart-count" id="headerCartCount">0</span></button>
   </div>
 </div>
 
-<!-- Banner Slider -->
-<div class="banner-section">
-  <div class="banner-label">Featured</div>
-  <div class="banner-hero" id="bannerSlider">
-    <div class="banner-progress" id="bannerProgress"></div>
-    <div class="banner-particles" aria-hidden="true">
-      <span class="banner-particle bp-1"></span>
-      <span class="banner-particle bp-2"></span>
-      <span class="banner-particle bp-3"></span>
-      <span class="banner-particle bp-4"></span>
-      <span class="banner-particle bp-5"></span>
+<!-- POS HEADER (khusus mode kasir, hidden default) -->
+<div class="pos-header" id="posHeader" style="display:none;">
+  <div class="pos-header-left">
+    <span class="pos-header-logo">🧾</span>
+    <div class="pos-header-brand-block">
+      <div class="pos-header-title">POS WarNezzel</div>
+      <div class="pos-header-subtitle" id="posHeaderSubtitle">Mode Kasir Aktif</div>
     </div>
-    <div class="banner-slides">
-      <div class="banner-slide active">
-        <img class="banner-slide-img" src="https://i.ibb.co.com/QFffTGVh/4706375f-e996-4c4c-a38c-cb55f9c80f2b.png" alt="Kopi Spesial">
-        <div class="banner-hero-overlay">
-          <div class="banner-content-card">
-            <span class="banner-hero-badge">PROMO</span>
-            <h2 class="banner-hero-title">Paket Hemat WarNezzel</h2>
-            <p class="banner-hero-desc">Bundle kopi + camilan favorit dengan harga spesial setiap hari</p>
-            <button class="banner-cta" onclick="event.stopPropagation();document.querySelector('[data-section=bundle]').click()">
-              Lihat Paket <span class="banner-cta-arrow">→</span>
-            </button>
-          </div>
+  </div>
+  <div class="pos-header-center">
+    <div class="pos-clock-block">
+      <div class="pos-clock-time" id="posClockTime">00:00:00</div>
+      <div class="pos-clock-date" id="posClockDate">—</div>
+    </div>
+    <div class="pos-shift-block">
+      <div class="pos-shift-label">SHIFT</div>
+      <div class="pos-shift-name" id="posShiftName">—</div>
+    </div>
+  </div>
+  <div class="pos-header-right">
+    <button class="pos-header-btn pos-header-cart" id="posHeaderCart" title="Buka Keranjang" aria-label="Buka Keranjang" onclick="viewCart()">
+      <span class="phb-icon">🛒</span>
+      <span class="phb-label">Keranjang</span>
+      <span class="phb-count" id="posHeaderCartCount" style="display:none;">0</span>
+    </button>
+    <button class="pos-header-btn pos-header-bell" id="posHeaderBell" title="Pesanan Masuk" aria-label="Pesanan Masuk" onclick="openStaffOrderPanel()">
+      <span class="phb-icon">🔔</span>
+      <span class="phb-label">Pesanan</span>
+      <span class="phb-count" id="posHeaderBellCount" style="display:none;">0</span>
+    </button>
+    <div class="pos-header-staff" id="posHeaderStaff">
+      <span class="phs-avatar">👤</span>
+      <div class="phs-info">
+        <div class="phs-name" id="posHeaderStaffName">Kasir</div>
+        <div class="phs-role">Bertugas <span class="phs-clerk" id="posHeaderClerkId"></span></div>
+      </div>
+      <button class="phs-logout" onclick="logoutStaff()" title="Keluar" aria-label="Keluar">⎋</button>
+    </div>
+  </div>
+</div>
+
+<!-- POS STATS STRIP (muncul saat pos-mode) -->
+<div class="pos-stats" id="posStats" style="display:none;">
+  <div class="pos-stat">
+    <div class="pos-stat-icon">🔔</div>
+    <div class="pos-stat-body">
+      <div class="pos-stat-label">Pesanan Masuk</div>
+      <div class="pos-stat-value" id="posStatIncoming">0</div>
+    </div>
+  </div>
+  <div class="pos-stat">
+    <div class="pos-stat-icon">🛒</div>
+    <div class="pos-stat-body">
+      <div class="pos-stat-label">Item di Keranjang</div>
+      <div class="pos-stat-value" id="posStatCart">0</div>
+    </div>
+  </div>
+  <div class="pos-stat">
+    <div class="pos-stat-icon">💰</div>
+    <div class="pos-stat-body">
+      <div class="pos-stat-label">Estimasi Total</div>
+      <div class="pos-stat-value" id="posStatTotal">Rp 0</div>
+    </div>
+  </div>
+  <div class="pos-stat">
+    <div class="pos-stat-icon">T</div>
+    <div class="pos-stat-body">
+      <div class="pos-stat-label">Shift Aktif</div>
+      <div class="pos-stat-value" id="posStatShift">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- Welcome Hub (pengganti banner) -->
+<div class="welcome-hub">
+  <div class="welcome-card">
+    <div class="welcome-head">
+      <div class="welcome-brand">
+        <span class="welcome-emoji-wrap"><span class="welcome-emoji">W</span></span>
+        <div>
+          <div class="welcome-title">Selamat Datang di WarNezzel</div>
+          <div class="welcome-tagline">Pesan kopi &amp; camilan favoritmu tanpa antre</div>
         </div>
       </div>
-      <div class="banner-slide">
-        <img class="banner-slide-img" src="https://images.unsplash.com/photo-1495474393277-6174b90526f3?auto=format&fit=crop&w=1200&q=80" alt="Menu Baru">
-        <div class="banner-hero-overlay">
-          <div class="banner-content-card">
-            <span class="banner-hero-badge">NEW</span>
-            <h2 class="banner-hero-title">Signature Series</h2>
-            <p class="banner-hero-desc">Menu andalan racikan khas barista WarNezzel, wajib coba!</p>
-            <button class="banner-cta" onclick="event.stopPropagation();document.querySelector('[data-section=minuman]').click()">
-              Coba Sekarang <span class="banner-cta-arrow">→</span>
-            </button>
-          </div>
+      <div class="welcome-status" id="welcomeStatus">
+        <span class="status-dot"></span>
+        <span class="status-text">Buka</span>
+      </div>
+    </div>
+
+    <div class="welcome-features">
+      <div class="welcome-feature">
+        <span class="wf-icon">08-22</span>
+        <div class="wf-info">
+          <div class="wf-label">Jam Buka</div>
+          <div class="wf-value">08.00 — 22.00</div>
         </div>
       </div>
-      <div class="banner-slide">
-        <img class="banner-slide-img" src="https://images.unsplash.com/photo-1571934811356-5cc061b6821f?auto=format&fit=crop&w=1200&q=80" alt="Snacks">
-        <div class="banner-hero-overlay">
-          <div class="banner-content-card">
-            <span class="banner-hero-badge">BEST</span>
-            <h2 class="banner-hero-title">Camilan Best Seller</h2>
-            <p class="banner-hero-desc">Temani waktu santai dengan snack favorit pelanggan WarNezzel</p>
-            <button class="banner-cta" onclick="event.stopPropagation();document.querySelector('[data-section=makanan]').click()">
-              Pesan Snack <span class="banner-cta-arrow">→</span>
-            </button>
-          </div>
+      <div class="welcome-feature">
+        <span class="wf-icon">@</span>
+        <div class="wf-info">
+          <div class="wf-label">Lokasi</div>
+          <div class="wf-value" id="welcomeLocation">Semua Cabang</div>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <span class="wf-icon">M</span>
+        <div class="wf-info">
+          <div class="wf-label">Meja</div>
+          <div class="wf-value" id="welcomeTable">—</div>
         </div>
       </div>
     </div>
-    <button class="banner-arrow prev" onclick="event.stopPropagation();changeBannerSlide(-1)" aria-label="Slide sebelumnya">&#10094;</button>
-    <button class="banner-arrow next" onclick="event.stopPropagation();changeBannerSlide(1)" aria-label="Slide berikutnya">&#10095;</button>
-    <div class="banner-dots" id="bannerDots"></div>
+
+    <div class="welcome-pills">
+      <div class="welcome-pill">
+        <span class="wp-icon">TOP</span>
+        <span>Best Seller Setiap Hari</span>
+      </div>
+      <div class="welcome-pill">
+        <span class="wp-icon">H</span>
+        <span>Bahan Fresh &amp; Halal</span>
+      </div>
+      <div class="welcome-pill">
+        <span class="wp-icon">FAST</span>
+        <span>Layanan Cepat</span>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- Navigation Tabs -->
 <div class="kategori-tabs" id="navTabs">
   <div class="tabs-group" id="customerTabs">
-    <button class="tab-btn active tab-pill" data-section="minuman">☕ Minuman</button>
-    <button class="tab-btn tab-pill" data-section="bundle">🎁 Paket</button>
-    <button class="tab-btn tab-pill" data-section="makanan">🍟 Makanan</button>
+    <button class="tab-btn active tab-pill" data-section="minuman">Minuman</button>
+    <button class="tab-btn tab-pill" data-section="bundle">Paket Hemat</button>
+    <button class="tab-btn tab-pill" data-section="makanan">Makanan</button>
   </div>
   <div class="kategori-search" id="kategoriSearch">
     <span class="search-icon">&#128269;</span>
@@ -162,7 +235,7 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">⏳</div>
+        <div class="stat-icon">Q</div>
         <div class="stat-info">
           <div class="stat-value" id="statProcessing">0</div>
           <div class="stat-label">Sedang Diproses</div>
@@ -180,6 +253,7 @@
     <!-- Admin Tabs -->
     <div class="admin-tabs">
       <button class="admin-tab active" data-admin-tab="orders">📋 Pesanan</button>
+      <button class="admin-tab" data-admin-tab="income">💵 Pemasukan</button>
       <button class="admin-tab" data-admin-tab="menu-mgmt">📝 Kelola Menu</button>
       <button class="admin-tab" data-admin-tab="tables">🪑 Meja & QR</button>
     </div>
@@ -199,6 +273,39 @@
         </select>
       </div>
       <div class="admin-orders-list" id="adminOrdersList"></div>
+    </div>
+
+    <!-- Income/Pemasukan Tab -->
+    <div class="admin-content" id="admin-income" style="display:none;">
+      <div class="admin-filter">
+        <select id="incomeMonthFilter" onchange="renderIncomeRecords()">
+          <option value="all">Semua Waktu</option>
+        </select>
+      </div>
+      <div class="income-summary" style="display:flex;gap:12px;margin-bottom:16px;">
+        <div class="stat-card">
+          <div class="stat-icon">💵</div>
+          <div class="stat-info">
+            <div class="stat-value" id="incomeTotal">Rp 0</div>
+            <div class="stat-label">Total Pemasukan</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-info">
+            <div class="stat-value" id="incomeToday">Rp 0</div>
+            <div class="stat-label">Hari Ini</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🧾</div>
+          <div class="stat-info">
+            <div class="stat-value" id="incomeOrders">0</div>
+            <div class="stat-label">Jumlah Pesanan</div>
+          </div>
+        </div>
+      </div>
+      <div class="admin-orders-list" id="incomeRecordsList"></div>
     </div>
 
     <!-- Menu Management Tab -->
@@ -265,7 +372,6 @@
 <div class="staff-login-overlay" id="staffLoginOverlay">
   <div class="staff-login-box">
     <div class="staff-login-close" onclick="closeStaffLogin()" aria-label="Tutup">&#10005;</div>
-    <div class="staff-login-icon">🔐</div>
     <h3 class="staff-login-title">Login Karyawan</h3>
     <p class="staff-login-desc">Login untuk mengaktifkan cetak struk & tampilan internal.</p>
     <input type="text" id="staffUsername" placeholder="Username" autocomplete="username" onkeydown="if(event.key==='Enter')submitStaffLogin()">
@@ -275,6 +381,57 @@
   </div>
 </div>
 <div class="backdrop" id="staffLoginBackdrop" onclick="closeStaffLogin()"></div>
+
+<!-- Staff Management Overlay (settings: CRUD akun & ubah nama) -->
+<div class="staff-mgmt-overlay" id="staffMgmtOverlay">
+  <div class="staff-mgmt-box">
+    <div class="staff-mgmt-close" onclick="closeStaffMgmt()" aria-label="Tutup">&#10005;</div>
+    <div class="staff-mgmt-icon">⚙️</div>
+    <h3 class="staff-mgmt-title">Pengaturan Karyawan</h3>
+    <p class="staff-mgmt-desc">Kelola akun kasir & ubah nama tampilan.</p>
+
+    <!-- Profil sendiri: ubah nama tampilan -->
+    <div class="staff-mgmt-section">
+      <h4 class="staff-mgmt-section-title">👤 Profil Saya</h4>
+      <div class="staff-mgmt-self">
+        <label class="staff-mgmt-label">Username</label>
+        <input type="text" id="staffSelfUsername" disabled>
+        <label class="staff-mgmt-label">Nama Tampilan (muncul di struk & header)</label>
+        <input type="text" id="staffSelfName" placeholder="Nama tampilan" maxlength="40">
+        <label class="staff-mgmt-label">Password Baru (kosongkan jika tidak diubah)</label>
+        <input type="password" id="staffSelfPassword" placeholder="••••••••" autocomplete="new-password">
+        <button class="staff-mgmt-btn-primary" onclick="saveStaffSelf()">💾 Simpan Profil</button>
+      </div>
+    </div>
+
+    <!-- Daftar akun kasir + tambah baru -->
+    <div class="staff-mgmt-section">
+      <h4 class="staff-mgmt-section-title">🧑‍💼 Daftar Akun Kasir</h4>
+      <div class="staff-mgmt-list" id="staffMgmtList">
+        <div class="staff-mgmt-empty">Memuat…</div>
+      </div>
+    </div>
+
+    <!-- Tambah akun baru -->
+    <div class="staff-mgmt-section">
+      <h4 class="staff-mgmt-section-title">➕ Tambah Akun Baru</h4>
+      <div class="staff-mgmt-add">
+        <input type="text" id="staffNewUsername" placeholder="Username (huruf/angka, tanpa spasi)" maxlength="20" autocomplete="off">
+        <input type="text" id="staffNewName" placeholder="Nama tampilan" maxlength="40" autocomplete="off">
+        <input type="password" id="staffNewPassword" placeholder="Password (min. 4 karakter)" autocomplete="new-password">
+        <button class="staff-mgmt-btn-primary" onclick="addStaffAccount()">＋ Tambah Akun</button>
+        <div class="staff-mgmt-error" id="staffMgmtError"></div>
+      </div>
+    </div>
+
+    <!-- Reset ke default -->
+    <div class="staff-mgmt-footer">
+      <button class="staff-mgmt-btn-danger" onclick="resetStaffAccounts()">↺ Reset ke Default</button>
+      <span class="staff-mgmt-footer-hint">Hapus semua akun & buat ulang akun default <b>karyawan</b>.</span>
+    </div>
+  </div>
+</div>
+<div class="backdrop" id="staffMgmtBackdrop" onclick="closeStaffMgmt()"></div>
 
 <!-- Hidden trigger to open login: tap logo 5 times -->
 <script>
@@ -299,40 +456,136 @@
   })();
 </script>
 
-<!-- Cart Overlay -->
+<!-- POS Quick Panel (muncul saat karyawan login) -->
+<div class="pos-quick-panel" id="posQuickPanel" style="display:none;">
+  <div class="pos-quick-panel-info">
+    <div class="pos-quick-panel-icon">🧾</div>
+    <div class="pos-quick-panel-text">
+      <b>Mode Kasir Aktif</b><br>
+      <span>Pilih menu di atas — pesanan otomatis masuk ke <b>Daftar Pesanan</b> di sidebar kanan. Isi detail pelanggan, konfirmasi pembayaran, lalu cetak struk.</span>
+    </div>
+  </div>
+  <div class="pos-quick-panel-actions">
+    <!-- Tombol "Buka Keranjang" dihapus: sidebar kasir selalu terlihat di kanan. -->
+  </div>
+</div>
+
+<!-- POS Mobile Cart Toggle (FAB) -->
+<button class="pos-cart-toggle" id="posCartToggle" onclick="togglePosCart()" aria-label="Buka Keranjang" style="display:none;">
+  <span class="pct-icon">🛒</span>
+  <span class="pct-badge" id="posCartToggleBadge">0</span>
+</button>
+
+<!-- Cart Overlay — 3 Kolom: Kiri (daftar pesanan + total) | Tengah (form pesanan) | Kanan (struk) -->
 <div class="cart-overlay" id="cartOverlay">
   <div class="cart-header">
-    <div class="cart-header-title">Pesanan Anda</div>
+    <div class="cart-header-title" id="cartHeaderTitle">Pesanan Anda</div>
     <button class="cart-close-btn" onclick="closeCart()">&#10005;</button>
   </div>
-  <div class="cart-body" id="cartItemList">
-    <div class="cart-empty">&#129392;<br>Keranjang masih kosong</div>
-  </div>
-  <div class="cart-footer">
-    <!-- Form Detail Pemesan -->
-    <div class="cart-form">
-      <h3 class="cart-form-title">&#128100; Detail Pemesan</h3>
-      <input type="text" id="miniCustomerName" placeholder="Nama pemesan (opsional)..." autocomplete="off">
-      <input type="tel" id="miniCustomerPhone" placeholder="Nomor WhatsApp (opsional)..." autocomplete="off">
-      <input type="number" id="miniTableNumber" placeholder="Nomor meja..." min="1" autocomplete="off">
+  <div class="cart-3col">
+
+    <!-- ============= KOLOM KIRI (POS mode): Daftar Pesanan + Total ============= -->
+    <div class="cart-col cart-col-center">
+      <div class="cart-col-title">&#128722; Daftar Pesanan</div>
+      <div class="cart-body" id="cartItemList">
+        <div class="cart-empty">&#129392;<br>Keranjang masih kosong</div>
+      </div>
+      <div class="cart-total-row cart-total-sticky">
+        <span>‎ ‎ Total:</span>
+        <span id="cartTotal">Rp 0</span>
+      </div>
     </div>
 
-    <!-- Order Notes -->
-    <div class="cart-form">
-      <h3 class="cart-form-title">&#128221; Catatan Pesanan (opsional)</h3>
-      <textarea id="orderNotes" placeholder="Contoh: Tolong diantar secepatnya, jangan terlalu manis, dll." rows="2"></textarea>
+    <!-- ============= KOLOM TENGAH (POS mode): Form Input ============= -->
+    <div class="cart-col cart-col-left">
+      <div class="cart-col-title">Detail Pesanan</div>
+
+      <div class="cart-col-scroll">
+        <!-- Form terpisah mode kasir -->
+        <div class="cart-form pos-only" id="tableFormPos" style="display:none;">
+          <h3 class="cart-form-title">Nomor Meja<span class="required-star"></span></h3>
+          <input type="number" id="miniTableNumberPos" placeholder="Contoh: 5" min="1" autocomplete="off" class="cart-input-table" data-required="true">
+        </div>
+        <div class="cart-form pos-only" id="nameFormPos" style="display:none;">
+          <h3 class="cart-form-title">Nama Pemesan</h3>
+          <input type="text" id="miniCustomerNamePos" placeholder="Nama pemesan (opsional)..." autocomplete="off">
+        </div>
+
+        <!-- Form customer mode (gabung) -->
+        <div class="cart-form customer-only" id="customerDetailForm">
+          <h3 class="cart-form-title">Detail Pemesan</h3>
+          <input type="text" id="miniCustomerName" placeholder="Nama pemesan (opsional)..." autocomplete="off">
+          <input type="number" id="miniTableNumber" placeholder="Nomor meja (wajib diisi)" min="1" autocomplete="off" data-required="true">
+          <input type="tel" id="miniCustomerPhone" placeholder="Nomor WhatsApp (opsional)..." autocomplete="off">
+        </div>
+
+        <!-- Pesanan Anda (mode customer: tampilkan list item + total) -->
+        <div class="cart-form customer-only" id="customerCartListWrap">
+          <h3 class="cart-form-title">&#128722; Pesanan Anda</h3>
+          <div class="cart-body" id="cartItemListCustomer">
+            <div class="cart-empty">&#129392;<br>Keranjang masih kosong</div>
+          </div>
+          <div class="cart-total-row">
+            <span>‎ ‎ Total:</span>
+            <span id="cartTotalCustomer">Rp 0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sticky action area — selalu terlihat -->
+      <div class="cart-sticky-actions" id="cartLeftActionArea">
+        <div class="cart-staff-required" id="cartStaffRequired">Untuk mencetak struk, silakan login sebagai karyawan.</div>
+        <div class="cart-field-error" id="cartFieldError" style="display:none;">&#9888; Harap isi kolom wajib terlebih dahulu.</div>
+
+        <!-- POS Payment Confirmation Block -->
+        <div class="cart-payment-block pos-only" id="cartPaymentBlock">
+          <button class="cart-confirm-pay-btn" id="cartConfirmPayBtn"
+                  onclick="confirmPayment()" disabled
+                  style="opacity:0.5;cursor:not-allowed;">
+            <span class="cart-confirm-pay-icon">&#10003;</span>
+            <span class="cart-confirm-pay-label">Konfirmasi Pembayaran</span>
+          </button>
+          <div class="cart-payment-status" id="cartPaymentStatus" style="display:none;">
+            <span class="cps-badge">&#10003; LUNAS</span>
+            <button class="cart-payment-reset" onclick="resetPayment()" title="Batalkan">&#8630;</button>
+          </div>
+        </div>
+
+        <!-- POS Print Receipt Button (di bawah Konfirmasi Pembayaran) -->
+        <button class="cart-print-btn pos-only" id="cartPrintBtn" onclick="printOrder()" disabled style="opacity:0.5;cursor:not-allowed;">
+          <span class="cart-print-btn-icon">&#128424;</span>
+          <span class="cart-print-btn-label">Cetak Struk</span>
+          <span class="cart-print-btn-count" id="cartPrintBtnCount">0</span>
+        </button>
+
+        <!-- POS Manual Reset Keranjang Button -->
+        <button class="cart-reset-btn pos-only" id="cartResetBtn" onclick="manualResetCart()" disabled style="opacity:0.5;cursor:not-allowed;margin-top:8px;background:#e74c3c;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:700;width:100%;">
+          <span>&#8630; Reset Keranjang</span>
+        </button>
+
+        <div class="cart-action-buttons">
+          <button class="wa-order-btn" id="waOrderBtn" onclick="orderViaWhatsApp()">&#128722; Pesan via WhatsApp</button>
+        </div>
+      </div>
     </div>
 
-    <div class="cart-total-row">
-      <span>‎ ‎ Total:</span>
-      <span id="cartTotal">Rp 0</span>
+    <!-- ============= KOLOM KANAN (mode kasir): Pesanan Masuk ============= -->
+    <div class="cart-col cart-col-right" id="cartColRight">
+      <!-- Pesanan Masuk -->
+      <div class="pos-entered-orders" id="posEnteredOrders" style="display:none;">
+        <div class="cart-col-title">&#128276; Pesanan Masuk</div>
+        <div id="enteredOrdersList">
+          <div class="empty-orders-msg">&#128521;<br>Belum ada pesanan masuk</div>
+        </div>
+      </div>
+      <!-- Mode customer: info bahwa order via WA -->
+      <div class="cart-wa-hint customer-only" id="cartWaHint" style="display:none;">
+        <div class="cart-wa-hint-icon">📲</div>
+        <div class="cart-wa-hint-title">Kirim via WhatsApp</div>
+        <div class="cart-wa-hint-desc">Detail di atas akan dikirim otomatis ke WhatsApp WarNezzel setelah klik tombol <strong>Pesan via WhatsApp</strong>.</div>
+      </div>
     </div>
-    <div class="cart-action-buttons">
-      <button class="wa-order-btn" id="waOrderBtn" onclick="orderViaWhatsApp()">&#128722; Pesan via WhatsApp</button>
-      <button class="print-order-btn staff-only" id="printOrderBtn" onclick="printOrder()">&#128424; Cetak Pesanan</button>
-    </div>
-    <div class="cart-staff-required" id="cartStaffRequired">Untuk mencetak struk, silakan login sebagai karyawan.</div>
-    <button class="clear-cart-btn" onclick="cart=[];updateCartBadge();viewCart()">&#128465; Kosongkan Keranjang</button>
+
   </div>
 </div>
 <div class="backdrop" id="cartBackdrop" onclick="closeCart()"></div>
@@ -346,10 +599,6 @@
 <!-- Toast Notification -->
 <div class="toast" id="toast">Ditambahkan ke keranjang!</div>
 
-<!-- Supabase JS SDK (CDN) — untuk real-time order sync antar device -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Supabase config (URL & key) — edit nilai di sini. Lihat SUPABASE_SETUP.md -->
-<script src="js/supabase-config.js"></script>
 <script src="js/script.js" defer></script>
 </body>
 </html>
